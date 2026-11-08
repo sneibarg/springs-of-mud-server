@@ -77,6 +77,7 @@ class TestCommandAuthorization(unittest.TestCase):
         bus = SimpleNamespace(text_to_message=lambda text: text, send_to_character=AsyncMock(),
                               connection_manager=SimpleNamespace(get_connection_by_character=lambda _id: None))
         normal = InterpHandler.__new__(InterpHandler)
+        normal.command_audit = None
         normal.logger = Mock()
         normal.message_bus = bus
         normal.registry_service = SimpleNamespace(interp_registry=registry)
@@ -89,6 +90,7 @@ class TestCommandAuthorization(unittest.TestCase):
         self.registries = normal.registry_service
         normal.command_not_found_message = "Huh?\r\n"
         nested = PlayerHandler.__new__(PlayerHandler)
+        nested.command_audit = None
         nested.message_bus = bus
         nested.interp_registry = registry
         nested.social_registry = normal.social_registry
@@ -99,7 +101,7 @@ class TestCommandAuthorization(unittest.TestCase):
     def test_shutdown_is_blocked_before_normal_dispatch_has_side_effects(self):
         command = self._command("shutdown")
         normal, _, _, executors, bus = self._interpreters(command)
-        asyncio.run(normal.handle_command(SimpleNamespace(usage="player"), self.actor, "shutdown"))
+        asyncio.run(normal.handle_command(self.actor, "shutdown"))
         executors.do_wiz_command.assert_not_awaited()
         bus.send_to_character.assert_awaited_once_with(self.actor.id, "Huh?\r\n")
 
@@ -107,7 +109,7 @@ class TestCommandAuthorization(unittest.TestCase):
         command = self._command("shutdown")
         normal, _, _, executors, bus = self._interpreters(command)
         self.actor.aliases = {"bye": "shutdown"}
-        asyncio.run(normal.handle_command(SimpleNamespace(usage="player"), self.actor, "bye"))
+        asyncio.run(normal.handle_command(self.actor, "bye"))
         executors.do_wiz_command.assert_not_awaited()
         bus.send_to_character.assert_awaited()
 
@@ -115,7 +117,7 @@ class TestCommandAuthorization(unittest.TestCase):
         command = self._command("shutdown")
         normal, _, _, executors, _ = self._interpreters(command)
         admin = self._actor(level=60, role="admin")
-        asyncio.run(normal.handle_command(SimpleNamespace(usage="admin"), admin, "shutdown"))
+        asyncio.run(normal.handle_command(admin, "shutdown"))
         executors.do_wiz_command.assert_awaited_once()
 
     def test_force_and_order_use_the_victims_permissions(self):
@@ -177,7 +179,7 @@ class TestCommandAuthorization(unittest.TestCase):
     def test_ordinary_player_command_still_executes_in_both_paths(self):
         command = self._command()
         normal, nested, services, executors, _ = self._interpreters(command)
-        asyncio.run(normal.handle_command(SimpleNamespace(usage="player"), self.actor, "say hello"))
+        asyncio.run(normal.handle_command(self.actor, "say hello"))
         context = Context(registry_service=self.registries, character=self.actor, command=command, handler_service=services)
         asyncio.run(nested._interpret_nested_command(self.actor, context, "say hello"))
         self.assertEqual(2, executors.do_communications_command.await_count)

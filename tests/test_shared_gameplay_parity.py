@@ -298,6 +298,7 @@ class AutomaticRoomViewParityTests(SharedFixture, unittest.IsolatedAsyncioTestCa
         self.bus = NS(send_to_character=AsyncMock(), text_to_message=lambda text: text)
         self.rooms_handler = RoomHandler(self.bus, NS(), self.registries)
         self.player_handler = PlayerHandler.__new__(PlayerHandler)
+        self.player_handler.command_audit = None
         self.player_handler.message_bus = self.bus
         self.player_handler.info_commands = NS(PlayerActBits=self.enums.get('playerActBits'))
         self.player_handler.print_players_in_room = AsyncMock()

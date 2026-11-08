@@ -19,7 +19,7 @@ class TestCombatAssistance(unittest.TestCase):
             entity.race, entity.group, entity.vnum = "human", "0", "100"
         self.attacker.fighting, self.victim.fighting = self.victim, self.attacker
         self.people = [self.attacker, self.victim, self.helper]
-        self.room = SimpleNamespace(id="room-1", area_id="area-1", contents={},
+        self.room = SimpleNamespace(mobiles={}, id="room-1", area_id="area-1", contents={},
                                     characters={self.victim.id: self.victim},
                                     people=lambda: list(self.people), players_in_room=lambda: [self.victim],
                                     player_targets=lambda actor: [self.victim] if actor is not self.victim else [],

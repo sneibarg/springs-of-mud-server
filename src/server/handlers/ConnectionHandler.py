@@ -188,7 +188,7 @@ class ConnectionHandler:
             return None
         character = self._live_character(character.id) or character
         account = self.registry_service.player_registry.get_or_none(id=session.player_id)
-        peer_info = getattr(connection, 'get_peer_info', lambda: None)()
+        peer_info = connection.get_peer_info()
         if self._login_error(character, account, peer_info, session.metadata.get('peer_host')):
             await self._nanny(character, session, connection)
             return None
@@ -382,7 +382,7 @@ class ConnectionHandler:
         """Keep typed input ordered; nested/forced commands do not enter this gate."""
         while not connection.is_closed() and (session.is_playing() or session.is_idle()):
             character = session.character
-            status = getattr(character, "status_flags", None)
+            status = character.status_flags if character is not None else None
             if status is None or status.pulse_wait <= 0:
                 return True
             await asyncio.sleep(0.05)
@@ -444,7 +444,7 @@ class ConnectionHandler:
         if session.metadata.get('login_rejected', False):
             return None
         player = self.registry_service.player_registry.get_or_none(id=session.player_id)
-        error = self._login_error(character, player, getattr(connection, 'get_peer_info', lambda: None)(),
+        error = self._login_error(character, player, connection.get_peer_info(),
                                   session.metadata.get('peer_host'))
         if error:
             # Reject before awaiting transport: re-entry must neither repeat the

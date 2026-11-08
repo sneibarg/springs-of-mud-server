@@ -657,6 +657,7 @@ class TestFightPayloadEmission(unittest.IsolatedAsyncioTestCase):
             delivered.append((character_id, message))
 
         handler = PlayerHandler.__new__(PlayerHandler)
+        handler.command_audit = None
         handler.message_bus = SimpleNamespace(
             text_to_message=lambda text: text,
             send_to_character=send_to_character,
@@ -686,6 +687,7 @@ class TestFightPayloadEmission(unittest.IsolatedAsyncioTestCase):
             delivered.append((character_id, message))
 
         handler = PlayerHandler.__new__(PlayerHandler)
+        handler.command_audit = None
         handler.message_bus = SimpleNamespace(
             text_to_message=lambda text: text,
             send_to_character=send_to_character,
@@ -719,6 +721,7 @@ class TestFightPayloadEmission(unittest.IsolatedAsyncioTestCase):
             delivered.append(("room", [target.id for target in targets], message))
 
         handler = PlayerHandler.__new__(PlayerHandler)
+        handler.command_audit = None
         handler.room_registry = SimpleNamespace(get_or_none=lambda **_kwargs: None)
         handler.message_bus = SimpleNamespace(
             text_to_message=lambda text: text,

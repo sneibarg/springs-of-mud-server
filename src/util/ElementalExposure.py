@@ -51,7 +51,7 @@ class ElementalExposure:
         tokens = {
             "attacker": DisplayUtil.entity_name(attacker, is_npc=CharacterApi.is_npc),
             "victim": DisplayUtil.entity_name(victim, is_npc=CharacterApi.is_npc),
-            "weapon": str(getattr(weapon, "short_description", "") or getattr(weapon, "name", "")),
+            "weapon": str(weapon.short_description or weapon.name) if weapon is not None else "",
         }
         messages = {}
         for channel in ("to_char", "to_victim", "to_room"):

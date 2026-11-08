@@ -100,9 +100,9 @@ class PlayerUtil:
         if start_pos != -9999 and target_pos == start_pos and long_desc:
             return f"{prefix}{long_desc}\r\n"
 
-        name = (getattr(target, "name", "") or "").strip()
+        name = (target.name or "").strip()
         if CharacterApi.is_npc(target):
-            name = (getattr(target, "short_description", "") or name).strip()
+            name = (target.short_description or name).strip()
         if not name:
             name = "Someone"
 

@@ -55,12 +55,12 @@ class EffectUpdateHandler:
     def expired_messages(self, entity, field_name):
         result = self.effect_handler.tick_effects(entity)
         return [message for effect in result.expired_effects
-                if (message := self._lookup_effect_message(getattr(effect, "type", ""), field_name))]
+                if (message := self._lookup_effect_message(effect.type, field_name))]
 
     async def tick_status_effects(self, entity, room=None) -> None:
         if entity is None:
             return
-        room = room or self.room_registry.get_or_none(id=getattr(entity, 'room_id', ''))
+        room = room or self.room_registry.get_or_none(id=entity.room_id)
 
         if entity.is_affected(self.AffectedBits, "AFF_PLAGUE"):
             await self._tick_plague(entity, room)
@@ -70,7 +70,7 @@ class EffectUpdateHandler:
             poison = entity.find_effect("spell.poison", "poison", affected_bits=self.AffectedBits, bit_name="AFF_POISON")
             if poison is not None:
                 await self._send_effect_payload(poison, "tick", entity, room)
-                damage = GenericUtil.to_int(getattr(poison, "level", 0), 0) // 10 + 1
+                damage = GenericUtil.to_int(poison.level, 0) // 10 + 1
                 await self.fight_handler.apply_periodic_damage(entity, damage, dt="spell.poison", dam_type="DAM_POISON")
             return
 
@@ -93,7 +93,7 @@ class EffectUpdateHandler:
 
         await self._send_effect_payload(plague, "tick", entity, room)
 
-        plague_level = GenericUtil.to_int(getattr(plague, "level", 0), 0)
+        plague_level = GenericUtil.to_int(plague.level, 0)
         if plague_level == 1:
             return
 
@@ -101,16 +101,16 @@ class EffectUpdateHandler:
         for victim in infected:
             await self._send_effect_payload(spread, "spread", victim, room)
 
-        damage = min(GenericUtil.to_int(getattr(entity, "level", 0), 0), plague_level // 5 + 1)
-        setattr(entity, "mana", GenericUtil.to_int(getattr(entity, "mana", 0), 0) - damage)
-        setattr(entity, "movement", GenericUtil.to_int(getattr(entity, "movement", 0), 0) - damage)
+        damage = min(GenericUtil.to_int(entity.level, 0), plague_level // 5 + 1)
+        setattr(entity, "mana", GenericUtil.to_int(entity.mana, 0) - damage)
+        setattr(entity, "movement", GenericUtil.to_int(entity.movement, 0) - damage)
         await self.fight_handler.apply_periodic_damage(entity, damage, dt="spell.plague", dam_type="DAM_DISEASE")
 
     def _spread_plague(self, plague, room, bits):
         plague_level = int(plague.level)
         spread = Effect(
             where="TO_AFFECTS",
-            type=getattr(plague, "type", "spell.plague"),
+            type=plague.type,
             level=plague_level - 1,
             duration=self.rng.number_range(1, max(1, 2 * (plague_level - 1))),
             location="APPLY_STR",
@@ -196,7 +196,7 @@ class EffectUpdateHandler:
         if type(entity) is not Character:
             return
         for effect in result.expired_effects:
-            msg_off = self._lookup_effect_message(getattr(effect, "type", ""), "msg_off")
+            msg_off = self._lookup_effect_message(effect.type, "msg_off")
             if msg_off:
                 await self.message_bus.send_to_character(entity.id, self.message_bus.text_to_message(f"{msg_off}\r\n"))
 

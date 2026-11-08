@@ -137,12 +137,12 @@ class MessageBus:
         text = str(message.data.get("text", "") or "")
         if not text:
             return
-        character = getattr(session, "character", None)
-        name = "" if character is None else str(getattr(character, "name", "") or "")
+        character = session.character
+        name = "" if character is None else str(character.name or "")
         await self._send_snoop_text(session, f"{name}> {text}")
 
     async def _send_snoop_text(self, snooped_session, text: str) -> None:
-        snooper_session_id = str((getattr(snooped_session, "metadata", {}) or {}).get("snoop_by_session_id", "") or "")
+        snooper_session_id = str((snooped_session.metadata or {}).get("snoop_by_session_id", "") or "")
         if not snooper_session_id or not text:
             return
 

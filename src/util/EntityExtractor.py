@@ -29,12 +29,12 @@ class EntityExtractor:
         self.fight_handler.stop_fighting(entity, both=True)
         for other in entities.values():
             # Clean one-way combat links as well as registered combat events.
-            if other is not entity and getattr(other, 'fighting', None) is entity:
+            if other is not entity and other.fighting is entity:
                 self.fight_handler.stop_fighting(other, both=True)
-            if getattr(other, 'master', None) is entity:
+            if other.master is entity:
                 other.master = None
                 CharacterApi.set_affected_by_name(other, CharacterApi.get_enum('affectedBy'), 'AFF_CHARM', False)
-            if getattr(other, 'leader', None) is entity:
+            if other.leader is entity:
                 other.leader = None
             if getattr(other, 'pet', None) is entity:
                 other.pet = None

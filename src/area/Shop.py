@@ -266,8 +266,8 @@ class Shop:
             pet.name = f"{pet.name} {pet_name}".strip()
         pet.description = f"{pet.description or ''}A neck tag says 'I belong to {buyer.name}'.\r\n"
         room.add_mobile_to_room(pet)
-        pet.room_id = getattr(room, "id", getattr(pet, "room_id", ""))
-        pet.area_id = getattr(room, "area_id", getattr(pet, "area_id", ""))
+        pet.room_id = room.id
+        pet.area_id = room.area_id
         pet.master = buyer
         pet.leader = buyer
         buyer.pet = pet

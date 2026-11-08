@@ -182,7 +182,7 @@ class FightApi:
     @staticmethod
     def _is_weapon_wielded(view: FightView) -> bool:
         weapon = view.extra.get("weapon")
-        return weapon is not None and str(getattr(weapon, "item_type", "") or "").strip().lower() == "weapon"
+        return weapon is not None and str(weapon.item_type or "").strip().lower() == "weapon"
 
     @staticmethod
     def _target_too_hurt(view: FightView) -> bool:
@@ -202,8 +202,8 @@ class FightApi:
         wanted = str(effect_type or "").strip().lower()
         if not wanted or entity is None:
             return False
-        for effect in list(getattr(entity, "effects", []) or []):
-            if str(getattr(effect, "type", "") or "").strip().lower() == wanted:
+        for effect in list(entity.effects or []):
+            if str(effect.type or "").strip().lower() == wanted:
                 return True
         return False
 

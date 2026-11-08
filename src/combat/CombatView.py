@@ -35,7 +35,7 @@ class FightView:
     @property
     def current_fighting(self) -> Any:
         actor = self.actor
-        return getattr(actor, "fighting", None) if actor is not None else None
+        return actor.fighting if actor is not None else None
 
     @property
     def safe(self) -> bool:

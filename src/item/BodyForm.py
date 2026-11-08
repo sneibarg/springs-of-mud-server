@@ -13,7 +13,7 @@ class BodyForm:
 
     @classmethod
     def configure(cls, game_data: GameData) -> None:
-        member_map = dict(getattr(game_data, "enums", {}).get("bodyForm", {}))
+        member_map = dict(game_data.enums.get("bodyForm", {}))
         if not member_map:
             raise RuntimeError("GameData is missing bodyForm enum definitions.")
 

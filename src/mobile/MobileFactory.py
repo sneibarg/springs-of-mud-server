@@ -234,7 +234,7 @@ class MobileFactory:
                 copied._effect_wearer = clone
             else:
                 clone.add_item(copied)
-        for effect in (getattr(clone, 'effects', []) or []):
+        for effect in (clone.effects or []):
             for old_id, new_id in item_ids.items():
                 if effect.belongs_to_item(old_id):
                     effect.source = Effect.item_source(new_id)

@@ -41,7 +41,7 @@ class TestObjectConsumptionParity(unittest.TestCase):
         self.actor.status_flags.affected_by = 0
         self.actor.status_flags.assign_bitfield = lambda name, value: setattr(self.actor.status_flags, name, value)
         self.room = h._Room(id="room-1", contents={}, characters={})
-        self.witness = NS(id="witness", status_flags=NS(act=0, affected_by=0))
+        self.witness = NS(id="witness", name="", status_flags=NS(act=0, affected_by=0))
         self.room.characters[self.witness.id] = self.witness
         self.commands = self.fixture._commands(self.room)
         enums = {"whereAffect": Where, "applyTypes": Apply, "affectedBy": Affected,

@@ -291,6 +291,7 @@ class MobileTravelEmissionTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_npc_destination_does_not_request_room_display(self):
         handler = PlayerHandler.__new__(PlayerHandler)
+        handler.command_audit = None
         context = Context(registry_service=NS(), character=object())
         with patch.object(CharacterApi, 'is_npc', return_value=True):
             await handler._show_room_to_character(context.character, object(), context)

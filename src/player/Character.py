@@ -150,24 +150,24 @@ class Character(AnimateEntity):
                 self.loot.append(item if isinstance(item, Item) else Item.from_json(item))
 
     def note_read_stamp(self, note_type: int) -> int:
-        stamps = getattr(self, 'note_read_stamps', None) or {}
+        stamps = self.note_read_stamps or {}
         return max(0, GenericUtil.to_int(stamps.get(str(int(note_type))), 0))
 
     def has_read_note(self, note_type: int, stamp: int, note_id: str) -> bool:
         cursor = Character.note_read_stamp(self, note_type)
         if stamp != cursor:
             return stamp < cursor
-        ids = getattr(self, 'note_read_ids', None) or {}
+        ids = self.note_read_ids or {}
         key = str(int(note_type))
-        if key not in (getattr(self, 'note_read_stamps', None) or {}):
+        if key not in (self.note_read_stamps or {}):
             return False
         # A legacy timestamp-only cursor treated the whole boundary as read.
         return key not in ids or str(note_id) in ids[key]
 
     def mark_note_read(self, note_type: int, stamp: int, note_id: str | None = None) -> None:
-        if getattr(self, 'note_read_stamps', None) is None:
+        if self.note_read_stamps is None:
             self.note_read_stamps = {}
-        if getattr(self, 'note_read_ids', None) is None:
+        if self.note_read_ids is None:
             self.note_read_ids = {}
         key, current = str(int(note_type)), Character.note_read_stamp(self, note_type)
         stamp = max(0, GenericUtil.to_int(stamp, 0))
@@ -432,7 +432,7 @@ class Character(AnimateEntity):
 
         if CharacterApi.is_npc(self) or self.level >= CharacterApi.GameParameters.LEVEL_IMMORTAL:
             return {}
-        light = getattr(getattr(self, "equipped", None), "light", None)
+        light = self.equipped.light if self.equipped is not None else None
         if light is None:
             return {}
         remaining = Item.burn_light(light)
@@ -450,7 +450,7 @@ class Character(AnimateEntity):
         if value == 0 or CharacterApi.is_npc(self) or self.level >= CharacterApi.GameParameters.LEVEL_IMMORTAL:
             return ""
 
-        status_flags = getattr(self, "status_flags", None)
+        status_flags = self.status_flags
         if status_flags is None or not hasattr(status_flags, condition_name):
             return ""
 
@@ -476,8 +476,8 @@ class Character(AnimateEntity):
     def is_large_race(self) -> bool:
         from api.CharacterApi import CharacterApi
 
-        race = getattr(self, "character_race", None)
-        raw_size = getattr(race, "size", getattr(self, "size", None))
+        race = self.character_race
+        raw_size = race.size if race is not None else getattr(self, "size", None)
         if raw_size is None:
             return False
 
@@ -513,11 +513,11 @@ class Character(AnimateEntity):
         from api.CharacterApi import CharacterApi
         from skill.Ability import Ability
 
-        hit = GenericUtil.to_int(getattr(self, "hit", 0), 0)
-        max_hit = GenericUtil.to_int(getattr(self, "max_hit", 0), 0)
+        hit = GenericUtil.to_int(self.hit, 0)
+        max_hit = GenericUtil.to_int(self.max_hit, 0)
         constitution = CharacterApi.current_stat(self, 'constitution')
         gain = max(3, constitution - 3 + level // 2)
-        gain += GenericUtil.to_int(getattr(getattr(self, "character_class", None), "hp_max", 10), 10) - 10
+        gain += GenericUtil.to_int(self.character_class.hp_max if self.character_class is not None else 10, 10) - 10
         number = context.rng.number_percent()
         if number < self._skill_percent("fast healing"):
             gain += number * gain // 100
@@ -544,8 +544,8 @@ class Character(AnimateEntity):
         from api.CharacterApi import CharacterApi
         from skill.Ability import Ability
 
-        mana = GenericUtil.to_int(getattr(self, "mana", 0), 0)
-        max_mana = GenericUtil.to_int(getattr(self, "max_mana", 0), 0)
+        mana = GenericUtil.to_int(self.mana, 0)
+        max_mana = GenericUtil.to_int(self.max_mana, 0)
         wisdom = CharacterApi.current_stat(self, 'wisdom')
         intelligence = CharacterApi.current_stat(self, 'intelligence')
         gain = (wisdom + intelligence + level) // 2
@@ -555,7 +555,7 @@ class Character(AnimateEntity):
             if mana < max_mana:
                 Ability.check_improve_by_name(self, "meditation", True, 8)
 
-        if not bool(getattr(getattr(self, "character_class", None), "mana_gain", True)):
+        if not bool(self.character_class.mana_gain if self.character_class is not None else True):
             gain //= 2
 
         if position == context.position("POS_SLEEPING"):

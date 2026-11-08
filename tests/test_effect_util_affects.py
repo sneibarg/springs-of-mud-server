@@ -121,7 +121,7 @@ class TestSpellEffectApplication(unittest.TestCase):
     def setUp(self):
         self.handler = self.Handler(SimpleNamespace(get=self.enums.get))
         self.actor = SimpleNamespace(level=24)
-        self.target = SimpleNamespace(
+        self.target = SimpleNamespace(level=0,
             effects=[], hit_roll=10, dam_roll=20, saving_throw=5,
             character_attributes=SimpleNamespace(strength=15),
             armor_class=SimpleNamespace(piercing=100, bashing=100, slashing=100, magic=100),
@@ -332,13 +332,13 @@ class TestEffectUtilAffects(unittest.TestCase):
             self.assertFalse(EffectUtil.saves_spell(10, victim, "DAM_OTHER"))
 
     def test_format_affects_includes_spell_effect_records_without_bitvectors(self):
-        character = SimpleNamespace(
+        character = SimpleNamespace(level=0,
             status_flags=SimpleNamespace(affected_by=0),
             effects=[
-                SimpleNamespace(type="spell.armor"),
-                SimpleNamespace(type="spell.bless"),
-                SimpleNamespace(type="spell.giant_strength"),
-                SimpleNamespace(type="spell.shield"),
+                SimpleNamespace(bitvector=0, type="spell.armor"),
+                SimpleNamespace(bitvector=0, type="spell.bless"),
+                SimpleNamespace(bitvector=0, type="spell.giant_strength"),
+                SimpleNamespace(bitvector=0, type="spell.shield"),
             ],
         )
 
@@ -350,11 +350,11 @@ class TestEffectUtilAffects(unittest.TestCase):
         self.assertIn("Spell: shield\r\n", text)
 
     def test_format_affects_skips_numeric_sentinel_effect_types(self):
-        character = SimpleNamespace(
+        character = SimpleNamespace(level=0,
             status_flags=SimpleNamespace(affected_by=0),
             effects=[
-                SimpleNamespace(type="-1"),
-                SimpleNamespace(type="spell.armor"),
+                SimpleNamespace(bitvector=0, type="-1"),
+                SimpleNamespace(bitvector=0, type="spell.armor"),
             ],
         )
 
@@ -368,8 +368,8 @@ class TestEffectUtilAffects(unittest.TestCase):
             level=19,
             status_flags=SimpleNamespace(affected_by=0),
             effects=[
-                SimpleNamespace(type="spell.giant_strength", location="APPLY_STR", modifier=3, duration=5),
-                SimpleNamespace(type="spell.giant_strength", location="APPLY_DEX", modifier=2, duration=-1),
+                SimpleNamespace(bitvector=0, type="spell.giant_strength", location="APPLY_STR", modifier=3, duration=5),
+                SimpleNamespace(bitvector=0, type="spell.giant_strength", location="APPLY_DEX", modifier=2, duration=-1),
             ],
         )
 
@@ -384,9 +384,9 @@ class TestEffectUtilAffects(unittest.TestCase):
             level=20,
             status_flags=SimpleNamespace(affected_by=0),
             effects=[
-                SimpleNamespace(type="spell.giant_strength", location="APPLY_STR", modifier=3, duration=5),
-                SimpleNamespace(type="spell.giant_strength", location="APPLY_DEX", modifier=2, duration=-1),
-                SimpleNamespace(type="spell.armor", location="APPLY_AC", modifier=-20, duration=12),
+                SimpleNamespace(bitvector=0, type="spell.giant_strength", location="APPLY_STR", modifier=3, duration=5),
+                SimpleNamespace(bitvector=0, type="spell.giant_strength", location="APPLY_DEX", modifier=2, duration=-1),
+                SimpleNamespace(bitvector=0, type="spell.armor", location="APPLY_AC", modifier=-20, duration=12),
             ],
         )
 

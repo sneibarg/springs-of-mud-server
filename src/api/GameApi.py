@@ -210,7 +210,7 @@ class GameApi:
         cls._require_configured()
         if GameApi._game_data is None:
             return []
-        deny_list = getattr(GameApi._game_data, "denyList", None)
+        deny_list = GameApi._game_data.denyList
         if deny_list is None:
             object.__setattr__(GameApi._game_data, "denyList", [])
         return GameApi._game_data.denyList

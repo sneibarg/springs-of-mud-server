@@ -91,7 +91,7 @@ class MovementApi(GameApi):
     def pay_movement(character, state: MovementState):
         if not CharacterApi.is_npc(character):
             character.status_flags.pulse_wait = max(
-                GenericUtil.to_int(getattr(character.status_flags, 'pulse_wait', 0), 0), 1)
+                GenericUtil.to_int(character.status_flags.pulse_wait, 0), 1)
             character.movement -= state.move_cost
 
     @staticmethod
@@ -113,7 +113,7 @@ class MovementApi(GameApi):
         bit = lambda name: EnumProvider.value(enums, prefix + name)
         target = item if item is not None else door.exit_obj
         flags = GenericUtil.to_int(item.value1, 0) if item is not None else door.flags
-        key = GenericUtil.to_int(getattr(item, "value4" if portal else "value2", -1), -1) if item is not None else door.key
+        key = GenericUtil.to_int((item.value4 if portal else item.value2), -1) if item is not None else door.key
         return LockState(room, target, item, portal, flags, key, bit("CLOSED"), bit("LOCKED"), bit("PICKPROOF"),
                          bool(flags & bit("ISDOOR")) if portal else bool(flags & bit("CLOSEABLE")) if container else item is None,
                          portal and bool(flags & bit("NOCLOSE")), portal and bool(flags & bit("NOLOCK")),
@@ -278,12 +278,12 @@ class MovementApi(GameApi):
     @staticmethod
     def is_room_owner(character, room) -> bool:
         from util.LookupUtil import LookupUtil
-        return character is not None and LookupUtil.matches(character.name, getattr(room, "owner", ""))
+        return character is not None and LookupUtil.matches(character.name, (room.owner if room is not None else ""))
 
     @staticmethod
     def charmed_departure(view) -> bool:
         character = MovementApi._character(view)
-        master = getattr(character, "master", None)
+        master = (character.master if character is not None else None)
         return (master is not None and master.room_id == character.room_id
                 and CharacterApi.is_affected_by_name(character, CharacterApi.get_enum("affectedBy"), "AFF_CHARM"))
 
@@ -473,7 +473,7 @@ class MovementApi(GameApi):
             return bool(character.has_key(key))
         wanted = str(key)
         for item in list(getattr(character, "loot", []) or []):
-            if str(getattr(item, "vnum", "")) == wanted:
+            if str(item.vnum) == wanted:
                 return True
         return False
 
@@ -561,9 +561,9 @@ class MovementApi(GameApi):
     @staticmethod
     def argument_text(subject) -> str:
         context = Context.from_subject(subject)
-        text = getattr(context, "result", "")
+        text = context.result if context is not None else ""
         argument = text.strip().lower() if isinstance(text, str) else ""
-        parameters = list(getattr(context, "parameters", []) or [])
+        parameters = list((context.parameters if context is not None else []) or [])
         if not argument and parameters:
             argument = str(parameters[0] or "").strip().lower()
         return argument
@@ -593,15 +593,15 @@ class MovementApi(GameApi):
         context = Context.from_subject(subject)
         if context is None:
             return getattr(subject, "character", None)
-        return getattr(context, "character", None)
+        return context.character
 
     @staticmethod
     def _direction(subject, direction: str = "") -> str:
         if direction:
             return str(direction).strip().lower()
         context = Context.from_subject(subject)
-        command = getattr(context, "command", None)
-        return str(getattr(command, "name", "") or "").strip().lower()
+        command = context.command if context is not None else None
+        return str((command.name if command is not None else "") or "").strip().lower()
 
     @staticmethod
     def _room(subject) -> Room | None:
@@ -622,7 +622,7 @@ class MovementApi(GameApi):
             if room is not None:
                 return room
 
-        to_room_vnum = getattr(exit_obj, "to_room_vnum", None)
+        to_room_vnum = exit_obj.to_room_vnum
         if to_room_vnum not in (None, ""):
             return room_registry.get_or_none(vnum=str(to_room_vnum))
         return None

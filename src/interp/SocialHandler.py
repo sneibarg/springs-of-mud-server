@@ -109,7 +109,7 @@ class SocialHandler:
             names['actor'] = 'someone'
         tokens = {'n': names['actor'], 'N': names['target'], '$': '$'}
         for entity, keys in ((actor, ('e', 'm', 's')), (target, ('E', 'M', 'S'))):
-            sex = str(getattr(entity, 'sex', '0')).lower()
+            sex = str((entity.sex if entity is not None else '0')).lower()
             index = {'male': 1, 'female': 2, 'neutral': 0}.get(sex)
             if index is None:
                 index = max(0, min(2, GenericUtil.to_int(sex, 0)))

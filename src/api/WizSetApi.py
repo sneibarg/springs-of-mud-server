@@ -71,17 +71,17 @@ class WizSetApi:
             observer=context.character,
         )
         level = GenericUtil.to_int(level_text, 0)
-        lowering = level <= GenericUtil.to_int(getattr(victim, "level", 0), 0)
+        lowering = level <= GenericUtil.to_int(victim.level, 0)
         if lowering:
             self._reset_for_advance_lower(victim)
 
-        while GenericUtil.to_int(getattr(victim, "level", 0), 0) < level:
-            victim.level = GenericUtil.to_int(getattr(victim, "level", 0), 0) + 1
+        while GenericUtil.to_int(victim.level, 0) < level:
+            victim.level = GenericUtil.to_int(victim.level, 0) + 1
             CharacterAdvancement.advance_level(victim, hide=True)
 
-        attrs = getattr(victim, "character_attributes", None)
+        attrs = victim.character_attributes
         if attrs is not None:
-            attrs.accumulated_experience = max(1, GenericUtil.to_int(getattr(victim, "level", 0), 0)) * GenericUtil.to_int(getattr(attrs, "experience_per_level", 0), 0)
+            attrs.accumulated_experience = max(1, GenericUtil.to_int(victim.level, 0)) * GenericUtil.to_int(attrs.experience_per_level, 0)
             attrs.experience = 0
         victim.trust = 0
 
@@ -91,7 +91,7 @@ class WizSetApi:
             "payloads": [
                 self._payload(action_key),
                 self._payload(action_key, victim=victim),
-                self._payload("new_level", victim=victim, tokens={"d": getattr(victim, "level", 0)}),
+                self._payload("new_level", victim=victim, tokens={"d": victim.level}),
             ]
         }
 
@@ -101,7 +101,7 @@ class WizSetApi:
         parts = WizApi.flag_parts(view)
         victim = WizApi.flag_target(view)
         field_code = WizApi.flag_field_code(view)
-        status_flags = getattr(victim, "status_flags", None)
+        status_flags = victim.status_flags
         target_field = self._flag_target_field(field_code)
         old = GenericUtil.to_int(getattr(status_flags, target_field, 0), 0)
         new = 0 if parts["op"] == "=" else old
@@ -164,10 +164,10 @@ class WizSetApi:
             return self._payload("skill_range")
 
         if str(skill_name or "").strip().lower() == "all":
-            for skill in sorted(self.skill_registry.all_skills(), key=lambda entry: str(getattr(entry, "name", "") or "").lower()):
-                Character.set_learned(victim, getattr(skill, "name", ""), value, collection_name="skills", create=True)
-            for spell in sorted(self.spell_registry.all_spells(), key=lambda entry: str(getattr(entry, "name", "") or "").lower()):
-                Character.set_learned(victim, getattr(spell, "name", ""), value, collection_name="spells", create=True)
+            for skill in sorted(self.skill_registry.all_skills(), key=lambda entry: str(entry.name or "").lower()):
+                Character.set_learned(victim, skill.name, value, collection_name="skills", create=True)
+            for spell in sorted(self.spell_registry.all_spells(), key=lambda entry: str(entry.name or "").lower()):
+                Character.set_learned(victim, spell.name, value, collection_name="spells", create=True)
             context.finish()
             return {"to_char": ""}
 
@@ -176,7 +176,7 @@ class WizSetApi:
             context.finish()
             return self._payload("unknown_skill")
 
-        Character.set_learned(victim, getattr(ability, "name", skill_name), value, collection_name=collection_name, create=True)
+        Character.set_learned(victim, ability.name, value, collection_name=collection_name, create=True)
         context.finish()
         return {"to_char": ""}
 
@@ -215,7 +215,7 @@ class WizSetApi:
                 context.finish()
                 return self._payload("invalid_class", tokens={"s": " ".join(CharacterApi.class_names())})
             victim.character_class = CharacterClass.from_json({"name": value_text, **class_data})
-            race_data = CharacterApi.pc_races_map().get(str(getattr(victim, "race", "") or "").strip().lower(), {})
+            race_data = CharacterApi.pc_races_map().get(str(victim.race or "").strip().lower(), {})
             if race_data:
                 victim.character_race = CharacterRace.from_json(race_data, character_class=victim.character_class)
             context.finish()
@@ -298,7 +298,7 @@ class WizSetApi:
             if value < -1 or value > 100:
                 context.finish()
                 return self._payload("condition_range", tokens={"t": field.capitalize()})
-            status_flags = getattr(victim, "status_flags", None)
+            status_flags = victim.status_flags
             if status_flags is not None:
                 target_field = "fullness" if field == "full" else field
                 setattr(status_flags, target_field, value)
@@ -395,7 +395,7 @@ class WizSetApi:
 
     def _set_stat_field(self, context, victim, field: str, value: int) -> dict:
         attr_name, stat_index, label = self.STAT_FIELDS[field]
-        attributes = getattr(victim, "character_attributes", None)
+        attributes = victim.character_attributes
         if attributes is None:
             context.finish()
             return self._payload("mobile_syntax")
@@ -414,7 +414,7 @@ class WizSetApi:
     def _stat_modifier(victim, apply_name):
         apply_types = CharacterApi.get_enum('applyTypes')
         wanted = EffectUtil.enum_value(apply_types, apply_name, -1)
-        return sum(GenericUtil.to_int(effect.modifier, 0) for effect in (getattr(victim, 'effects', []) or [])
+        return sum(GenericUtil.to_int(effect.modifier, 0) for effect in (victim.effects or [])
                    if EffectUtil.enum_value(apply_types, effect.location, -2) == wanted)
 
     def _set_race_field(self, context, victim, race_name: str) -> dict:
@@ -436,7 +436,7 @@ class WizSetApi:
             return self._payload("invalid_race")
 
         race_data = CharacterApi.pc_races_map().get(race_key, {})
-        victim.character_race = CharacterRace.from_json(race_data, character_class=getattr(victim, "character_class", None))
+        victim.character_race = CharacterRace.from_json(race_data, character_class=victim.character_class)
         context.finish()
         return {"to_char": ""}
 
@@ -447,7 +447,7 @@ class WizSetApi:
 
         skill_prefix = None
         for skill in self.skill_registry.all_skills():
-            name = str(getattr(skill, "name", "") or "").strip().lower()
+            name = str(skill.name or "").strip().lower()
             if not name:
                 continue
             if name == query:
@@ -457,7 +457,7 @@ class WizSetApi:
 
         spell_prefix = None
         for spell in self.spell_registry.all_spells():
-            name = str(getattr(spell, "name", "") or "").strip().lower()
+            name = str(spell.name or "").strip().lower()
             if not name:
                 continue
             if name == query:
@@ -511,8 +511,8 @@ class WizSetApi:
 
     @staticmethod
     def _reset_for_advance_lower(victim) -> None:
-        attrs = getattr(victim, "character_attributes", None)
-        temp_practices = GenericUtil.to_int(getattr(attrs, "practices", 0), 0) if attrs is not None else 0
+        attrs = victim.character_attributes
+        temp_practices = GenericUtil.to_int(attrs.practices, 0) if attrs is not None else 0
         victim.level = 1
         victim.max_hit = 10
         victim.max_mana = 100
@@ -523,7 +523,7 @@ class WizSetApi:
         if attrs is not None:
             attrs.practices = 0
             attrs.experience = 0
-            attrs.accumulated_experience = GenericUtil.to_int(getattr(attrs, "experience_per_level", 0), 0)
+            attrs.accumulated_experience = GenericUtil.to_int(attrs.experience_per_level, 0)
         CharacterAdvancement.advance_level(victim, hide=True)
         if attrs is not None:
             attrs.practices = temp_practices

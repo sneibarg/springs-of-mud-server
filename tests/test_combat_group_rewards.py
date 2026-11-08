@@ -182,8 +182,8 @@ class TestCombatGroupRewards(unittest.TestCase):
         self.assertEqual(0, self.outsider.get_alignment())
 
     def test_equipment_check_matches_original_killer_not_each_rewarded_member(self):
-        killer_item = SimpleNamespace(name="killer blade", extra_flags=1)
-        ally_item = SimpleNamespace(name="ally blade", extra_flags=1)
+        killer_item = SimpleNamespace(name="killer blade", short_description="killer blade", extra_flags=1)
+        ally_item = SimpleNamespace(name="ally blade", short_description="ally blade", extra_flags=1)
         self.killer.equipped.wielded = killer_item
         self.ally.equipped.wielded = ally_item
         def xp(member, _victim, _total):

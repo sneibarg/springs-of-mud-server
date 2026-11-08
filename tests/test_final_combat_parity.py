@@ -81,7 +81,7 @@ class TestFinalCombatParity(unittest.TestCase):
         self.commands.room_registry = SimpleNamespace(get_or_none=Mock(return_value=destination))
         self.commands._current_daze = Mock(return_value=0)
         with patch.object(Module.CharacterApi, "get_enum", side_effect=lambda name: SimpleNamespace(ROOM_NO_MOB=SimpleNamespace(value=1))):
-            self.assertIsNone(self.commands._flee_destination(self.actor, self.room, SimpleNamespace(exit_flags=0)))
+            self.assertIsNone(self.commands._flee_destination(self.actor, self.room, SimpleNamespace(exit_flags=0, to_room_vnum=None)))
 
     def test_backstab_strict_endpoint_zero_skill_and_sleep_exception(self):
         replacements = {name: SimpleNamespace(**attrs) for name, attrs in {

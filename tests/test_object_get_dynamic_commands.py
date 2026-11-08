@@ -382,6 +382,7 @@ class _ItemUtil:
 
 
 class _Context(SimpleNamespace):
+    handler_service = None
     @staticmethod
     def look_keyword_matches(token: str, keyword: str) -> bool:
         q = str(token or "").strip().lower()
@@ -530,6 +531,14 @@ def _load_command(name: str):
     raise KeyError(name)
 
 
+class _Item(SimpleNamespace):
+    owner = None
+    extra_flags = 0
+    def __init__(self, **kwargs):
+        kwargs.setdefault("contains", [])
+        super().__init__(**kwargs)
+
+
 class _Room(SimpleNamespace):
     def people(self):
         return list(getattr(self, "characters", {}).values()) + list(getattr(self, "mobiles", {}).values())
@@ -539,6 +548,9 @@ class _Room(SimpleNamespace):
         kwargs.setdefault("characters", {})
         kwargs.setdefault("mobiles", {})
         super().__init__(**kwargs)
+        for item in self.contents.values():
+            if item is not None and not hasattr(item, "item_type"):
+                item.item_type = "ITEM_TRASH"
         for mobile in list(getattr(self, "mobiles", {}).values()):
             for item in list(getattr(mobile, "inventory", []) or []):
                 if item is not None and not hasattr(item, "item_type"):
@@ -566,6 +578,17 @@ class _Room(SimpleNamespace):
 
 
 class _Container(SimpleNamespace):
+    owner = None
+    value1 = 0
+    def __init__(self, **kwargs):
+        kwargs.setdefault("contains", [])
+        kwargs.setdefault("weight", 0)
+        kwargs.setdefault("value4", "100")
+        super().__init__(**kwargs)
+        for item in self.contains:
+            if item is not None and not hasattr(item, "item_type"):
+                item.item_type = "ITEM_TRASH"
+
     def find_contained_item(self, wanted):
         query = str(wanted or "").strip().lower()
         for item in list(getattr(self, "contains", []) or []):
@@ -678,6 +701,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         character = SimpleNamespace(
             id=f"{name.lower()}-id",
             name=name,
+            short_description=name if is_npc else "",
             room_id="room-1",
             loot=inventory,
             gold=0,
@@ -686,12 +710,13 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
             is_immortal=is_immortal,
             is_npc=is_npc,
             sex=sex,
-            status_flags=SimpleNamespace(act=act, pulse_wait=0),
+            status_flags=SimpleNamespace(act=act, pulse_wait=0, pulse_daze=0, drunk=0),
             character_attributes=SimpleNamespace(max_items=max_items, max_weight=max_weight),
             character_class=SimpleNamespace(name="mage", weapon="OBJ_VNUM_SCHOOL_DAGGER"),
             equipped=Equipped(),
             skills=list(skills or []),
             fighting=fighting,
+            master=None,
         )
 
         def _find_inventory_item(wanted):
@@ -755,7 +780,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         )
 
     def test_get_single_room_item_returns_pickup_payload(self):
-        apple = SimpleNamespace(id="obj-1", name="apple red", short_description="a red apple", takeable=True, weight=1)
+        apple = _Item(id="obj-1", name="apple red", short_description="a red apple", takeable=True, weight=1)
         room = _Room(id="room-1", contents={apple.id: apple})
         character = self._build_character()
 
@@ -767,7 +792,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         self.assertNotIn(apple.id, room.contents)
 
     def test_get_from_container_uses_container_payload(self):
-        gem = SimpleNamespace(id="obj-2", name="gem ruby", short_description="a ruby", takeable=True, weight=1)
+        gem = _Item(id="obj-2", name="gem ruby", short_description="a ruby", takeable=True, weight=1)
         bag = _Container(
             id="obj-3",
             name="bag sack",
@@ -796,7 +821,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         self.assertEqual("target_not_visible", payload["blocked_key"])
 
     def test_get_all_from_newbie_pit_uses_guard_payload(self):
-        coin = SimpleNamespace(id="obj-4", name="coin gold", short_description="a gold coin", takeable=True, weight=1)
+        coin = _Item(id="obj-4", name="coin gold", short_description="a gold coin", takeable=True, weight=1)
         pit = _Container(
             id="obj-5",
             vnum="999",
@@ -817,7 +842,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         self.assertIn(coin, pit.contains)
 
     def test_put_into_container_uses_payload_templates(self):
-        gem = SimpleNamespace(id="obj-6", name="gem ruby", short_description="a ruby", takeable=True, weight=1)
+        gem = _Item(id="obj-6", name="gem ruby", short_description="a ruby", takeable=True, weight=1)
         bag = _Container(
             id="obj-7",
             name="bag sack",
@@ -840,7 +865,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         self.assertIn(gem, bag.contains)
 
     def test_put_missing_container_uses_guard_payload_token(self):
-        gem = SimpleNamespace(id="obj-8", name="gem ruby", short_description="a ruby", takeable=True, weight=1)
+        gem = _Item(id="obj-8", name="gem ruby", short_description="a ruby", takeable=True, weight=1)
         room = _Room(id="room-1", contents={})
         character = self._build_character(gem)
 
@@ -850,7 +875,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         self.assertEqual("null_container", payload["blocked_key"])
 
     def test_drop_single_item_uses_payload_templates(self):
-        gem = SimpleNamespace(id="obj-9", name="gem ruby", short_description="a ruby", takeable=True, weight=1)
+        gem = _Item(id="obj-9", name="gem ruby", short_description="a ruby", takeable=True, weight=1)
         room = _Room(id="room-1", contents={})
         character = self._build_character(gem)
         witness = self._build_character(name="Witness")
@@ -865,7 +890,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         self.assertIn(gem.id, room.contents)
 
     def test_drop_notice_masks_actor_and_item_for_each_witness(self):
-        gem = SimpleNamespace(id="obj-9", name="gem ruby", short_description="a ruby", takeable=True, weight=1)
+        gem = _Item(id="obj-9", name="gem ruby", short_description="a ruby", takeable=True, weight=1)
         actor = self._build_character(gem)
         witness = self._build_character(name="Witness")
         sleeper = self._build_character(name="Sleeper")
@@ -879,7 +904,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         self.assertEqual("Someone drops something.\r\n", payload["to_room"].for_recipient(witness.id))
 
     def test_drop_all_with_no_matching_items_uses_payload_token(self):
-        sword = SimpleNamespace(id="obj-10", name="sword steel", short_description="a steel sword", takeable=True, weight=1, nodrop=True)
+        sword = _Item(id="obj-10", name="sword steel", short_description="a steel sword", takeable=True, weight=1, nodrop=True)
         room = _Room(id="room-1", contents={})
         character = self._build_character(sword)
 
@@ -888,7 +913,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         self.assertEqual("You are not carrying any gem.\r\n", payload["to_char"])
 
     def test_buy_single_item_uses_payload_templates(self):
-        sword = SimpleNamespace(id="obj-11", vnum="201", name="sword steel", short_description="a steel sword", level=5, cost=80, weight=1, extra_flags=0, timer=0)
+        sword = _Item(id="obj-11", vnum="201", name="sword steel", short_description="a steel sword", level=5, cost=80, weight=1, extra_flags=0, timer=0)
         keeper = SimpleNamespace(id="mob-1", vnum="100", inventory=[sword], short_description="the shopkeeper", gold=0, silver=0)
         room = _Room(id="room-1", contents={}, mobiles={"keeper": keeper})
         shop = self._build_shop()
@@ -926,7 +951,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         self.assertEqual(keeper.id, character.context["reply_to"])
 
     def test_sell_item_uses_payload_templates(self):
-        blade = SimpleNamespace(id="obj-12", vnum="202", name="blade iron", short_description="an iron blade", item_type="ITEM_WEAPON", level=5, cost=100, weight=1, extra_flags=0, timer=0)
+        blade = _Item(id="obj-12", vnum="202", name="blade iron", short_description="an iron blade", item_type="ITEM_WEAPON", level=5, cost=100, weight=1, extra_flags=0, timer=0)
         keeper = SimpleNamespace(id="mob-3", vnum="100", inventory=[], short_description="the shopkeeper", gold=1, silver=0)
         room = _Room(id="room-1", contents={}, mobiles={"keeper": keeper})
         shop = self._build_shop()
@@ -944,7 +969,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         self.assertEqual([blade], keeper.inventory)
 
     def test_sell_uninterested_uses_guard_payload(self):
-        junk = SimpleNamespace(id="obj-13", vnum="203", name="junk brass", short_description="a brass trinket", level=1, cost=10, weight=1, extra_flags=0, timer=0)
+        junk = _Item(id="obj-13", vnum="203", name="junk brass", short_description="a brass trinket", level=1, cost=10, weight=1, extra_flags=0, timer=0)
         keeper = SimpleNamespace(id="mob-4", vnum="100", inventory=[], short_description="the shopkeeper", gold=1, silver=0)
         room = _Room(id="room-1", contents={}, mobiles={"keeper": keeper})
         shop = self._build_shop()
@@ -960,7 +985,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         self.assertEqual("looks_uninterested", payload["blocked_key"])
 
     def test_wear_item_uses_payload_templates(self):
-        vest = SimpleNamespace(
+        vest = _Item(
             id="obj-wear-1",
             name="vest leather",
             short_description="a leather vest",
@@ -986,7 +1011,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         self.assertNotIn(vest, character.loot)
 
     def test_wear_invalid_forced_slot_uses_guard_payload(self):
-        vest = SimpleNamespace(
+        vest = _Item(
             id="obj-wear-2",
             name="vest leather",
             short_description="a leather vest",
@@ -1012,7 +1037,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         self.assertIn(vest, character.loot)
 
     def test_wear_item_with_insufficient_level_uses_guard_payload(self):
-        vest = SimpleNamespace(
+        vest = _Item(
             id="obj-wear-3",
             name="vest leather",
             short_description="a leather vest",
@@ -1038,7 +1063,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         self.assertIsNone(character.equipped.torso)
 
     def test_value_item_uses_payload_templates(self):
-        blade = SimpleNamespace(id="obj-value-1", vnum="301", name="blade iron", short_description="an iron blade", item_type="ITEM_WEAPON", level=5, cost=100, weight=1, extra_flags=0, timer=0)
+        blade = _Item(id="obj-value-1", vnum="301", name="blade iron", short_description="an iron blade", item_type="ITEM_WEAPON", level=5, cost=100, weight=1, extra_flags=0, timer=0)
         keeper = SimpleNamespace(id="mob-value-1", vnum="100", inventory=[], short_description="the shopkeeper", gold=1, silver=0)
         room = _Room(id="room-1", contents={}, mobiles={"keeper": keeper})
         shop = self._build_shop()
@@ -1063,7 +1088,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
                 self.assertEqual(keeper.id, character.context["reply_to"])
 
     def test_value_uninterested_uses_guard_payload(self):
-        junk = SimpleNamespace(id="obj-value-2", vnum="302", name="junk brass", short_description="a brass trinket", item_type="ITEM_TRASH", level=1, cost=10, weight=1, extra_flags=0, timer=0)
+        junk = _Item(id="obj-value-2", vnum="302", name="junk brass", short_description="a brass trinket", item_type="ITEM_TRASH", level=1, cost=10, weight=1, extra_flags=0, timer=0)
         keeper = SimpleNamespace(id="mob-value-2", vnum="100", inventory=[], short_description="the shopkeeper", gold=1, silver=0)
         room = _Room(id="room-1", contents={}, mobiles={"keeper": keeper})
         shop = self._build_shop()
@@ -1079,9 +1104,9 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         self.assertEqual("looks_uninterested", payload["blocked_key"])
 
     def test_list_shop_inventory_uses_existing_stock_format(self):
-        sword = SimpleNamespace(id="obj-list-1", vnum="301", name="sword iron", short_description="an iron sword", item_type="ITEM_WEAPON", level=5, cost=100, weight=1, extra_flags=1)
-        shield = SimpleNamespace(id="obj-list-2", vnum="302", name="shield oak", short_description="an oak shield", item_type="ITEM_ARMOR", level=3, cost=80, weight=1, extra_flags=0)
-        shield2 = SimpleNamespace(id="obj-list-3", vnum="302", name="shield oak", short_description="an oak shield", item_type="ITEM_ARMOR", level=3, cost=80, weight=1, extra_flags=0)
+        sword = _Item(id="obj-list-1", vnum="301", name="sword iron", short_description="an iron sword", item_type="ITEM_WEAPON", level=5, cost=100, weight=1, extra_flags=1)
+        shield = _Item(id="obj-list-2", vnum="302", name="shield oak", short_description="an oak shield", item_type="ITEM_ARMOR", level=3, cost=80, weight=1, extra_flags=0)
+        shield2 = _Item(id="obj-list-3", vnum="302", name="shield oak", short_description="an oak shield", item_type="ITEM_ARMOR", level=3, cost=80, weight=1, extra_flags=0)
         keeper = SimpleNamespace(id="mob-list-1", vnum="100", inventory=[sword, shield, shield2], short_description="the shopkeeper", gold=0, silver=0)
         room = _Room(id="room-1", contents={}, mobiles={"keeper": keeper})
         shop = self._build_shop()
@@ -1105,7 +1130,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         self.assertEqual("shop_unavailable", payload["blocked_key"])
 
     def test_remove_item_uses_payload_templates(self):
-        vest = SimpleNamespace(
+        vest = _Item(
             id="obj-remove-1",
             name="vest leather",
             short_description="a leather vest",
@@ -1124,7 +1149,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         self.assertIn(vest, character.loot)
 
     def test_remove_no_remove_uses_guard_payload(self):
-        ring = SimpleNamespace(
+        ring = _Item(
             id="obj-remove-2",
             name="ring cursed",
             short_description="a cursed ring",
@@ -1143,8 +1168,8 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         self.assertNotIn(ring, character.loot)
 
     def test_fill_uses_payload_templates(self):
-        bottle = SimpleNamespace(id="obj-fill-1", name="bottle glass", short_description="a glass bottle", item_type="drink container", value0="10", value1="0", value2="")
-        fountain = SimpleNamespace(id="obj-fill-2", name="fountain stone", short_description="a stone fountain", item_type="fountain", value0="100", value1="100", value2="water")
+        bottle = _Item(id="obj-fill-1", name="bottle glass", short_description="a glass bottle", item_type="drink container", value0="10", value1="0", value2="")
+        fountain = _Item(id="obj-fill-2", name="fountain stone", short_description="a stone fountain", item_type="fountain", value0="100", value1="100", value2="water")
         room = _Room(id="room-1", contents={fountain.id: fountain}, mobiles={})
         character = self._build_character(bottle)
 
@@ -1156,8 +1181,8 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         self.assertEqual("water", bottle.value2)
 
     def test_fill_empty_source_uses_guard_payload(self):
-        bottle = SimpleNamespace(id="obj-fill-3", name="bottle glass", short_description="a glass bottle", item_type="drink container", value0="10", value1="0", value2="")
-        skin = SimpleNamespace(id="obj-fill-4", name="skin leather", short_description="a leather skin", item_type="drink container", value0="10", value1="0", value2="water")
+        bottle = _Item(id="obj-fill-3", name="bottle glass", short_description="a glass bottle", item_type="drink container", value0="10", value1="0", value2="")
+        skin = _Item(id="obj-fill-4", name="skin leather", short_description="a leather skin", item_type="drink container", value0="10", value1="0", value2="water")
         room = _Room(id="room-1", contents={}, mobiles={})
         character = self._build_character(bottle, skin)
 
@@ -1168,7 +1193,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         self.assertEqual("0", bottle.value1)
 
     def test_pour_out_uses_payload_templates_and_clears_container(self):
-        waterskin = SimpleNamespace(
+        waterskin = _Item(
             id="obj-pour-1",
             name="waterskin leather",
             short_description="a leather waterskin",
@@ -1189,7 +1214,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         self.assertEqual("0", waterskin.value3)
 
     def test_pour_into_container_transfers_amount(self):
-        source = SimpleNamespace(
+        source = _Item(
             id="obj-pour-2",
             name="waterskin leather",
             short_description="a leather waterskin",
@@ -1199,7 +1224,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
             value2="water",
             value3="0",
         )
-        target = SimpleNamespace(
+        target = _Item(
             id="obj-pour-3",
             name="bottle glass",
             short_description="a glass bottle",
@@ -1220,7 +1245,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         self.assertEqual("5", target.value1)
 
     def test_pour_for_victim_uses_held_container_messages(self):
-        source = SimpleNamespace(
+        source = _Item(
             id="obj-pour-4",
             name="waterskin leather",
             short_description="a leather waterskin",
@@ -1230,7 +1255,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
             value2="water",
             value3="0",
         )
-        cup = SimpleNamespace(
+        cup = _Item(
             id="obj-pour-5",
             name="cup tin",
             short_description="a tin cup",
@@ -1256,7 +1281,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         self.assertEqual("4", source.value1)
 
     def test_pour_missing_victim_container_uses_guard_payload(self):
-        source = SimpleNamespace(
+        source = _Item(
             id="obj-pour-6",
             name="waterskin leather",
             short_description="a leather waterskin",
@@ -1276,7 +1301,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         self.assertEqual("target_container_missing", payload["blocked_key"])
 
     def test_give_item_uses_payload_templates(self):
-        gem = SimpleNamespace(id="obj-14", name="gem ruby", short_description="a ruby", weight=1)
+        gem = _Item(id="obj-14", name="gem ruby", short_description="a ruby", weight=1)
         victim = self._build_character(name="Receiver")
         room = _Room(id="room-1", contents={}, mobiles={}, characters={victim.id: victim})
         character = self._build_character(gem)
@@ -1292,7 +1317,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         self.assertNotIn(gem, character.loot)
 
     def test_give_to_keeper_uses_guard_payload(self):
-        gem = SimpleNamespace(id="obj-15", name="gem ruby", short_description="a ruby", weight=1)
+        gem = _Item(id="obj-15", name="gem ruby", short_description="a ruby", weight=1)
         keeper = self._build_character(is_npc=True, name="Keeper")
         keeper.vnum = "100"
         room = _Room(id="room-1", contents={}, mobiles={"keeper": keeper}, characters={})
@@ -1326,7 +1351,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
 
     def test_sacrifice_uses_payload_templates_for_room_message(self):
         watcher = self._build_character(name="Watcher")
-        idol = SimpleNamespace(
+        idol = _Item(
             id="obj-16",
             name="idol stone",
             short_description="a stone idol",
@@ -1445,7 +1470,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
                 return None
 
         room = _Room(id="room-1", contents={}, mobiles={}, characters={})
-        potion = SimpleNamespace(
+        potion = _Item(
             id="obj-potion",
             name="potion bubbling",
             short_description="a bubbling potion",
@@ -1469,7 +1494,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
 
     def test_recite_missing_target_uses_command_guard(self):
         room = _Room(id="room-1", contents={}, mobiles={}, characters={})
-        scroll = SimpleNamespace(
+        scroll = _Item(
             id="obj-scroll",
             name="scroll vellum",
             short_description="a vellum scroll",
@@ -1509,7 +1534,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         ally = self._build_character(name="Ally", level=30)
         enemy = self._build_character(name="Goblin", is_npc=True, level=20)
         room = _Room(id="room-1", contents={}, mobiles={enemy.id: enemy}, characters={ally.id: ally})
-        staff = SimpleNamespace(
+        staff = _Item(
             id="obj-staff",
             name="staff oak",
             short_description="an oak staff",
@@ -1540,7 +1565,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
 
     def test_zap_without_target_uses_no_argument_guard_before_item_checks(self):
         actor = self._build_character(level=20)
-        wand = SimpleNamespace(
+        wand = _Item(
             id="obj-wand",
             name="wand crystal",
             short_description="a crystal wand",
@@ -1577,7 +1602,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         victim = self._build_character(name="Receiver", level=20)
         room = _Room(id="room-1", contents={}, mobiles={}, characters={victim.id: victim})
         actor = self._build_character(level=30, skills=[{"name": "wands", "level": 100}])
-        wand = SimpleNamespace(
+        wand = _Item(
             id="obj-wand-2",
             name="wand crystal",
             short_description="a crystal wand",
@@ -1722,7 +1747,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         self.assertEqual(["lambda ctx: ctx.player_handler().do_object_command(ctx.character, ctx)"], command["lambdas"])
 
     def test_steal_item_success_moves_item_from_victim(self):
-        ring = SimpleNamespace(id="obj-steal-1", name="ring silver", short_description="a silver ring", level=1, weight=1, extra_flags=0)
+        ring = _Item(id="obj-steal-1", name="ring silver", short_description="a silver ring", level=1, weight=1, extra_flags=0)
         victim = self._build_character(ring, name="Victim", level=10)
         room = _Room(id="room-1", contents={}, mobiles={}, characters={"victim": victim})
         character = self._build_character(name="Tester", level=10, skills=[{"name": "steal", "level": 100}])
@@ -1794,6 +1819,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
             level=0,
             weight=1,
             extra_flags=0,
+            value2="0",
             weapon_too_heavy=lambda _character: False,
             is_two_handed_weapon=lambda: False,
             weapon_skill_feedback_key=lambda _character: "",
@@ -1801,7 +1827,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         )
 
     def test_envenom_food_success_marks_food_poisoned(self):
-        bread = SimpleNamespace(
+        bread = _Item(
             id="obj-envenom-food",
             name="bread loaf",
             short_description="a loaf of bread",
@@ -1826,7 +1852,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         self.assertEqual(24, character.status_flags.pulse_wait)
 
     def test_envenom_weapon_success_marks_weapon_poisoned(self):
-        dagger = SimpleNamespace(
+        dagger = _Item(
             id="obj-envenom-weapon",
             name="dagger steel",
             short_description="a steel dagger",
@@ -1852,7 +1878,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         self.assertEqual(24, character.status_flags.pulse_wait)
 
     def test_envenom_blunt_weapon_is_rejected(self):
-        mace = SimpleNamespace(
+        mace = _Item(
             id="obj-envenom-blunt",
             name="mace iron",
             short_description="an iron mace",
@@ -1873,7 +1899,7 @@ class TestObjectGetDynamicCommands(unittest.TestCase):
         self.assertEqual("0", mace.value4)
 
     def test_envenom_without_skill_is_rejected(self):
-        bread = SimpleNamespace(
+        bread = _Item(
             id="obj-envenom-no-skill",
             name="bread loaf",
             short_description="a loaf of bread",

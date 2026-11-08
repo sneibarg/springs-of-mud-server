@@ -56,7 +56,7 @@ class AnimateEntity:
 
     def get_alignment(self) -> int:
         # Runtime attributes own alignment; prototypes retain the service field.
-        attrs = getattr(self, "character_attributes", None)
+        attrs = self.character_attributes
         owner = attrs if attrs is not None else self
         return GenericUtil.to_int(getattr(owner, "alignment", 0), 0)
 
@@ -79,17 +79,17 @@ class AnimateEntity:
         return {"his": "him", "her": "her"}.get(self.his_her(), "it")
 
     def display_name(self) -> str:
-        return str(getattr(self, "name", "") or getattr(self, "short_description", "") or "Someone")
+        return str(self.name or getattr(self, "short_description", "") or "Someone")
 
     def condition_value(self, condition_name: str) -> int:
-        status_flags = getattr(self, "status_flags", None)
+        status_flags = self.status_flags
         return GenericUtil.to_int(getattr(status_flags, condition_name, -1), -1)
 
     def position_value(self, positions, *, include_start_position=True, default_position=None) -> int:
         standing = getattr(getattr(positions, "POS_STANDING", None), "value", -1)
         if default_position is not None:
             standing = default_position
-        raw = getattr(getattr(self, "character_attributes", None), "position", None)
+        raw = self.character_attributes.position if self.character_attributes is not None else None
         if raw is None:
             fallback = getattr(self, "start_pos", standing) if include_start_position else standing
             raw = getattr(self, "position", fallback)
@@ -103,7 +103,7 @@ class AnimateEntity:
         return GenericUtil.to_int(raw, standing)
 
     def set_position(self, value: int) -> None:
-        attrs = getattr(self, "character_attributes", None)
+        attrs = self.character_attributes
         if attrs is not None:
             attrs.position = value
         self.position = value
@@ -112,14 +112,14 @@ class AnimateEntity:
         from api.GameApi import GameApi
         from game.StatusFlags import StatusFlags
 
-        return StatusFlags.has_named_flag(getattr(self, "status_flags", None), "affected_by",
+        return StatusFlags.has_named_flag(self.status_flags, "affected_by",
                                           affected_bits, bit_name, GameApi.flags_to_int)
 
     def set_affected(self, affected_bits, bit_name: str, enabled: bool) -> None:
         from api.GameApi import GameApi
         from game.StatusFlags import StatusFlags
 
-        StatusFlags.set_named_flag(getattr(self, "status_flags", None), "affected_by",
+        StatusFlags.set_named_flag(self.status_flags, "affected_by",
                                    affected_bits, bit_name, enabled, GameApi.flags_to_int)
 
     def find_effect(self, *type_names: str, affected_bits=None, bit_name: str = ""):
@@ -127,8 +127,8 @@ class AnimateEntity:
 
         wanted = {str(name or "").strip().lower() for name in type_names if str(name or "").strip()}
         bit = getattr(getattr(affected_bits, bit_name, None), "value", 0)
-        for effect in list(getattr(self, "effects", []) or []):
-            if str(getattr(effect, "type", "") or "").strip().lower() in wanted:
+        for effect in list(self.effects or []):
+            if str(effect.type or "").strip().lower() in wanted:
                 return effect
             if bit > 0 and Effect.has_bit(effect, bit_name, bit):
                 return effect
@@ -191,8 +191,8 @@ class AnimateEntity:
             if item is not None and item_id not in seen:
                 items.append(item)
                 seen.add(item_id)
-        equipped = getattr(self, "equipped", None)
-        for item in getattr(equipped, "__dict__", {}).values() if equipped is not None else []:
+        equipped = self.equipped
+        for item in vars(equipped).values() if equipped is not None else []:
             item_id = id(item)
             if item is not None and item_id not in seen:
                 items.append(item)
@@ -222,11 +222,11 @@ class AnimateEntity:
         if hit >= max_hit:
             return 0
 
-        level = GenericUtil.to_int(getattr(self, "level", 0), 0)
+        level = GenericUtil.to_int(self.level, 0)
         position = self.position_value(context.positions)
         gain = self._base_hit_gain(level, position, context)
 
-        gain = gain * GenericUtil.to_int(getattr(room, "heal_rate", 100), 100) // 100
+        gain = gain * GenericUtil.to_int(room.heal_rate, 100) // 100
         gain = self._apply_furniture_regen_rate(gain, "value3")
         gain = self._apply_regen_affect_penalties(gain, context)
         return min(gain, max_hit - hit)
@@ -240,11 +240,11 @@ class AnimateEntity:
         if mana >= max_mana:
             return 0
 
-        level = GenericUtil.to_int(getattr(self, "level", 0), 0)
+        level = GenericUtil.to_int(self.level, 0)
         position = self.position_value(context.positions)
         gain = self._base_mana_gain(level, position, context)
 
-        gain = gain * GenericUtil.to_int(getattr(room, "mana_rate", 100), 100) // 100
+        gain = gain * GenericUtil.to_int(room.mana_rate, 100) // 100
         gain = self._apply_furniture_regen_rate(gain, "value4")
         gain = self._apply_regen_affect_penalties(gain, context)
         return min(gain, max_mana - mana)
@@ -258,11 +258,11 @@ class AnimateEntity:
         if move >= max_move:
             return 0
 
-        level = GenericUtil.to_int(getattr(self, "level", 0), 0)
+        level = GenericUtil.to_int(self.level, 0)
         position = self.position_value(context.positions)
         gain = self._base_move_gain(level, position, context)
 
-        gain = gain * GenericUtil.to_int(getattr(room, "heal_rate", 100), 100) // 100
+        gain = gain * GenericUtil.to_int(room.heal_rate, 100) // 100
         gain = self._apply_furniture_regen_rate(gain, "value3")
         gain = self._apply_regen_affect_penalties(gain, context)
         return min(gain, max_move - move)
@@ -280,7 +280,7 @@ class AnimateEntity:
         furniture = getattr(self, "on", None)
         if furniture is None:
             return gain
-        if str(getattr(furniture, "item_type", "") or "").strip().upper() not in {"ITEM_FURNITURE", "FURNITURE"}:
+        if str(furniture.item_type or "").strip().upper() not in {"ITEM_FURNITURE", "FURNITURE"}:
             return gain
         return gain * GenericUtil.to_int(getattr(furniture, field_name, 100), 100) // 100
 

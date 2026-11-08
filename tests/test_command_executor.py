@@ -22,7 +22,7 @@ class CommandExecutorTests(unittest.IsolatedAsyncioTestCase):
 
     def setUp(self):
         self.actor = SimpleNamespace(id='victim', name='Victim', level=10, role='player', position=8,
-                                     room_id='victim-room', context={})
+                                     room_id='victim-room', context={}, equipped=None, status_flags=None)
         self.command = SimpleNamespace(name='probe', lambdas=[], pipeline=True, max_arguments=3,
                                        enabled=True, level=0, role='player', position='POS_STANDING')
         parameters = IntEnum('Parameters', {'MAX_LEVEL': 60, 'LEVEL_IMMORTAL': 55})
@@ -38,6 +38,7 @@ class CommandExecutorTests(unittest.IsolatedAsyncioTestCase):
                                    connection_manager=SimpleNamespace(get_connection_by_character=Mock(return_value=self.connection)))
         self.services = SimpleNamespace()
         self.normal = InterpHandler.__new__(InterpHandler)
+        self.normal.command_audit = None
         self.normal.message_bus = self.bus
         self.normal.connection_manager = self.bus.connection_manager
         self.normal.room_registry = SimpleNamespace(get_or_none=Mock(return_value=self.room))
@@ -45,6 +46,7 @@ class CommandExecutorTests(unittest.IsolatedAsyncioTestCase):
         self.normal.registry_service = self.registries
         self.normal.handler_service = self.services
         self.nested = PlayerHandler.__new__(PlayerHandler)
+        self.nested.command_audit = None
         self.nested.message_bus = self.bus
         self.nested.room_registry = self.normal.room_registry
         self.nested.interp_registry = SimpleNamespace(get_or_none=lambda **kw: self.command)

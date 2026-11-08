@@ -43,7 +43,7 @@ class NoteHandler:
 
     async def execute(self, character, context):
         context.finish()
-        command_name = str(getattr(getattr(context, "command", None), "name", "") or "note").strip().lower()
+        command_name = str((context.command.name if context.command is not None else "") or "note").strip().lower()
         note_type = self.note_types.get(command_name, InGameNoteEnum.NOTE_NOTE.value)
         argument = self._argument_text(context)
         action, rest = self._split_note_argument(argument)
@@ -104,7 +104,7 @@ class NoteHandler:
         if not notes:
             return self._message(context, self._no_notes_key(note_type), fallback="There are no notes for you.\r\n")
         for index, note in enumerate(notes, start=1):
-            stamp = GenericUtil.to_int(getattr(note, "date_stamp", 0), 0)
+            stamp = GenericUtil.to_int(note.date_stamp, 0)
             note_id = str(note.id or '')
             if not Character.has_read_note(character, note_type, stamp, note_id):
                 Character.mark_note_read(character, note_type, stamp, note_id)
@@ -127,7 +127,7 @@ class NoteHandler:
         note = self._note_at(notes, index)
         if note is None:
             return self._message(context, "aren_t_that_many", s=self._plural_name(note_type), fallback=f"There aren't that many {self._plural_name(note_type)}.\r\n")
-        Character.mark_note_read(character, note_type, GenericUtil.to_int(getattr(note, "date_stamp", 0), 0), str(note.id or ''))
+        Character.mark_note_read(character, note_type, GenericUtil.to_int(note.date_stamp, 0), str(note.id or ''))
         return {"to_char": self._format_note(note, index)}
 
     async def _delete_note(self, character, context, note_type: int, rest: str, action: str):
@@ -156,13 +156,13 @@ class NoteHandler:
                 saved = await run_io(self.note_service.update_note, updated)
                 key = "ok2" if saved else "can_t_do_that"
                 return self._message(context, key, fallback="Ok.\r\n" if saved else "You can't do that.\r\n")
-        if not await run_io(self.note_service.delete_note, str(getattr(note, "id", "") or "")):
+        if not await run_io(self.note_service.delete_note, str(note.id or "")):
             return self._message(context, "can_t_do_that", fallback="You can't do that.\r\n")
         return self._message(context, "ok2", fallback="Ok.\r\n")
 
     async def _catchup(self, character, context, note_type: int):
         notes = await self._visible_notes(character, note_type)
-        latest = max([GenericUtil.to_int(getattr(note, "date_stamp", 0), 0) for note in notes] or [int(time.time())])
+        latest = max([GenericUtil.to_int(note.date_stamp, 0) for note in notes] or [int(time.time())])
         Character.catchup_notes(character, note_type, latest,
                                [str(note.id or '') for note in notes
                                 if GenericUtil.to_int(note.date_stamp, 0) == latest])
@@ -244,7 +244,7 @@ class NoteHandler:
         stamp = int(time.time())
         note = InGameNote(
             type=int(note_type),
-            sender=str(getattr(character, "name", "") or ""),
+            sender=str(character.name or ""),
             date=datetime.fromtimestamp(stamp).strftime("%a %b %d %H:%M:%S %Y"),
             to_list=to_list,
             subject=subject,
@@ -268,22 +268,22 @@ class NoteHandler:
             return self._blocked_message(context, "aren_t_working_that", fallback="You aren't working on that kind of note.\r\n")
         return draft
 
-    async def _visible_notes(self, character, note_type: int):
+    async def _visible_notes(self, character, note_type: int) -> list[InGameNote]:
         notes = list(await run_io(self.note_service.get_notes_by_type, int(note_type)) or [])
         visible = [note for note in notes if self._can_read(character, note)]
-        return sorted(visible, key=lambda note: (GenericUtil.to_int(getattr(note, "date_stamp", 0), 0), str(note.id or '')))
+        return sorted(visible, key=lambda note: (GenericUtil.to_int(note.date_stamp, 0), str(note.id or '')))
 
-    def _can_read(self, character, note) -> bool:
+    def _can_read(self, character, note: InGameNote) -> bool:
         from api.CharacterApi import CharacterApi
 
-        reader = str(getattr(character, "name", "") or "").strip().lower()
-        sender = str(getattr(note, "sender", "") or "").strip().lower()
-        recipients = self._recipient_tokens(getattr(note, "to_list", ""))
+        reader = str(character.name or "").strip().lower()
+        sender = str(note.sender or "").strip().lower()
+        recipients = self._recipient_tokens(note.to_list)
         if not recipients or "all" in recipients:
             return True
         if reader and (reader in recipients or sender == reader):
             return True
-        clan = str(getattr(character, "guild", "") or "").strip().lower()
+        clan = str(character.guild or "").strip().lower()
         if clan and clan in recipients and CharacterApi.is_clan(character):
             return True
         if CharacterApi.is_immortal(character) and {"immortal", "immortals", "imm"} & recipients:
@@ -307,25 +307,25 @@ class NoteHandler:
         return character.context
 
     @staticmethod
-    def _note_at(notes: list, index: int):
+    def _note_at(notes: list[InGameNote], index: int) -> InGameNote | None:
         if index < 1 or index > len(notes):
             return None
         return notes[index - 1]
 
     @staticmethod
-    def _format_note(note, index: int) -> str:
+    def _format_note(note: InGameNote, index: int) -> str:
         return (
-            f"[{index:3d}] {getattr(note, 'sender', '')}: {getattr(note, 'subject', '')}\r\n"
-            f"To: {getattr(note, 'to_list', '')}\r\n"
-            f"Date: {getattr(note, 'date', '')}\r\n\r\n"
-            f"{getattr(note, 'text', '')}\r\n"
+            f"[{index:3d}] {note.sender}: {note.subject}\r\n"
+            f"To: {note.to_list}\r\n"
+            f"Date: {note.date}\r\n\r\n"
+            f"{note.text}\r\n"
         )
 
     @staticmethod
-    def _format_note_list(notes: list, start_index: int = 1) -> str:
+    def _format_note_list(notes: list[InGameNote], start_index: int = 1) -> str:
         lines = []
         for offset, note in enumerate(notes):
-            lines.append(f"[{start_index + offset:3d}] {getattr(note, 'sender', '')}: {getattr(note, 'subject', '')}")
+            lines.append(f"[{start_index + offset:3d}] {note.sender}: {note.subject}")
         return "\r\n".join(lines) + "\r\n"
 
     @staticmethod
@@ -346,9 +346,9 @@ class NoteHandler:
 
     @staticmethod
     def _argument_text(context) -> str:
-        if isinstance(getattr(context, "result", None), str) and context.result.strip():
+        if isinstance(context.result, str) and context.result.strip():
             return context.result.strip()
-        return " ".join(getattr(context, "parameters", None) or []).strip()
+        return " ".join(context.parameters or []).strip()
 
     @staticmethod
     def _split_note_argument(argument: str) -> tuple[str, str]:

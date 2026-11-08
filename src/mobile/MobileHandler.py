@@ -99,7 +99,7 @@ class MobileHandler:
     def rebuild_kill_table(self) -> None:
         kill_table: dict[int, KillTable] = {}
         for mob in list(self.registry_service.mobile_registry.all_mobiles() or []):
-            level = max(0, min(GenericUtil.to_int(getattr(mob, "level", 0), 0), 100))
+            level = max(0, min(GenericUtil.to_int(mob.level, 0), 100))
             entry = kill_table.setdefault(level, KillTable())
             entry.number += 1
         self.kill_table = kill_table
@@ -109,12 +109,12 @@ class MobileHandler:
             return
         if not self.kill_table:
             self.rebuild_kill_table()
-        level = max(0, min(GenericUtil.to_int(getattr(mob, "level", 0), 0), 100))
+        level = max(0, min(GenericUtil.to_int(mob.level, 0), 100))
         entry = self.kill_table.setdefault(level, KillTable())
         entry.killed += 1
 
     async def print_mobiles_in_room(self, character: Character):
-        room = self.room_registry.get_or_none(id=getattr(character, "room_id", ""))
+        room = self.room_registry.get_or_none(id=character.room_id)
         message = room.get_mobiles_in_room(character)
         if message:
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(message))
@@ -135,7 +135,7 @@ class MobileHandler:
         for room, mob in snapshots:
             self.logger.debug(f"mobile_update evaluating {self._actor_label(mob)} from snapshot room {self._room_label(room)}")
             room = self._resolve_room_for_mobile(room, mob)
-            if mob is None or room is None or getattr(mob, "id", None) not in room.mobiles:
+            if mob is None or room is None or mob.id not in room.mobiles:
                 self.logger.debug(f"mobile_update skipping snapshot because mob or resolved room is invalid: mob={self._actor_label(mob)}, room={self._room_label(room)}")
                 continue
             if MobileApi.mobile_is_charmed(mob):
@@ -148,7 +148,7 @@ class MobileHandler:
             special_performed = await self.execute_special_function(mob, room)
             self.logger.debug(
                 f"mobile_update special execution result for {self._actor_label(mob)} in {self._room_label(room)}: "
-                f"special_name={str(getattr(mob, 'special_name', '') or '')!r}, performed={special_performed}"
+                f"special_name={str(mob.special_name or '')!r}, performed={special_performed}"
             )
             if special_performed:
                 continue
@@ -171,20 +171,20 @@ class MobileHandler:
         self.logger.debug("mobile_update completed")
 
     def _skip_in_empty_area(self, room, mob: Mobile) -> bool:
-        area = self.area_registry.get_or_none(id=getattr(room, "area_id", ""))
-        if area is None or not getattr(area, "empty", False):
+        area = self.area_registry.get_or_none(id=(room.area_id if room is not None else ""))
+        if area is None or not area.empty:
             return False
         return not MobileApi.mobile_has_act(mob, self.act_bits, "ACT_UPDATE_ALWAYS")
 
     def _update_shop_money(self, mob: Mobile):
-        shop = self.shop_registry.find_by_keeper_vnum(getattr(mob, "vnum", ""))
+        shop = self.shop_registry.find_by_keeper_vnum(mob.vnum)
         if shop is None:
             return
         wealth = GenericUtil.to_int(getattr(mob, "wealth", 0), 0)
         if wealth <= 0:
             return
-        gold = GenericUtil.to_int(getattr(mob, "gold", 0), 0)
-        silver = GenericUtil.to_int(getattr(mob, "silver", 0), 0)
+        gold = GenericUtil.to_int(mob.gold, 0)
+        silver = GenericUtil.to_int(mob.silver, 0)
         if (gold * 100 + silver) >= wealth:
             return
         self.logger.info(
@@ -195,18 +195,18 @@ class MobileHandler:
         mob.silver = silver + (wealth * self.rng.number_range(1, 20) // 50000)
 
     async def execute_special_function(self, mob: Mobile, room) -> bool:
-        lambdas = list(getattr(mob, "special_function", []) or [])
+        lambdas = list((mob.special_function if mob is not None else []) or [])
         if not lambdas:
             self.logger.debug(
                 f"execute_special_function found no bound special lambdas for {self._actor_label(mob)} in {self._room_label(room)} "
-                f"(special_name={str(getattr(mob, 'special_name', '') or '')!r})"
+                f"(special_name={str((mob.special_name if mob is not None else '') or '')!r})"
             )
             return False
         self.logger.debug(
             f"execute_special_function starting for {self._actor_label(mob)} in {self._room_label(room)} "
-            f"with special_name={str(getattr(mob, 'special_name', '') or '')!r} and {len(lambdas)} lambda(s)"
+            f"with special_name={str(mob.special_name or '')!r} and {len(lambdas)} lambda(s)"
         )
-        context = MobileContext(actor=mob, room=room, handler=self, special_name=str(getattr(mob, "special_name", "") or ""))
+        context = MobileContext(actor=mob, room=room, handler=self, special_name=str(mob.special_name or ""))
         await self._execute_lambda_sequence(context, lambdas)
         await self._flush_context_payloads(context)
         self.logger.debug(
@@ -273,7 +273,7 @@ class MobileHandler:
                     message = f"_execute_lambda_sequence lambda returned for {self._actor_label(context.actor)}: result={result!r}, performed={context.performed}, done={context.done}"
                     self.logger.debug(message)
             except Exception as exc:
-                self.logger.error(f"Mobile special failed for {context.special_name or getattr(context.actor, 'special_name', '')}: {lambda_str} | {exc}", exc_info=True)
+                self.logger.error(f"Mobile special failed for {context.special_name or (context.actor.special_name if context.actor is not None else '')}: {lambda_str} | {exc}", exc_info=True)
                 break
             await self._flush_context_payloads(context)
             if context.done:
@@ -334,7 +334,7 @@ class MobileHandler:
     async def _send_to_area(self, area_id: str, text: str):
         message = self.message_bus.text_to_message(text)
         for room in self.room_registry.all_rooms():
-            if room is None or str(getattr(room, "area_id", "") or "") != str(area_id or ""):
+            if room is None or str(room.area_id or "") != str(area_id or ""):
                 continue
             for player in room.characters.values():
                 await self.message_bus.send_to_character(player.id, message)
@@ -359,8 +359,8 @@ class MobileHandler:
         if self._special_library_cache is None:
             library = {}
             for special in self.special_registry.all_specials():
-                name = str(getattr(special, "name", "") or "").strip().lower()
-                lambdas = list(getattr(special, "special_function", []) or [])
+                name = str(special.name or "").strip().lower()
+                lambdas = list(special.special_function or [])
                 if name and lambdas and name not in library:
                     library[name] = lambdas
 
@@ -372,19 +372,19 @@ class MobileHandler:
     def _actor_label(mob: Mobile | None) -> str:
         if mob is None:
             return "unknown-mobile"
-        short_desc = str(getattr(mob, "short_description", "") or "").strip()
-        vnum = str(getattr(mob, "vnum", "") or "").strip()
-        mob_id = str(getattr(mob, "id", "") or "").strip()
+        short_desc = str(mob.short_description or "").strip()
+        vnum = str(mob.vnum or "").strip()
+        mob_id = str(mob.id or "").strip()
         if short_desc:
             return f"{short_desc} [vnum={vnum}, id={mob_id}]"
-        name = str(getattr(mob, "name", "unknown-mobile") or "unknown-mobile").strip()
+        name = str(mob.name or "unknown-mobile").strip()
         return f"{name} [vnum={vnum}, id={mob_id}]"
 
     @staticmethod
     def _room_label(room) -> str:
         if room is None:
             return "no-room"
-        name = str(getattr(room, "name", "") or "").strip()
-        vnum = str(getattr(room, "vnum", "") or "").strip()
-        room_id = str(getattr(room, "id", "") or "").strip()
+        name = str(room.name or "").strip()
+        vnum = str(room.vnum or "").strip()
+        room_id = str(room.id or "").strip()
         return f"{name or 'unnamed-room'} [vnum={vnum}, id={room_id}]"

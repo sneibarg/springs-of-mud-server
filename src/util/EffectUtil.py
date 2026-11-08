@@ -182,8 +182,8 @@ class EffectUtil:
     @staticmethod
     def saves_spell(level: int, victim, _dam_type: int | str = 0, *, immunity=None,
                     berserk: bool | None = None, roll=None) -> bool:
-        victim_level = GenericUtil.to_int(getattr(victim, "level", 0), 0)
-        saving_throw = GenericUtil.to_int(getattr(victim, "saving_throw", 0), 0)
+        victim_level = GenericUtil.to_int((victim.level if victim is not None else 0), 0)
+        saving_throw = GenericUtil.to_int((victim.saving_throw if victim is not None else 0), 0)
         save = 50 + (victim_level - GenericUtil.to_int(level, 0)) * 5 - saving_throw * 2
         if berserk is None:
             berserk = CharacterApi.is_affected_by_name(victim, CharacterApi.get_enum("affectedBy"), "AFF_BERSERK")
@@ -206,20 +206,20 @@ class EffectUtil:
     def format_affects(character: Character) -> str:
         AffectedBits = CharacterApi.get_enum("affectedBy")
         ApplyTypes = CharacterApi.get_enum("applyTypes")
-        raw = GenericUtil.to_int(getattr(character.status_flags, "affected_by", 0), 0)
-        show_details = GenericUtil.to_int(getattr(character, "level", 0), 0) >= 20
+        raw = GenericUtil.to_int((character.status_flags.affected_by if character.status_flags is not None else 0), 0)
+        show_details = GenericUtil.to_int(character.level, 0) >= 20
         lines = []
         seen_bits = set()
         listed_names = set()
         last_effect_type = None
 
-        for effect in list(getattr(character, "effects", []) or []):
-            effect_type = str(getattr(effect, "type", "") or "").strip()
+        for effect in list(character.effects or []):
+            effect_type = str(effect.type or "").strip()
             if not effect_type or effect_type.lstrip("-").isdigit():
                 continue
             pretty = effect_type.removeprefix("spell.").removeprefix("skill.").replace("_", " ").lower()
             listed_names.add(pretty)
-            bit = EffectUtil.enum_value(AffectedBits, getattr(effect, "bitvector", 0), 0)
+            bit = EffectUtil.enum_value(AffectedBits, effect.bitvector, 0)
             if bit != 0:
                 seen_bits.add(bit)
 
@@ -229,9 +229,9 @@ class EffectUtil:
 
             prefix = " " * 22 if same_as_last else f"Spell: {pretty:<15}"
             if show_details:
-                location = EffectUtil._affect_location_name(getattr(effect, "location", 0), ApplyTypes)
-                modifier = GenericUtil.to_int(getattr(effect, "modifier", 0), 0)
-                duration = GenericUtil.to_int(getattr(effect, "duration", 0), 0)
+                location = EffectUtil._affect_location_name(effect.location, ApplyTypes)
+                modifier = GenericUtil.to_int(effect.modifier, 0)
+                duration = GenericUtil.to_int(effect.duration, 0)
                 duration_text = "permanently" if duration == -1 else f"for {duration} hours"
                 lines.append(f"{prefix}: modifies {location} by {modifier} {duration_text}\r\n")
             else:

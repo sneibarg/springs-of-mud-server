@@ -22,7 +22,7 @@ class InterpUtil:
     def find_nth_by_keyword(dictionary: dict, argument: str, default=None):
         n, keyword = InterpUtil.number_argument(argument)
         for item in dictionary.values():
-            if keyword.lower() in str(getattr(item, 'name', '')).lower():
+            if keyword.lower() in str(item.name).lower():
                 n -= 1
                 if n == 0:
                     return item

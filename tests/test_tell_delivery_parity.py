@@ -197,6 +197,7 @@ class TellDeliveryTests(MovementFixture, unittest.TestCase):
         bus = MessageBus(NS(get_connection_by_character=connections.get),
                          NS(get_session_by_character=lambda identifier: None))
         emitter = PlayerHandler.__new__(PlayerHandler)
+        emitter.command_audit = None
         emitter.message_bus, emitter._send_prompt = bus, AsyncMock()
         context = self.ctx('tell', 'Bob hello')
         asyncio.run(emitter._emit_standard_payload(self.actor, self.commands.execute(context), context=context))

@@ -49,7 +49,7 @@ class EntityUpdateHandler:
     async def update(self, active_characters) -> None:
         updated = set()
         for character in active_characters:
-            if getattr(character, "character_attributes", None) is not None:
+            if character.character_attributes is not None:
                 room = self.room_registry.get_or_none(id=character.room_id)
                 await self.tick(character, room)
                 updated.add(character.id)

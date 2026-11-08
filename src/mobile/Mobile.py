@@ -49,8 +49,8 @@ class Mobile(AnimateEntity):
 
     def credit_expired_stock(self, item) -> int:
         """Recover ROM's silver value when a shopkeeper's carried stock expires."""
-        credit = GenericUtil.to_int(getattr(item, "cost", 0), 0) // 5
-        self.silver = GenericUtil.to_int(getattr(self, "silver", 0), 0) + credit
+        credit = GenericUtil.to_int((item.cost if item is not None else 0), 0) // 5
+        self.silver = GenericUtil.to_int(self.silver, 0) + credit
         return credit
 
     def __eq__(self, other):

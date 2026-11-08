@@ -97,7 +97,7 @@ class TestCombatRoundSkills(unittest.TestCase):
         self.actor.equipped = None
         self.commands = SimpleNamespace(**{"do_" + name: Mock(return_value={"to_char": name})
                                           for name in ("bash", "berserk", "disarm", "kick", "dirt", "trip", "backstab")})
-        self.room = object()
+        self.room = SimpleNamespace(characters={}, mobiles={}, contents={})
         registry = SimpleNamespace(room_registry=SimpleNamespace(get_or_none=Mock(return_value=self.room)),
                                    interp_registry=SimpleNamespace(get_or_none=Mock(side_effect=lambda **kw: SimpleNamespace(name=kw["name"]))))
         handler = CombatSkillHandler(self.commands, registry, object(), SimpleNamespace(get=lambda name: Bits))
@@ -195,7 +195,7 @@ class TestCombatRoundSkills(unittest.TestCase):
         handler = self.selector(3)
         commands_module = Components["interp.commands.Fight"]
         commands = commands_module.Fight.__new__(commands_module.Fight)
-        skill = SimpleNamespace(name="kick", beats=12)
+        skill = SimpleNamespace(id="", name="kick", beats=12)
         commands.fight_api = SimpleNamespace(
             build_fight_view=Mock(return_value=SimpleNamespace(skill=skill, room=self.room, victim=self.victim)),
             evaluate_guards_only_view=Mock(return_value=None))

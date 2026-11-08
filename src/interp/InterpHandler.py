@@ -43,7 +43,7 @@ class InterpHandler:
                           parameters=arguments, result=parameters, room=room, raw_command=raw_command)
 
         return await CommandExecutor.execute(command, context, authorization=CommandAccess.check,
-                                             message_bus=self.message_bus, audit=getattr(self, 'command_audit', None))
+                                             message_bus=self.message_bus, audit=self.command_audit)
 
     async def _call_lambda(self, character: Character, command_name: str, command_list: List[Command], parameters: str, raw_command=None):
         command = self.interp_registry.get_or_none(name=command_name)
@@ -59,10 +59,10 @@ class InterpHandler:
             raise
 
     async def _send_alias_substitution_message(self, character: Character, alias_result):
-        text = str(getattr(alias_result, "message", "") or "")
-        message_key = str(getattr(alias_result, "message_key", "") or "")
+        text = str(alias_result.message or "")
+        message_key = str(alias_result.message_key or "")
         if message_key:
-            alias_command = self.interp_registry.get_or_none(name=getattr(alias_result, 'message_command', 'alias'))
+            alias_command = self.interp_registry.get_or_none(name=alias_result.message_command)
             if alias_command is not None:
                 rendered = alias_command.render_message("to_char", message_key, fallback=text)
                 if rendered:
@@ -85,7 +85,7 @@ class InterpHandler:
             if denial is not None:
                 await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(denial.render(None)))
                 return None
-            if getattr(self, 'command_audit', None) is not None:
+            if self.command_audit is not None:
                 await self.command_audit.record(character, None, command)
             social = self.social_registry.get_or_none(name=InterpUtil.one_argument(command)[0])
             if social is not None:

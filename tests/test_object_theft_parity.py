@@ -277,7 +277,7 @@ class TestObjectTheftParity(unittest.TestCase):
                     item.level = self.actor.level + 1
                 if kind == "count":
                     self.actor.character_attributes.max_items = 1
-                    self.actor.loot[:] = [NS()]
+                    self.actor.loot[:] = [NS(weight=0, contains=[], item_type="trash")]
                 if kind == "weight":
                     item.weight = 1000
                 with patch.object(self.commands, "_steal_succeeds", side_effect=lambda *args: self.actor.status_flags.pulse_wait == 24):
@@ -335,6 +335,7 @@ class TestObjectTheftParity(unittest.TestCase):
         self.victim.character_attributes.position = self.positions.POS_SLEEPING.value
         payload = self.attempt()
         emitter = PlayerHandler.__new__(PlayerHandler)
+        emitter.command_audit = None
         emitter.message_bus = NS(send_to_character=AsyncMock(), send_to_room=AsyncMock(), text_to_message=lambda text: text,
                                  connection_manager=NS(get_connection_by_character=lambda _id: None))
         emitter.interp_api = self.commands.interp_api

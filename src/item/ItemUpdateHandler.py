@@ -76,7 +76,7 @@ class ItemUpdateHandler:
         container = location["container"]
         room = location.get("room")
 
-        shop = (self.shop_registry.find_by_keeper_vnum(getattr(parent, "vnum", ""))
+        shop = (self.shop_registry.find_by_keeper_vnum(parent.vnum)
                 if parent_kind in ("mob_inventory", "mob_equipped") else None)
         if shop is not None:
             Mobile.credit_expired_stock(parent, item)
@@ -85,7 +85,7 @@ class ItemUpdateHandler:
             message = Item.decay_message(item, self.WearFlags)
             notice = (message, item, location, is_float)
 
-        contents = list(getattr(item, "contains", []) or [])
+        contents = list(item.contains or [])
         if (is_pc_corpse or is_float) and contents:
             for child in contents:
                 self._move_child_from_expiring_item(child, parent_kind, parent, container, room, is_float)
@@ -99,7 +99,7 @@ class ItemUpdateHandler:
             container.append(child)
         elif parent_kind == "room" or is_float:
             if room is not None:
-                room.contents[getattr(child, "id", None) or GenericUtil.generate_mongo_id()] = child
+                room.contents[child.id or GenericUtil.generate_mongo_id()] = child
         elif parent_kind in ("char_loot", "char_equipped"):
             parent.loot.append(child)
         elif parent_kind in ("mob_inventory", "mob_equipped"):

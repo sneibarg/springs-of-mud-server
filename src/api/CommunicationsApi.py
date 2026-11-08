@@ -101,7 +101,7 @@ class CommunicationsApi(GameApi):
     @staticmethod
     def recipient_disconnected(target, session_handler) -> bool:
         return (target is not None and not CharacterApi.is_npc(target)
-                and not any(getattr(session.character, 'id', None) == target.id
+                and not any((session.character.id if session.character is not None else None) == target.id
                             for session in session_handler.get_playing_sessions()))
 
     @classmethod
@@ -139,8 +139,8 @@ class CommunicationsApi(GameApi):
             return finder(view.context.character, wanted)
 
         q = str(wanted or "").strip().lower()
-        for candidate in list((getattr(room, "characters", {}) or {}).values()) + list((getattr(room, "mobiles", {}) or {}).values()):
-            name = str(getattr(candidate, "name", "") or "").strip().lower()
+        for candidate in list((room.characters or {}).values()) + list((room.mobiles or {}).values()):
+            name = str(candidate.name or "").strip().lower()
             short = str(getattr(candidate, "short_description", "") or "").strip().lower()
             if q and (name == q or name.startswith(q) or short == q or short.startswith(q)):
                 return candidate
@@ -152,20 +152,21 @@ class CommunicationsApi(GameApi):
         leader = cls.follow_leader(view.context.character)
         tokens = cls._target_tokens(target)
         if leader is not None:
-            tokens["M"] = getattr(leader, "name", "")
+            tokens["M"] = leader.name
         return tokens
 
     @staticmethod
     def follow_leader(character):
-        return getattr(character, "master", None)
+        return (character.master if character is not None else None)
 
     @classmethod
     def follow_charmed_with_master(cls, view: InterpView) -> bool:
         affected = CharacterApi.get_enum("affectedBy")
         charm_bit = CharacterApi.enum_bit(affected, "AFF_CHARM")
+        status_flags = view.context.character.status_flags
         return bool(
             charm_bit
-            and CharacterApi.is_set(getattr(view.context.character.status_flags, "affected_by", 0), charm_bit)
+            and CharacterApi.is_set(status_flags.affected_by if status_flags is not None else 0, charm_bit)
             and cls.follow_leader(view.context.character) is not None
         )
 
@@ -180,7 +181,8 @@ class CommunicationsApi(GameApi):
             return False
         player_bits = CharacterApi.get_enum("playerActBits")
         nofollow_bit = CharacterApi.enum_bit(player_bits, "PLR_NOFOLLOW")
-        return bool(nofollow_bit and CharacterApi.is_set(getattr(target.status_flags, "act", 0), nofollow_bit))
+        status_flags = target.status_flags
+        return bool(nofollow_bit and CharacterApi.is_set(status_flags.act if status_flags is not None else 0, nofollow_bit))
 
     @classmethod
     def order_args(cls, view: InterpView) -> tuple[str, str, str]:
@@ -262,7 +264,7 @@ class CommunicationsApi(GameApi):
     @classmethod
     def group_actor_follows_another(cls, view: InterpView) -> bool:
         actor = view.context.character
-        return cls.master_of(actor) is not None or (getattr(actor, "leader", None) is not None and getattr(actor, "leader", None) != actor)
+        return cls.master_of(actor) is not None or (actor.leader is not None and actor.leader != actor)
 
     @classmethod
     def group_target_not_follower(cls, view: InterpView) -> bool:
@@ -284,7 +286,7 @@ class CommunicationsApi(GameApi):
         target = cls.group_target(view)
         tokens = cls._target_tokens(target, fallback_name=InterpUtil.argument_text(view))
         actor = view.context.character
-        tokens["m"] = getattr(actor, "name", "")
+        tokens["m"] = actor.name
         tokens["m_pronoun"] = cls.object_pronoun(actor)
         tokens["s_poss"] = cls.possessive_pronoun(actor)
         return tokens
@@ -306,7 +308,7 @@ class CommunicationsApi(GameApi):
         if q == "self":
             return view.context.character
         for candidate in cls.room_people(view):
-            name = str(getattr(candidate, "name", "") or "").strip().lower()
+            name = str(candidate.name or "").strip().lower()
             short = str(getattr(candidate, "short_description", "") or "").strip().lower()
             if q and (name == q or name.startswith(q) or short == q or short.startswith(q)):
                 return candidate
@@ -328,29 +330,30 @@ class CommunicationsApi(GameApi):
         people = getattr(room, "people", None)
         if callable(people):
             return list(people())
-        return list((getattr(room, "characters", {}) or {}).values()) + list((getattr(room, "mobiles", {}) or {}).values())
+        return list((room.characters or {}).values()) + list((room.mobiles or {}).values())
 
     @classmethod
     def all_known_people(cls, view: InterpView) -> list[Any]:
         people: dict[str, Any] = {}
         for room in view.context.registry_service.room_registry.all_rooms():
-            for candidate in list((getattr(room, "characters", {}) or {}).values()) + list((getattr(room, "mobiles", {}) or {}).values()):
-                people[str(getattr(candidate, "id", id(candidate)))] = candidate
+            for candidate in list((room.characters or {}).values()) + list((room.mobiles or {}).values()):
+                people[str(candidate.id)] = candidate
         return list(people.values())
 
     @classmethod
     def is_charmed(cls, character) -> bool:
         affected = CharacterApi.get_enum("affectedBy")
         charm_bit = CharacterApi.enum_bit(affected, "AFF_CHARM")
-        return bool(charm_bit and CharacterApi.is_set(getattr(getattr(character, "status_flags", None), "affected_by", 0), charm_bit))
+        status_flags = character.status_flags if character is not None else None
+        return bool(charm_bit and CharacterApi.is_set(status_flags.affected_by if status_flags is not None else 0, charm_bit))
 
     @staticmethod
     def master_of(character):
-        return getattr(character, "master", None)
+        return (character.master if character is not None else None)
 
     @staticmethod
     def object_pronoun(character) -> str:
-        sex = str(getattr(character, "sex", "") or "").strip().lower()
+        sex = str((character.sex if character is not None else "") or "").strip().lower()
         if sex in ("1", "male", "m"):
             return "him"
         if sex in ("2", "female", "f"):
@@ -359,7 +362,7 @@ class CommunicationsApi(GameApi):
 
     @staticmethod
     def possessive_pronoun(character) -> str:
-        sex = str(getattr(character, "sex", "") or "").strip().lower()
+        sex = str((character.sex if character is not None else "") or "").strip().lower()
         if sex in ("1", "male", "m"):
             return "his"
         if sex in ("2", "female", "f"):

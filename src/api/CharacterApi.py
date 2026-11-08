@@ -95,16 +95,17 @@ class CharacterApi(GameApi):
 
         if character is None or cls.is_npc(character):
             return False
-        if not cls.flags_to_int(getattr(getattr(character, 'status_flags', None), 'act', 0)):
+        status_flags = character.status_flags
+        if status_flags is None or not cls.flags_to_int(status_flags.act):
             return False
-        return StatusFlags.has_named_flag(getattr(character, 'status_flags', None), 'act',
+        return StatusFlags.has_named_flag(status_flags, 'act',
                                           cls.get_enum('playerActBits'), name, cls.flags_to_int)
 
     @staticmethod
     def is_clan(char: Any) -> bool:
         # ROM's is_clan checks membership, including the independent loner clan.
         # The content service represents that membership with the guild field.
-        guild = str(getattr(char, "guild", "") or "").strip().lower()
+        guild = str((char.guild if char is not None else "") or "").strip().lower()
         return guild not in ("", "0", "none", "no", "clanless")
 
     @classmethod
@@ -112,7 +113,7 @@ class CharacterApi(GameApi):
         if not cls.is_clan(character):
             return False
         name = str(character.guild).strip().lower()
-        if name != str(getattr(other, "guild", "") or "").strip().lower():
+        if name != str((other.guild if other is not None else "") or "").strip().lower():
             return False
         return any(str(clan.get("name", "")).strip().lower() == name and not clan.get("independent")
                    for clan in cls.clans_map().values())
@@ -133,15 +134,15 @@ class CharacterApi(GameApi):
             return False
         if not immortal and flagged("ROOM_NEWBIES_ONLY") and int(character.level) > 5:
             return False
-        clan = str(getattr(room, "clan", "") or "").strip().lower()
+        clan = str(room.clan or "").strip().lower()
         if not immortal and clan not in ("", "0", "none"):
-            return clan == str(getattr(character, "guild", "") or "").strip().lower()
+            return clan == str((character.guild if character is not None else "") or "").strip().lower()
         return True
 
     @classmethod
     def is_immortal(cls, char: Any) -> bool:
         if hasattr(char, "character"):
-            char = getattr(char, "character", None)
+            char = char.character
         if char is None:
             return False
         return cls.GameParameters is not None and cls.get_trust(char) >= cls.GameParameters.LEVEL_IMMORTAL.value

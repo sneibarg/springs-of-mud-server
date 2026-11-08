@@ -220,6 +220,7 @@ class SwitchedIdentityTests(TargetingFixture, unittest.IsolatedAsyncioTestCase):
 
     def handler(self):
         handler = PlayerHandler.__new__(PlayerHandler)
+        handler.command_audit = None
         handler.interp_api = self.api
         handler.wiz_handler = self.wiz_handler
         handler.message_bus = NS(connection_manager=self.manager, send_to_character=AsyncMock(), send_to_room=AsyncMock(),

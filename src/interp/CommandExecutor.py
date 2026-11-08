@@ -38,7 +38,7 @@ class CommandExecutor:
                                                 message_bus.text_to_message(denial.render(command)))
             return None
 
-        lambdas = getattr(command, "lambdas", None) or []
+        lambdas = command.lambdas or []
         if not any(isinstance(value, str) and value.strip() for value in lambdas):
             context.finish()
             await message_bus.send_to_character(context.character.id, message_bus.text_to_message("Huh?\r\n"))

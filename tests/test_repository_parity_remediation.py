@@ -36,7 +36,7 @@ class PublicInputTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_spacing_survives_public_interpreter_and_real_delivery(self):
         f = self.fixture
-        await f.interpreter.handle_command(None, f.actor, '  SAY\thello   brave\tworld')
+        await f.interpreter.handle_command(f.actor, '  SAY\thello   brave\tworld')
         self.assertEqual(["Alice says 'hello   brave\tworld'\r\n"], f.messages(f.bob))
 
     async def test_punctuation_without_space_and_with_space(self):
@@ -46,7 +46,7 @@ class PublicInputTests(unittest.IsolatedAsyncioTestCase):
                 with self.subTest(token=token, separator=separator):
                     for connection in f.connections.values():
                         connection.send_message.reset_mock()
-                    await f.interpreter.handle_command(None, f.actor, token + separator + 'hello   world')
+                    await f.interpreter.handle_command(f.actor, token + separator + 'hello   world')
                     self.assertTrue(f.messages(f.bob))
                     self.assertIn('hello   world', f.messages(f.bob)[0])
                     self.assertNotIn('Huh?', ''.join(f.messages(f.actor)))
@@ -61,17 +61,17 @@ class PublicInputTests(unittest.IsolatedAsyncioTestCase):
     async def test_alias_and_prefix_keep_interior_body_spacing(self):
         f = self.fixture
         f.actor.aliases = {'chat': 'say'}
-        await f.interpreter.handle_command(None, f.actor, 'chat hello   world')
+        await f.interpreter.handle_command(f.actor, 'chat hello   world')
         self.assertIn('hello   world', f.messages(f.bob)[0])
         f.actor.context['prefix'] = 'say'
-        await f.interpreter.handle_command(None, f.actor, 'hello   again')
+        await f.interpreter.handle_command(f.actor, 'hello   again')
         self.assertIn('hello   again', f.messages(f.bob)[-1])
 
     async def test_stored_description_keeps_spacing(self):
         f = self.fixture
         handler = f.interpreter.handler_service.get_handler('ph')
         handler.info_commands = Info.__new__(Info)
-        await f.interpreter.handle_command(None, f.actor, 'description Two   spaces remain.')
+        await f.interpreter.handle_command(f.actor, 'description Two   spaces remain.')
         self.assertEqual('Two   spaces remain.\r\n', f.actor.description)
 
 
@@ -80,9 +80,9 @@ class PublicInputTests(unittest.IsolatedAsyncioTestCase):
         handler = f.interpreter.handler_service.get_handler('ph')
         handler.info_commands = Info.__new__(Info)
         f.actor.description = 'First line.\r\n\r\nLast line.\r\n'
-        await f.interpreter.handle_command(None, f.actor, 'description -')
+        await f.interpreter.handle_command(f.actor, 'description -')
         self.assertEqual('First line.\r\n\r\n', f.actor.description)
-        await f.interpreter.handle_command(None, f.actor, 'description -')
+        await f.interpreter.handle_command(f.actor, 'description -')
         self.assertEqual('First line.\r\n', f.actor.description)
 
 

@@ -16,7 +16,7 @@ class AreaOccupancyTests(unittest.TestCase):
         self.area = Area(author='ROM', name='Test', id='area', age=20, empty=True)
         self.room = Room(id='one', area_id='area')
         self.room.bind_area(self.area)
-        self.character = SimpleNamespace(id='player')
+        self.character = SimpleNamespace(id='player', equipped=None)
 
     def handler(self, school=None):
         handler = AreaHandler.__new__(AreaHandler)
@@ -34,7 +34,7 @@ class AreaOccupancyTests(unittest.TestCase):
         self.area.age = 8
         self.room.add_player_to_room(self.character)
         self.assertEqual((self.area.number_of_players, self.area.age), (1, 8))
-        self.room.add_mobile_to_room(SimpleNamespace(id='npc'))
+        self.room.add_mobile_to_room(SimpleNamespace(id='npc', equipped=None))
         self.assertEqual(self.area.number_of_players, 1)
 
     def test_reset_notice_follows_reset_before_age_changes_and_uses_wiznet(self):

@@ -94,16 +94,16 @@ class Item:
 
     def tick_timer(self) -> bool:
         """Return true only when a positive expiration timer reaches zero."""
-        timer = GenericUtil.to_int(getattr(self, "timer", -1), -1)
+        timer = GenericUtil.to_int(self.timer, -1)
         if timer <= 0:
             return False
         self.timer = timer - 1
         return self.timer == 0
 
     def burn_light(self) -> int | None:
-        if str(getattr(self, "item_type", "") or "").strip().upper() not in {"ITEM_LIGHT", "LIGHT"}:
+        if str(self.item_type or "").strip().upper() not in {"ITEM_LIGHT", "LIGHT"}:
             return None
-        remaining = GenericUtil.to_int(getattr(self, "value2", 0), 0)
+        remaining = GenericUtil.to_int(self.value2, 0)
         if remaining <= 0:
             return None
         self.value2 = str(remaining - 1)
@@ -111,13 +111,13 @@ class Item:
 
     def can_wear(self, wear_flags, flag_name: str) -> bool:
         flag = getattr(getattr(wear_flags, flag_name, None), "value", 0)
-        return flag > 0 and GameApi.is_set(GameApi.flags_to_int(getattr(self, "wear_flags", 0)), flag)
+        return flag > 0 and GameApi.is_set(GameApi.flags_to_int(self.wear_flags), flag)
 
     def is_fixed_pit(self, well_known_vnums, wear_flags) -> bool:
         pit = getattr(well_known_vnums, "OBJ_VNUM_PIT", None)
         if pit is None or getattr(wear_flags, "ITEM_TAKE", None) is None:
             return False
-        return str(getattr(self, "vnum", "")) == str(pit.value) and not Item.can_wear(self, wear_flags, "ITEM_TAKE")
+        return str(self.vnum) == str(pit.value) and not Item.can_wear(self, wear_flags, "ITEM_TAKE")
 
     def decay_message(self, wear_flags) -> str:
         item_type = Item.enum_type_name(self)
@@ -130,13 +130,13 @@ class Item:
             "ITEM_PORTAL": "$p fades out of existence.",
         }
         if item_type == "ITEM_CONTAINER" and Item.can_wear(self, wear_flags, "ITEM_WEAR_FLOAT"):
-            if list(getattr(self, "contains", []) or []):
+            if list(self.contains or []):
                 return "$p flickers and vanishes, spilling its contents on the floor."
             return "$p flickers and vanishes."
         return messages.get(item_type, "$p crumbles into dust.")
 
     def format_message(self, message: str) -> str:
-        name = str(getattr(self, "short_description", "") or getattr(self, "name", "something"))
+        name = str(self.short_description or self.name)
         return str(message or "").replace("$p", name)
 
     def walk_contents(self, seen=None):
@@ -147,7 +147,7 @@ class Item:
             return
         seen.add(id(self))
         yield self
-        for child in list(getattr(self, "contains", []) or []):
+        for child in list(self.contains or []):
             if child is not None:
                 yield from Item.walk_contents(child, seen)
 
@@ -157,7 +157,7 @@ class Item:
         if id(self) in seen:
             return None
         seen.add(id(self))
-        for child in list(getattr(self, "contains", []) or []):
+        for child in list(self.contains or []):
             if child is target:
                 return {"kind": "item_contains", "parent": self, "container": self.contains, "room": room}
             found = Item.locate_contained_item(child, target, room, seen)
@@ -225,7 +225,7 @@ class Item:
             item.extra_description = ExtraDescriptionData(valid=True, keyword=keyword, description=description) if (keyword or description) else None
             return item.extra_description
 
-        extra_description = getattr(item, "extra_description", None)
+        extra_description = item.extra_description
         if extra_description:
             try:
                 item.extra_description = ExtraDescriptionData.from_json(extra_description)
@@ -251,8 +251,10 @@ class Item:
         return ("food" in item_type) or ("pill" in item_type)
 
     @staticmethod
-    def _item_type(item) -> str:
-        return str(getattr(item, "item_type", "") or "").strip().lower()
+    def _item_type(item: Item | None) -> str:
+        if item is None:
+            return ""
+        return str(item.item_type or "").strip().lower()
 
     @classmethod
     def item_type_name(cls, item) -> str:
@@ -271,27 +273,27 @@ class Item:
 
     @staticmethod
     def weight_multiplier(item) -> int:
-        return GenericUtil.to_int(getattr(item, "value4", 100), 100) if Item.is_container(item) else 100
+        return GenericUtil.to_int(item.value4, 100) if Item.is_container(item) else 100
 
     @staticmethod
     def object_number(item) -> int:
         shell = 0 if Item.enum_type_name(item) in (
             "ITEM_CONTAINER", "ITEM_MONEY", "ITEM_GEM", "ITEM_JEWELRY") else 1
         return shell + sum(Item.object_number(child)
-                           for child in list(getattr(item, "contains", []) or []))
+                           for child in list(item.contains or []))
 
     @staticmethod
     def object_weight(item) -> int:
-        weight = GenericUtil.to_int(getattr(item, "weight", 0), 0)
+        weight = GenericUtil.to_int(item.weight, 0)
         multiplier = Item.weight_multiplier(item)
         return weight + sum(Item.object_weight(child) * multiplier // 100
-                            for child in list(getattr(item, "contains", []) or []))
+                            for child in list(item.contains or []))
 
     @staticmethod
     def true_weight(item) -> int:
         """Container shell plus weighted contents, without its own multiplier."""
-        return GenericUtil.to_int(getattr(item, "weight", 0), 0) + sum(
-            Item.object_weight(child) for child in list(getattr(item, "contains", []) or [])
+        return GenericUtil.to_int(item.weight, 0) + sum(
+            Item.object_weight(child) for child in list(item.contains or [])
         )
 
     @classmethod
@@ -576,17 +578,19 @@ class Item:
                 fill = "about half-"
             else:
                 fill = "more than half-"
-            color = getattr(obj, "liquid_color", None) or "unknown"
+            color = obj.liquid_color or "unknown"
             text = f"It's {fill}filled with a {color} liquid.\r\n"
         return text
 
     @staticmethod
     def _is_item_flag_set(obj: Item, flag_value: int) -> bool:
+        if obj is None:
+            return False
         try:
-            flags = int(getattr(obj, "extra_flags", 0) or 0)
+            flags = int(obj.extra_flags or 0)
         except (TypeError, ValueError):
             try:
-                flags = GameApi.convert_flags(str(getattr(obj, "extra_flags", "0") or "0"))
+                flags = GameApi.convert_flags(str(obj.extra_flags or "0"))
             except Exception:
                 flags = 0
         return (flags & int(flag_value)) != 0
@@ -613,7 +617,7 @@ class Item:
     def count_obj_list(target_vnum: str, items: list) -> int:
         count = 0
         for obj in items or []:
-            if str(getattr(obj, "vnum", "")) == target_vnum:
+            if str(obj.vnum) == target_vnum:
                 count += 1
         return count
 

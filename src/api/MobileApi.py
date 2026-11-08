@@ -45,7 +45,7 @@ class MobileApi(GameApi):
         vnum = str(getattr(actor, "vnum", "") or "").strip()
         if short_desc:
             return f"{short_desc} [vnum={vnum}, id={actor.id}]"
-        name = str(getattr(actor, "name", "unknown-mobile") or "unknown-mobile").strip()
+        name = str(actor.name or "unknown-mobile").strip()
         return f"{name} [vnum={vnum}, id={actor.id}]"
 
     @staticmethod
@@ -66,7 +66,7 @@ class MobileApi(GameApi):
 
     @staticmethod
     def require_not_fighting(ctx: MobileContext):
-        if getattr(ctx.actor, "fighting", None) is not None:
+        if ctx.actor.fighting is not None:
             ctx.finish()
             return False
         return True
@@ -107,7 +107,7 @@ class MobileApi(GameApi):
 
     @staticmethod
     def when_fighting_delegate(ctx: MobileContext, special_name: str):
-        if getattr(ctx.actor, "fighting", None) is None:
+        if ctx.actor.fighting is None:
             return False
         return ctx.handler.execute_special_by_name(ctx.actor, special_name, ctx.room, ctx)
 
@@ -132,7 +132,7 @@ class MobileApi(GameApi):
     def select_room_combat_victim(ctx: MobileContext, alias: str, chance_bits: int = 0):
         target = None
         for entity in ctx.room.people():
-            if getattr(entity, "fighting", None) is ctx.actor:
+            if entity.fighting is ctx.actor:
                 if chance_bits > 0 and ctx.handler.rng.number_bits(GenericUtil.to_int(chance_bits, 0)) != 0:
                     continue
                 target = entity
@@ -142,7 +142,7 @@ class MobileApi(GameApi):
 
     @classmethod
     def cast_dragon_breath(cls, ctx: MobileContext, spell_name: str):
-        target = getattr(ctx.actor, "fighting", None)
+        target = ctx.actor.fighting
         if target is None:
             ctx.finish()
             return False
@@ -186,7 +186,7 @@ class MobileApi(GameApi):
             handler=ctx.handler,
             room=ctx.room,
             target=victim,
-            target_name=str(getattr(victim, "name", getattr(victim, "short_description", "")) or ""),
+            target_name=str(victim.name or ""),
             target_kind="obj" if hasattr(victim, "item_type") else "char",
             source="mobile",
         )
@@ -270,9 +270,9 @@ class MobileApi(GameApi):
         safe, _ = ctx.handler.fight_handler.is_safe(ctx.actor, victim, room=ctx.room)
         if safe:
             return False
-        if getattr(ctx.actor, "fighting", None) is None:
+        if ctx.actor.fighting is None:
             ctx.handler.fight_handler.set_fighting(ctx.actor, victim, ctx.room.id)
-        if getattr(victim, "fighting", None) is None:
+        if victim.fighting is None:
             ctx.handler.fight_handler.set_fighting(victim, ctx.actor, ctx.room.id)
         result = ctx.handler.fight_handler.multi_hit(ctx.actor, victim, dt="TYPE_UNDEFINED")
         payload = {
@@ -303,7 +303,7 @@ class MobileApi(GameApi):
         for entity in ctx.room.people():
             if exclude_target == "self" and entity is ctx.actor:
                 continue
-            if getattr(entity, "fighting", None) is None or getattr(entity, "fighting", None) is ctx.actor:
+            if entity.fighting is None or entity.fighting is ctx.actor:
                 continue
             alignment = GenericUtil.to_int(entity.character_attributes.alignment, 0)
             if alignment < max_evil:
@@ -336,7 +336,7 @@ class MobileApi(GameApi):
         for mob in ctx.room.mobiles.values():
             if mob is ctx.actor:
                 continue
-            if str(getattr(mob, "group", "") or "") != wanted_group:
+            if str(mob.group or "") != wanted_group:
                 continue
             if where and not ctx.eval_bool(where, candidate=mob):
                 continue
@@ -400,7 +400,7 @@ class MobileApi(GameApi):
             if item_type not in {"npc_corpse", "item_corpse_npc", "corpse_npc"}:
                 continue
             cls._logger_obj().debug(
-                f"{actor_label}: devouring corpse {getattr(corpse, 'short_description', '') or corpse.name} "
+                f"{actor_label}: devouring corpse {corpse.short_description or corpse.name} "
                 f"[id={corpse.id}] in {room_label}"
             )
             if room_message:
@@ -419,8 +419,8 @@ class MobileApi(GameApi):
 
     @classmethod
     def follow_time_script(cls, ctx: MobileContext, open_hour: int, close_hour: int, open_path: str, close_path: str):
-        weather = getattr(ctx.handler.weather_handler, "time_info", None)
-        hour = GenericUtil.to_int(getattr(weather, "hour", -1), -1)
+        weather = ctx.handler.weather_handler.time_info
+        hour = GenericUtil.to_int((weather.hour if weather is not None else -1), -1)
         state = getattr(ctx.actor, "_special_state", None)
         if not isinstance(state, dict):
             state = {}
@@ -481,7 +481,7 @@ class MobileApi(GameApi):
 
     @classmethod
     def poison_bite(cls, ctx: MobileContext, chance_percent: str, messages: tuple[str, str, str]):
-        victim = getattr(ctx.actor, "fighting", None)
+        victim = ctx.actor.fighting
         if victim is None or CharacterApi.position_value(ctx.actor) != CharacterApi.pos_value("POS_FIGHTING"):
             return False
         try:
@@ -558,7 +558,7 @@ class MobileApi(GameApi):
 
     @classmethod
     def nasty_combat_turn(cls, ctx: MobileContext, coin_purse_fraction: float = 0.10, flee_weight: int = 1, purse_weight: int = 1, idle_weight: int = 0):
-        victim = getattr(ctx.actor, "fighting", None)
+        victim = ctx.actor.fighting
         if victim is None:
             return False
         action = MobileApi.choose_weighted([("purse", purse_weight), ("flee", flee_weight), ("idle", idle_weight)])
@@ -583,7 +583,7 @@ class MobileApi(GameApi):
         for entity in ctx.room.people():
             if exclude_self and entity is ctx.actor:
                 continue
-            defender = getattr(entity, "fighting", None)
+            defender = entity.fighting
             if defender is None:
                 continue
             candidate = entity
@@ -626,7 +626,7 @@ class MobileApi(GameApi):
                 continue
             if room.area_id != ctx.room.area_id:
                 continue
-            targets.extend(list(getattr(room, "characters", {}).values()))
+            targets.extend(list(room.characters.values()))
         if targets:
             ctx.queue_payload({"global_message": "You hear a shrill whistling sound.\n\r", "global_targets": targets})
         return ctx.mark_performed()
@@ -665,8 +665,8 @@ class MobileApi(GameApi):
         if room_message:
             cls._queue_room_message(ctx, room_message, item=obj_best)
         cls._logger_obj().debug(
-            f"{actor_label}: scavenged {getattr(obj_best, 'short_description', '') or getattr(obj_best, 'name', 'item')} "
-            f"[id={getattr(obj_best, 'id', '')}, cost={getattr(obj_best, 'cost', 0)}] in {room_label}"
+            f"{actor_label}: scavenged {obj_best.short_description or obj_best.name} "
+            f"[id={obj_best.id}, cost={obj_best.cost}] in {room_label}"
         )
         return ctx.mark_performed()
 
@@ -715,12 +715,12 @@ class MobileApi(GameApi):
             return False
 
         closed_bit = MobileApi.enum_bit(ctx.handler.exit_flags, "EX_CLOSED", "CLOSED")
-        if closed_bit and (GenericUtil.to_int(getattr(pexit, "exit_flags", 0), 0) & closed_bit) != 0:
+        if closed_bit and (GenericUtil.to_int(pexit.exit_flags, 0) & closed_bit) != 0:
             cls._logger_obj().debug(f"{actor_label}: move blocked from {room_label} to {cls._room_label(to_room)} because door {door} is closed")
             return False
 
         no_mob_bit = MobileApi.enum_bit(ctx.handler.room_flags, "ROOM_NO_MOB")
-        if no_mob_bit and (GenericUtil.to_int(getattr(to_room, "room_flags", 0), 0) & no_mob_bit) != 0:
+        if no_mob_bit and (GenericUtil.to_int(to_room.room_flags, 0) & no_mob_bit) != 0:
             cls._logger_obj().debug(f"{actor_label}: move blocked from {room_label} to {cls._room_label(to_room)} because ROOM_NO_MOB is set")
             return False
 
@@ -729,7 +729,7 @@ class MobileApi(GameApi):
             return False
 
         indoors_bit = MobileApi.enum_bit(ctx.handler.room_flags, "ROOM_INDOORS")
-        to_indoor = indoors_bit and (GenericUtil.to_int(getattr(to_room, "room_flags", 0), 0) & indoors_bit) != 0
+        to_indoor = indoors_bit and (GenericUtil.to_int(to_room.room_flags, 0) & indoors_bit) != 0
         if MobileApi.mobile_has_act(ctx.actor, ctx.handler.act_bits, "ACT_OUTDOORS") and to_indoor:
             cls._logger_obj().debug(f"{actor_label}: move blocked from {room_label} to {cls._room_label(to_room)} because ACT_OUTDOORS forbids indoor rooms")
             return False
@@ -770,7 +770,7 @@ class MobileApi(GameApi):
 
     @staticmethod
     def _queue_spell_payload(ctx: MobileContext, meta, victim, area: bool):
-        spell_label = getattr(meta, "name", "spell")
+        spell_label = meta.name
         actor_name = MobileApi.render_mobile_name(ctx.actor)
         payload = {
             "room_message": f"{actor_name} casts {spell_label}" + (".\r\n" if area or victim is None else f" on {MobileApi.render_mobile_name(victim)}.\r\n"),
@@ -862,7 +862,7 @@ class MobileApi(GameApi):
         for token, value in tokens.items():
             rendered = rendered.replace(token, value)
         rendered = rendered.replace("$N", "someone")
-        sex = str(getattr(target, "sex", "") or "").lower()
+        sex = str((target.sex if target is not None else "") or "").lower()
         poss = "their"
         if sex in ("1", "m", "male"):
             poss = "his"
@@ -885,7 +885,8 @@ class MobileApi(GameApi):
         charm = cls.enum_bit(cls.get_enum("affectedBy"), "AFF_CHARM")
         if charm == 0:
             return False
-        flags = GenericUtil.to_int(getattr(getattr(mob, "status_flags", None), "affected_by", 0), 0)
+        status_flags = mob.status_flags if mob is not None else None
+        flags = GenericUtil.to_int(status_flags.affected_by if status_flags is not None else 0, 0)
         return (flags & charm) != 0
 
     @classmethod
@@ -893,7 +894,8 @@ class MobileApi(GameApi):
         bit = cls.enum_bit(act_bits, name)
         if bit == 0:
             return False
-        flags = GenericUtil.to_int(getattr(getattr(mob, "status_flags", None), "act", 0), 0)
+        status_flags = mob.status_flags if mob is not None else None
+        flags = GenericUtil.to_int(status_flags.act if status_flags is not None else 0, 0)
         return (flags & bit) != 0
 
     @classmethod

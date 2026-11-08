@@ -56,7 +56,7 @@ class SpellContext:
     def level(self) -> int:
         if self.cast_level is not None:
             return int(self.cast_level or 0)
-        return int(getattr(self.actor, "level", 0) or 0)
+        return int(self.actor.level or 0) if self.actor is not None else 0
 
     def finish(self):
         self.done = True
@@ -141,5 +141,5 @@ class SpellContext:
         if target is None:
             return ""
         if self.is_object_target():
-            return str(getattr(target, "short_description", "") or getattr(target, "name", "something"))
+            return str(target.short_description or target.name)
         return DisplayUtil.entity_name(target, is_npc=CharacterApi.is_npc)

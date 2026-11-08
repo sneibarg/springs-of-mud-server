@@ -31,10 +31,12 @@ class SpeechTextTests(MovementFixture, unittest.IsolatedAsyncioTestCase):
         registry = NS(get_or_none=lambda **kw: next((c for c in people if c.id == kw['id']), None))
         self.commands.character_registry = registry
         player = PlayerHandler.__new__(PlayerHandler)
+        player.command_audit = None
         player.communications_commands = self.commands
         player.character_registry, player.room_registry = registry, self.rooms
         player.message_bus, player._send_prompt = self.bus, AsyncMock()
         self.interpreter = InterpHandler.__new__(InterpHandler)
+        self.interpreter.command_audit = None
         self.interpreter.registry_service = self.registries
         self.interpreter.handler_service = NS(get_handler=lambda key: player)
         self.interpreter.connection_manager, self.interpreter.room_registry = manager, self.rooms

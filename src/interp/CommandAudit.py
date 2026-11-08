@@ -16,7 +16,7 @@ class CommandAudit:
         self.logger = LoggerFactory.get_logger('commands')
 
     async def record(self, actor, command, raw_command):
-        mode = str(getattr(command, 'log', '') or '').upper()
+        mode = str((command.log if command is not None else '') or '').upper()
         text = '' if mode == 'LOG_NEVER' else str(raw_command or '').lstrip()
         session = self.wiz_handler.current_session(actor)
         await self.message_bus.mirror_snoop_input(session, text)

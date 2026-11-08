@@ -16,6 +16,7 @@ class ContainerInspectionTests(MovementFixture, unittest.IsolatedAsyncioTestCase
         rooms = NS(get=lambda **kw: self.rooms.get_or_none(**kw))
         self.handler = ItemHandler(self.bus, NS(room_registry=rooms, item_registry=None))
         self.player = PlayerHandler.__new__(PlayerHandler)
+        self.player.command_audit = None
         self.player.room_registry = self.rooms
         self.info = Info.__new__(Info)
         self.info.room_registry = self.rooms

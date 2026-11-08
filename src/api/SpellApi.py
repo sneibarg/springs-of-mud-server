@@ -80,7 +80,7 @@ class SpellApi:
         return True
 
     def execute_lambdas(self, ctx: SpellContext, steps: list[str] | None = None) -> bool:
-        lambdas = list(getattr(ctx.spell, "lambdas", []) or []) if steps is None else list(steps)
+        lambdas = list(ctx.spell.lambdas or []) if steps is None else list(steps)
         if not lambdas:
             return self.default_spell(ctx) if steps is None else bool(ctx.performed)
 
@@ -94,7 +94,7 @@ class SpellApi:
                     raise TypeError(f"Async spell lambdas are not supported: {lambda_str}")
             except Exception as exc:
                 self.logger.error(
-                    f"Spell lambda failed for {getattr(ctx.spell, 'name', '')}: {lambda_str} | {exc}",
+                    f"Spell lambda failed for {ctx.spell.name}: {lambda_str} | {exc}",
                     exc_info=True,
                 )
                 return ctx.fail("Your spell fizzles and dies.\r\n")
@@ -108,7 +108,7 @@ class SpellApi:
         return ctx.mark_performed()
 
     def queue_cast_announcement(self, ctx: SpellContext):
-        spell_label = str(getattr(ctx.spell, "name", "spell") or "spell")
+        spell_label = str(ctx.spell.name or "spell")
         if spell_label.strip().lower() == "ventriloquate":
             return False
         victim = ctx.victim
@@ -127,16 +127,16 @@ class SpellApi:
                 victim=victim,
             )
 
-        exclude_ids = {str(getattr(ctx.actor, "id", "") or "")}
+        exclude_ids = {str(ctx.actor.id or "")}
         if victim is not None:
-            exclude_ids.add(str(getattr(victim, "id", "") or ""))
+            exclude_ids.add(str(victim.id or ""))
         for player in self._room_players(ctx.room, exclude_ids=exclude_ids):
             if CharacterApi.position_value(player) >= CharacterApi.pos_value('POS_RESTING'):
                 ctx.queue_payload({"to_room": announcement(player), "targets": [player]})
         return True
 
     def check_offensive_cast(self, ctx: SpellContext):
-        target_type = str(getattr(ctx.spell, "target", "") or "").upper()
+        target_type = str(ctx.spell.target or "").upper()
         if target_type not in ("CHAR_OFFENSIVE", "OBJ_CHAR_OFF") or CharacterApi.is_npc(ctx.actor):
             return
         victim = ctx.victim
@@ -148,12 +148,12 @@ class SpellApi:
     def start_offensive_combat(self, ctx: SpellContext):
         """Let a still-present, idle offensive target retaliate after a cast attempt."""
         victim = ctx.victim
-        target_type = str(getattr(ctx.spell, "target", "") or "").upper()
+        target_type = str(ctx.spell.target or "").upper()
         if (victim is None or victim is ctx.actor or target_type not in ("CHAR_OFFENSIVE", "OBJ_CHAR_OFF")
-                or getattr(victim, "master", None) is ctx.actor or getattr(victim, "fighting", None) is not None):
+                or victim.master is ctx.actor or getattr(victim, "fighting", None) is not None):
             return
         room = ctx.room
-        if room is None or (getattr(ctx.actor, "room_id", "") and str(ctx.actor.room_id) != str(room.id)):
+        if room is None or (ctx.actor.room_id and str(ctx.actor.room_id) != str(room.id)):
             room = self._find_room_for_entity(ctx, ctx.actor)
         if room is None or not any(entity is victim for entity in self._room_entities(room)):
             return
@@ -175,9 +175,9 @@ class SpellApi:
         if to_room:
             exclude = set()
             if not include_actor_in_room:
-                exclude.add(str(getattr(ctx.actor, "id", "") or ""))
+                exclude.add(str(ctx.actor.id or ""))
             if target is not None and not include_victim_in_room:
-                exclude.add(str(getattr(target, "id", "") or ""))
+                exclude.add(str(target.id or ""))
             targets = self._room_players(ctx.room, exclude_ids=exclude)
             if targets:
                 payload["to_room"] = to_room
@@ -207,7 +207,7 @@ class SpellApi:
         rendered = self.interp_api.render_message_key(ctx, message_key, channel="to_char", **tokens)
         if isinstance(rendered, dict) and rendered.get("to_char"):
             return str(rendered["to_char"])
-        spell = getattr(ctx, "spell", None)
+        spell = ctx.spell
         if spell is not None and callable(getattr(spell, "message", None)):
             direct = spell.message("to_char", message_key, **tokens)
             if direct:
@@ -243,7 +243,7 @@ class SpellApi:
         if victim is None:
             return False
         options = {}
-        if getattr(ctx, "cast_level", None) is not None:
+        if ctx.cast_level is not None:
             options["caster_level"] = ctx.level
         if join:
             options["join"] = True
@@ -263,7 +263,7 @@ class SpellApi:
         return ctx.mark_performed()
 
     def _queue_apply_affect_messages(self, ctx: SpellContext, victim: Any) -> None:
-        payload = self.interp_api.evaluate_guards_only(ctx, getattr(ctx.spell, "name", "spell"))
+        payload = self.interp_api.evaluate_guards_only(ctx, ctx.spell.name)
         if not isinstance(payload, dict):
             return
 
@@ -279,9 +279,9 @@ class SpellApi:
             routed["victim"] = victim
 
         if routed.get("to_room"):
-            exclude = {str(getattr(ctx.actor, "id", "") or "")}
+            exclude = {str(ctx.actor.id or "")}
             if not ctx.is_object_target():
-                exclude.add(str(getattr(victim, "id", "") or ""))
+                exclude.add(str(victim.id or ""))
             targets = self._room_players(ctx.room, exclude_ids=exclude)
             if targets:
                 routed["targets"] = targets
@@ -349,11 +349,11 @@ class SpellApi:
     def _queue_removed_effect_messages(self, ctx: SpellContext, victim: Any, effects: list[Effect]) -> None:
         seen = set()
         for effect in effects:
-            effect_type = str(getattr(effect, "type", "")).strip().lower()
+            effect_type = str(effect.type).strip().lower()
             if effect_type in seen:
                 continue
             seen.add(effect_type)
-            ability = self._ability_for_effect(ctx, getattr(effect, "type", ""))
+            ability = self._ability_for_effect(ctx, effect.type)
             if ability is None:
                 continue
             text = DisplayUtil.display_effect_message(self._ability_message(ability, "to_char", "msg_off", ctx, victim))
@@ -380,7 +380,7 @@ class SpellApi:
                 "t": target_name,
                 "n": target_name,
                 "item": Item.short(target) if hasattr(target, "item_type") else tokens.get("item", ""),
-                "actor_his": getattr(getattr(ctx, "actor", None), "his_her", lambda: "its")(),
+                "actor_his": getattr(ctx.actor, "his_her", lambda: "its")(),
                 "victim_his": getattr(target, "his_her", lambda: "its")(),
                 "victim_him": getattr(target, "him_her", lambda: "it")(),
             }
@@ -423,7 +423,7 @@ class SpellApi:
             ctx.actor,
             victim,
             damage,
-            dt=dt or getattr(ctx.spell, "noun_damage", "") or getattr(ctx.spell, "name", "spell"),
+            dt=dt or ctx.spell.noun_damage or ctx.spell.name,
             dam_type=dam_type,
         )
         self._queue_damage_payload(ctx, payload, victim)
@@ -513,7 +513,8 @@ class SpellApi:
 
     def invisibility_level(self, ctx: SpellContext, target: Any = None) -> int:
         victim = ctx.resolve(target) if target is not None else ctx.victim
-        return int(getattr(getattr(victim, "status_flags", None), "invis_level", 0))
+        status_flags = victim.status_flags if victim is not None else None
+        return int(status_flags.invis_level if status_flags is not None else 0)
 
     def room_has_flag(self, ctx: SpellContext, flag: str) -> bool:
         return self._room_flag(self._find_room_for_entity(ctx, ctx.victim) or ctx.room, flag)
@@ -522,13 +523,13 @@ class SpellApi:
         return CharacterApi.is_same_group(ctx.actor, ctx.resolve(target) if target is not None else ctx.victim)
 
     def item_kind(self, ctx: SpellContext) -> str:
-        raw = str(getattr(ctx.obj, "item_type", "")).lower()
+        raw = str((ctx.obj.item_type if ctx.obj is not None else "")).lower()
         return GameApi.item_table_map().get(raw, {}).get("type", raw).lower().removeprefix("item_")
 
     def item_has_flag(self, ctx: SpellContext, flag: str, weapon: bool = False, target: Any = None) -> bool:
         enum = GameApi.get_enum("weaponType" if weapon else "itemFlags")
         item = ctx.resolve(target) if target is not None else ctx.obj
-        value = getattr(item, "value4" if weapon else "extra_flags", 0)
+        value = ((item.value4 if weapon else item.extra_flags) if item is not None else 0)
         return GameApi.is_set(GameApi.flags_to_int(value), getattr(enum, flag).value)
 
     def object_value_expr(self, ctx: SpellContext, index: int, expression: str):
@@ -560,7 +561,7 @@ class SpellApi:
         if not self.item_has_flag(ctx, flag):
             return False
         item = ctx.obj
-        matching = [entry for entry in getattr(item, "effects", [])
+        matching = [entry for entry in item.effects
                     if str(entry.type).lower() == effect.lower()]
         level = matching[0].level if matching else item.level
         if EffectUtil.saves_dispel(ctx.level, int(level), 0):
@@ -580,7 +581,7 @@ class SpellApi:
         """Detach an old following relationship, then establish the requested one."""
         follower = ctx.victim
         master = ctx.resolve(master) if master is not None else ctx.actor
-        previous = getattr(follower, "master", None)
+        previous = follower.master
 
         def notify(key, recipient, leader):
             tokens = {**ctx.payload_tokens(), "follower": DisplayUtil.entity_name(follower, is_npc=CharacterApi.is_npc),
@@ -642,9 +643,9 @@ class SpellApi:
     def area_message(self, ctx: SpellContext, key: str, outdoors: bool = False, awake: bool = False):
         if ctx.room is None:
             return False
-        area_id = getattr(ctx.room, "area_id", None)
+        area_id = ctx.room.area_id
         for room in ctx.handler.registry_service.room_registry.all_rooms():
-            if room is ctx.room or area_id is None or getattr(room, "area_id", None) != area_id:
+            if room is ctx.room or area_id is None or room.area_id != area_id:
                 continue
             if outdoors and self._room_flag(room, "ROOM_INDOORS"):
                 continue
@@ -819,7 +820,7 @@ class SpellApi:
             owner = victim
             field = resource
             if resource == "alignment":
-                owner = getattr(victim, "character_attributes", None) or victim
+                owner = victim.character_attributes or victim
             elif resource == "movement" and not hasattr(victim, "movement"):
                 field = "move"
             current = GenericUtil.to_int(getattr(owner, field, 0), 0)
@@ -867,7 +868,7 @@ class SpellApi:
             return False
         fight = self._fight_handler(ctx)
         room = (self._find_room_for_entity(ctx, entity) or ctx.room) if hasattr(entity, "owned_items") else entity
-        exposure = getattr(self, "elemental_exposure", None) or fight.weapon_hit_handler
+        exposure = self.elemental_exposure or fight.weapon_hit_handler
         result = exposure.expose(kind, ctx.actor, entity, level, damage, room,
                                                  fight._check_immunity, payload=ctx.spell.payload)
         if hasattr(entity, "owned_items"):
@@ -898,7 +899,7 @@ class SpellApi:
                 if victim is ctx.actor or fight.is_safe_spell(ctx.actor, victim, area=True):
                     continue
                 if (CharacterApi.is_npc(ctx.actor) and CharacterApi.is_npc(victim)
-                        and (getattr(ctx.actor, "fighting", None) is not victim
+                        and (ctx.actor.fighting is not victim
                              or getattr(victim, "fighting", None) is not ctx.actor)):
                     continue
             collateral = area and victim is not primary
@@ -914,7 +915,7 @@ class SpellApi:
                 damage = base_damage // 2 if saved else base_damage
             self.elemental_effect(ctx, kind, effect_level, effect_damage, target=victim)
             result = fight.damage(ctx.actor, victim, damage, dam_type=damage_type,
-                                  dt=getattr(ctx.spell, "noun_damage", "") or getattr(ctx.spell, "name", "spell"))
+                                  dt=ctx.spell.noun_damage or ctx.spell.name)
             self._queue_damage_payload(ctx, result, victim)
         return ctx.mark_performed()
 
@@ -981,7 +982,7 @@ class SpellApi:
                 ctx.actor,
                 victim,
                 damage,
-                dt=getattr(ctx.spell, "noun_damage", "") or getattr(ctx.spell, "name", "spell"),
+                dt=ctx.spell.noun_damage or ctx.spell.name,
                 dam_type=dam_type,
             )
             self._queue_damage_payload(ctx, payload, victim)
@@ -995,8 +996,8 @@ class SpellApi:
         if victim is None:
             return False
         amount = max(0, self.eval_int(ctx, expression, victim=victim))
-        current = GenericUtil.to_int(getattr(victim, "hit", 0), 0)
-        maximum = GenericUtil.to_int(getattr(victim, "max_hit", current), current)
+        current = GenericUtil.to_int(victim.hit, 0)
+        maximum = GenericUtil.to_int(victim.max_hit, current)
         victim.hit = min(maximum, current + amount)
         self._fight_handler(ctx).update_pos(victim)
         return ctx.mark_performed()
@@ -1034,7 +1035,7 @@ class SpellApi:
     def item_worn(self, ctx: SpellContext, target: Any = None) -> bool:
         item = ctx.resolve(target) if target is not None else ctx.obj
         return (int(getattr(item, 'wear_loc', -1)) != -1
-                or any(value is item for value in getattr(getattr(ctx.actor, 'equipped', None), '__dict__', {}).values()))
+                or any(value is item for value in (vars(ctx.actor.equipped).values() if ctx.actor.equipped is not None else [])))
 
     def set_item_flag(self, ctx: SpellContext, flag: str, target: Any = None):
         item = ctx.resolve(target) if target is not None else ctx.obj
@@ -1058,7 +1059,7 @@ class SpellApi:
             visible=lambda item: ItemApi.can_see_object(ctx.room, ctx.actor, item)))
 
     def equipped_item(self, ctx: SpellContext, slot: str):
-        return getattr(getattr(ctx.actor, 'equipped', None), slot, None)
+        return getattr(ctx.actor.equipped, slot, None)
 
     def equip_created(self, ctx: SpellContext, slot: str):
         from game.Equipped import Equipped
@@ -1119,7 +1120,7 @@ class SpellApi:
         return ctx.mark_performed() if result != 'failed' else False
 
     def object_affects(self, ctx: SpellContext, item):
-        if not getattr(item, 'enchanted', False) and not getattr(item, 'effects', None) and getattr(item, 'affect_data', []):
+        if not item.enchanted and not item.effects and item.affect_data:
             item.effects = []
             ItemFactory.update_affect_data(item)
         return self.effect_handler.ensure_effects(item)
@@ -1151,7 +1152,7 @@ class SpellApi:
             liquid = str(values[2]).strip("'\"")
             if liquid == '0': liquid = 'water'
             emit('liquid', liquid=liquid, color=GameApi.liquids_map().get(liquid, {}).get('color')
-                 or getattr(item, 'liquid_color', None) or 'unknown')
+                 or item.liquid_color or 'unknown')
         elif kind == 'container':
             emit('container', capacity=values[0], maximum=values[3], flags=labels('containerState', values[1]))
             if int(values[4]) != 100:
@@ -1165,7 +1166,7 @@ class SpellApi:
                            if int(value) == numeric), named if named in class_names else 'unknown')
             emit('weapon', weapon=rules.get('weapon_names', {}).get(weapon, weapon))
             low, high = int(values[1]), int(values[2])
-            if getattr(item, 'new_format', True):
+            if item.new_format:
                 emit('dice', count=low, sides=high, average=GenericUtil.trunc_div((1 + high) * low, 2))
             else:
                 emit('range', low=low, high=high, average=GenericUtil.trunc_div(low + high, 2))
@@ -1204,7 +1205,7 @@ class SpellApi:
         if number is not None:
             return next((name for name, index in (indices or {}).items() if index == number), '')
         ability = self._ability_for_effect(ctx, value)
-        return str(getattr(ability, 'name', value))
+        return str((ability.name if ability is not None else value))
 
     def reference_index(self, ctx: SpellContext, reference: Any, indices: dict) -> int:
         number = GenericUtil.to_int(reference, None) if isinstance(reference, (str, int)) else None
@@ -1321,7 +1322,7 @@ class SpellApi:
     def clan_mismatch(self, ctx: SpellContext, target: Any = None) -> bool:
         victim = ctx.resolve(target) if target is not None else ctx.victim
         return CharacterApi.is_clan(victim) and str(victim.guild).strip().lower() != str(
-            getattr(ctx.actor, "guild", "") or "").strip().lower()
+            ctx.actor.guild or "").strip().lower()
 
     def is_shopkeeper(self, ctx: SpellContext, target: Any = None) -> bool:
         victim = ctx.resolve(target) if target is not None else ctx.victim
@@ -1329,7 +1330,7 @@ class SpellApi:
                 and ctx.handler.registry_service.shop_registry.find_by_keeper_vnum(victim.vnum) is not None)
 
     def held_item_kind(self, ctx: SpellContext, kind: str) -> bool:
-        item = getattr(getattr(ctx.actor, "equipped", None), "held", None)
+        item = (ctx.actor.equipped.held if ctx.actor.equipped is not None else None)
         return item is not None and str(item.item_type).lower().removeprefix("item_") == kind.lower()
 
     def consume_held_item(self, ctx: SpellContext, kind: str, message_key: str):
@@ -1538,7 +1539,7 @@ class SpellApi:
         if not name:
             return False
         normalized = name.lower()
-        if any(str(getattr(effect, "type", "")).strip().lower() == normalized for effect in getattr(target, "effects", []) or []):
+        if any(str(effect.type).strip().lower() == normalized for effect in (target.effects if target is not None else []) or []):
             return True
         if name.upper().startswith("AFF_"):
             return CharacterApi.is_affected_by_name(target, CharacterApi.get_enum("affectedBy"), name.upper())
@@ -1568,7 +1569,7 @@ class SpellApi:
 
     @staticmethod
     def _find_room_for_entity(ctx: SpellContext, entity):
-        room_id = getattr(entity, "room_id", "")
+        room_id = entity.room_id if entity is not None else ""
         return ctx.handler.registry_service.room_registry.get_or_none(id=room_id) if room_id else None
 
     def _find_world_character(self, ctx: SpellContext, name: str):
@@ -1589,18 +1590,18 @@ class SpellApi:
         if room is None:
             return []
         exclude = {str(value) for value in (exclude_ids or set())}
-        return [player for player in getattr(room, "characters", {}).values() if str(getattr(player, "id", "")) not in exclude]
+        return [player for player in room.characters.values() if str(player.id) not in exclude]
 
     @staticmethod
     def _room_entities(room) -> list[Any]:
         if room is None:
             return []
-        return list(getattr(room, "characters", {}).values()) + list(getattr(room, "mobiles", {}).values())
+        return list(room.characters.values()) + list(room.mobiles.values())
 
     def _room_flag(self, room, flag_name: str) -> bool:
         flags = CharacterApi.get_enum("roomFlags")
         bit = CharacterApi.enum_bit(flags, flag_name)
-        return bit > 0 and CharacterApi.is_set(GenericUtil.to_int(getattr(room, "room_flags", 0), 0), bit)
+        return bit > 0 and CharacterApi.is_set(GenericUtil.to_int((room.room_flags if room is not None else 0), 0), bit)
 
     def _queue_room_text(self, ctx: SpellContext, room, text: str, exclude_ids: set[str] | None = None):
         if room is None or not text:
@@ -1629,7 +1630,7 @@ class SpellApi:
         fighters = []
         for entity in SpellApi._room_entities(room):
             position = GenericUtil.to_int(getattr(entity, "position", getattr(getattr(entity, "character_attributes", None), "position", 0)), 0)
-            if getattr(entity, "fighting", None) is not None or position == fighting_pos:
+            if entity.fighting is not None or position == fighting_pos:
                 fighters.append(entity)
         return fighters
 
@@ -1640,7 +1641,7 @@ class SpellApi:
         items = list(getattr(owner, "loot", []) or [])
         equipped = getattr(owner, "equipped", None)
         if equipped is not None:
-            for item in getattr(equipped, "__dict__", {}).values():
+            for item in vars(equipped).values():
                 if item is not None and item not in items:
                     items.append(item)
         return items
@@ -1651,7 +1652,7 @@ class SpellApi:
         nodrop = item_flags.ITEM_NODROP
         noremove = item_flags.ITEM_NOREMOVE
         nouncurse = item_flags.ITEM_NOUNCURSE
-        raw_flags = GameApi.flags_to_int(getattr(item, "extra_flags", 0))
+        raw_flags = GameApi.flags_to_int(item.extra_flags)
         cursed = GameApi.is_set(raw_flags, nodrop.value) or GameApi.is_set(raw_flags, noremove.value)
         if not cursed:
             if quiet:
@@ -1661,7 +1662,7 @@ class SpellApi:
             if quiet:
                 return False
             return ctx.fail(f"The curse on {Item.short(item)} is beyond your power.\r\n")
-        if EffectUtil.saves_dispel(ctx.level + level_adjust, GenericUtil.to_int(getattr(item, "level", 0), 0), 0):
+        if EffectUtil.saves_dispel(ctx.level + level_adjust, GenericUtil.to_int(item.level, 0), 0):
             if quiet:
                 return False
             return ctx.fail(f"The curse on {Item.short(item)} is beyond your power.\r\n")
@@ -1686,7 +1687,7 @@ class SpellApi:
         bit = CharacterApi.enum_bit(act_bits, flag_name)
         if bit <= 0:
             return False
-        flags = GenericUtil.to_int(getattr(getattr(entity, "status_flags", None), "act", 0), 0)
+        flags = GenericUtil.to_int((entity.status_flags.act if entity.status_flags is not None else 0), 0)
         return CharacterApi.is_set(flags, bit)
 
     @staticmethod
@@ -1696,7 +1697,7 @@ class SpellApi:
         flag_letters = CharacterApi.get_enum("flagLetters")
         if flag_name not in flag_letters.__members__:
             return False
-        flags = GenericUtil.to_int(getattr(getattr(entity, "status_flags", None), "imm", 0), 0)
+        flags = GenericUtil.to_int((entity.status_flags.imm if entity.status_flags is not None else 0), 0)
         return CharacterApi.is_set(flags, flag_letters[flag_name].value)
 
     @staticmethod
@@ -1706,7 +1707,7 @@ class SpellApi:
         act_bits = CharacterApi.get_enum("playerActBits")
         if flag_name not in act_bits.__members__:
             return False
-        flags = GenericUtil.to_int(CharacterApi.convert_flags(getattr(getattr(entity, "status_flags", None), "act", "") or "0"), 0)
+        flags = GenericUtil.to_int(CharacterApi.convert_flags((entity.status_flags.act if entity.status_flags is not None else "") or "0"), 0)
         return CharacterApi.is_set(flags, act_bits[flag_name].value)
 
     @staticmethod

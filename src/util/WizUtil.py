@@ -84,7 +84,7 @@ class WizUtil:
                 continue
             for entity in LookupUtil.people(room):
                 if (id(entity) in seen or getattr(entity, 'world_retired', False)
-                        or str(getattr(entity, 'room_id', room.id)) != str(room.id)):
+                        or str(entity.room_id) != str(room.id)):
                     continue
                 seen.add(id(entity))
                 entities.append(entity)

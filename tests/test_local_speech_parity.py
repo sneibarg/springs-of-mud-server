@@ -93,6 +93,7 @@ class LocalSpeechTests(MovementFixture, unittest.IsolatedAsyncioTestCase):
         connections = {entity.id: NS(is_closed=lambda: False, send_message=AsyncMock())
                        for entity in (self.actor, self.bob, self.cara, sleeper)}
         emitter = PlayerHandler.__new__(PlayerHandler)
+        emitter.command_audit = None
         emitter.message_bus = MessageBus(NS(get_connection_by_character=connections.get),
                                         NS(get_session_by_character=lambda identifier: None))
         emitter._send_prompt = AsyncMock()

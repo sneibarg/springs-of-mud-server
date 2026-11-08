@@ -34,6 +34,7 @@ class FinalFixture(TargetingFixture):
 
     def emitter(self):
         handler = PlayerHandler.__new__(PlayerHandler)
+        handler.command_audit = None
         handler.wiz_handler = self.wiz_handler
         handler.interp_api = self.api
         handler.room_registry = self.rooms

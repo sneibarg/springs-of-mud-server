@@ -134,7 +134,7 @@ class Info:
             context.jump_to(4)
             return None
 
-        desc = (getattr(target, "description", "") or "").strip()
+        desc = (target.description or "").strip()
         if not desc:
             desc = "You see nothing special."
 
@@ -228,7 +228,7 @@ class Info:
             context.finish()
             return ""
 
-        attributes = getattr(character, "character_attributes", None)
+        attributes = character.character_attributes
         if attributes is None:
             context.finish()
             return ""
@@ -239,7 +239,7 @@ class Info:
         context.wimpy_is_numeric = bool(arg) and arg.lstrip("-").isdigit()
 
         if arg == "":
-            wimpy = int(getattr(character, "max_hit", 0) / 5)
+            wimpy = int(character.max_hit / 5)
         else:
             wimpy = GenericUtil.to_int(arg, 0)
             context.wimpy_value = wimpy
@@ -252,22 +252,22 @@ class Info:
         return self.interp_api.render_message_key(context, "set", channel="to_char", d=wimpy).get("to_char", "")
 
     def do_score(self, character: Character, context: Context) -> str:
-        attributes = getattr(character, "character_attributes", None)
+        attributes = character.character_attributes
         if attributes is None:
             context.finish()
             return ""
 
         character_race = getattr(character, "character_race", None)
-        status_flags = getattr(character, "status_flags", None)
-        played = GenericUtil.to_int(getattr(status_flags, "played", 0), 0)
-        logon = GenericUtil.to_int(getattr(status_flags, "logon", 0), 0)
+        status_flags = character.status_flags
+        played = GenericUtil.to_int((status_flags.played if status_flags is not None else 0), 0)
+        logon = GenericUtil.to_int((status_flags.logon if status_flags is not None else 0), 0)
         elapsed = int(datetime.now().timestamp()) - logon if logon > 0 else 0
         total_seconds = max(played + elapsed, 0)
         total_hours = total_seconds // 3600
         age_years = 17 + (total_seconds // 72000)
 
         trust = CharacterApi.get_trust(character)
-        sex_text = str(getattr(character, "sex", "sexless") or "sexless").lower()
+        sex_text = str(character.sex or "sexless").lower()
         if sex_text not in ("male", "female", "sexless"):
             sex_text = "sexless"
 
@@ -323,16 +323,16 @@ class Info:
         if CharacterApi.is_immortal(character):
             holy = "on" if CharacterApi.has_holy_light(character) else "off"
             imm_text = f"Holy Light: {holy}"
-            if GenericUtil.to_int(getattr(character.status_flags, "invis_level", 0), 0) > 0:
+            if GenericUtil.to_int(character.status_flags.invis_level, 0) > 0:
                 imm_text += f"  Invisible: level {character.status_flags.invis_level}"
-            if GenericUtil.to_int(getattr(character.status_flags, "incog_level", 0), 0) > 0:
+            if GenericUtil.to_int(character.status_flags.incog_level, 0) > 0:
                 imm_text += f"  Incognito: level {character.status_flags.incog_level}"
             lines.append(imm_text)
 
         if character.level >= 15:
             lines.append(f"Hitroll: {CharacterApi.get_hitroll(character)}  Damroll: {CharacterApi.get_damroll(character)}.")
 
-        alignment = GenericUtil.to_int(getattr(attributes, "alignment", 0), 0)
+        alignment = GenericUtil.to_int(attributes.alignment, 0)
         if character.level >= 10:
             lines.append(f"Alignment: {alignment}. You are {InfoUtil.score_alignment_word(alignment)}.")
         else:
@@ -348,7 +348,7 @@ class Info:
             context.finish()
             return "Time is unavailable.\r\n"
 
-        day = int(getattr(time_info, "day", 0)) + 1
+        day = int(time_info.day) + 1
         if 4 < day < 20:
             suf = "th"
         elif day % 10 == 1:
@@ -360,8 +360,8 @@ class Info:
         else:
             suf = "th"
 
-        hour = int(getattr(time_info, "hour", 0))
-        month = int(getattr(time_info, "month", 0))
+        hour = int(time_info.hour)
+        month = int(time_info.month)
         text = (
             f"It is {12 if hour % 12 == 0 else hour % 12} o'clock "
             f"{'pm' if hour >= 12 else 'am'}, "
@@ -380,7 +380,7 @@ class Info:
         if payload.get("blocked"):
             return payload.get("to_char", "")
 
-        sky = getattr(weather_info, "sky", 0)
+        sky = (weather_info.sky if weather_info is not None else 0)
         if hasattr(sky, "value"):
             sky_index = int(sky.value)
         else:
@@ -388,7 +388,7 @@ class Info:
         if sky_index < 0 or sky_index >= len(SKY_LOOK):
             sky_index = 0
 
-        breeze = "a warm southerly breeze blows" if int(getattr(weather_info, "change", 0)) >= 0 else "a cold northern gust blows"
+        breeze = "a warm southerly breeze blows" if int((weather_info.change if weather_info is not None else 0)) >= 0 else "a cold northern gust blows"
         context.finish()
         return f"The sky is {SKY_LOOK[sky_index]} and {breeze}.\r\n"
 
@@ -466,7 +466,7 @@ class Info:
             context.finish()
             return (reason or "") + refusal
 
-        diff = GenericUtil.to_int(getattr(victim, "level", 0), 0) - GenericUtil.to_int(getattr(character, "level", 0), 0)
+        diff = GenericUtil.to_int(victim.level, 0) - GenericUtil.to_int(character.level, 0)
         name = DisplayUtil.entity_name(victim, is_npc=CharacterApi.is_npc)
         if diff <= -10:
             msg = f"You can kill {name} naked and weaponless."
@@ -507,7 +507,7 @@ class Info:
 
     def do_description(self, character: Character, context: Context) -> str:
         argument = (context.result if isinstance(context.result, str) else "").strip()
-        description = getattr(character, "description", "") or ""
+        description = character.description or ""
 
         if argument:
             arg = argument.replace("~", "")
@@ -535,7 +535,7 @@ class Info:
                 return "Description too long.\r\n"
             character.description = new_desc
 
-        final_desc = getattr(character, "description", None)
+        final_desc = character.description
         context.finish()
         if final_desc:
             return "Your description is:\r\n" + final_desc
@@ -586,7 +586,7 @@ class Info:
 
         areas = sorted(
             self.area_registry.all_areas(),
-            key=lambda area: str(getattr(area, "name", "") or "").lower(),
+            key=lambda area: str(area.name or "").lower(),
         )
         lines = [self._area_credit_line(area) for area in areas]
         context.finish()
@@ -597,15 +597,15 @@ class Info:
         is_immortal = CharacterApi.is_immortal(character)
         names: set[str] = set()
         for command in list(self.interp_registry.all_commands() or []):
-            name = str(getattr(command, "name", "") or "").strip()
+            name = str(command.name or "").strip()
             if not name:
                 continue
-            if not bool(getattr(command, "enabled", False)):
+            if not bool(command.enabled):
                 continue
-            level = GenericUtil.to_int(getattr(command, "level", 0), 0)
+            level = GenericUtil.to_int(command.level, 0)
             if level > trust:
                 continue
-            role = str(getattr(command, "role", "") or "").strip().lower()
+            role = str(command.role or "").strip().lower()
             if role == "immortal" and not is_immortal:
                 continue
             names.add(name)
@@ -640,7 +640,7 @@ class Info:
         if not argument:
             known = self._known_group_names(character, groups)
             lines = self._column_lines(known, width=20, columns=3)
-            points = GenericUtil.to_int(getattr(getattr(character, "character_attributes", None), "points", getattr(character, "points", 0)), 0)
+            points = GenericUtil.to_int(getattr(character.character_attributes, "points", getattr(character, "points", 0)), 0)
             context.finish()
             return f"{lines}Creation points: {points}\r\n"
 
@@ -667,7 +667,7 @@ class Info:
         for candidate in [character] + list(PlayerUtil.visible(character, self.session_handler) or []):
             if candidate is None:
                 continue
-            key = str(getattr(candidate, "id", "") or getattr(candidate, "name", "") or "")
+            key = str(candidate.id or candidate.name or "")
             if key and key in seen:
                 continue
             if key:
@@ -683,9 +683,9 @@ class Info:
             return "No immortals are visible.\r\n"
 
         lines = ["Immortals online:\r\n"]
-        for immortal in sorted(immortals, key=lambda item: (-self._character_trust(item), str(getattr(item, "name", "") or "").lower())):
-            name = str(getattr(immortal, "name", "") or "Someone").strip()
-            title = str(getattr(immortal, "title", "") or "").strip()
+        for immortal in sorted(immortals, key=lambda item: (-self._character_trust(item), str(item.name or "").lower())):
+            name = str(immortal.name or "Someone").strip()
+            title = str(immortal.title or "").strip()
             suffix = f" {title}" if title else ""
             lines.append(f"[{self._character_trust(immortal):2d}] {name}{suffix}\r\n")
         return "".join(lines)
@@ -904,8 +904,8 @@ class Info:
         if not raw and context.parameters:
             raw = " ".join(context.parameters).strip().lower()
 
-        attributes = getattr(character, "character_attributes", None)
-        practices = GenericUtil.to_int(getattr(attributes, "practices", 0), 0) if attributes is not None else 0
+        attributes = character.character_attributes
+        practices = GenericUtil.to_int(attributes.practices, 0) if attributes is not None else 0
 
         if not raw:
             lines = []
@@ -1055,8 +1055,8 @@ class Info:
         obj1 = LookupUtil.inventory(character, arg1, visible=visible) if arg1 else None
         obj2 = (LookupUtil.inventory(character, arg2, visible=visible) if arg2 else
                 ItemApi.find_comparable_equipped_item(character, obj1, room=room) if obj1 is not None else None)
-        t1 = str(getattr(obj1, "item_type", "") or "").strip().lower() if obj1 is not None else ""
-        t2 = str(getattr(obj2, "item_type", "") or "").strip().lower() if obj2 is not None else ""
+        t1 = str(obj1.item_type or "").strip().lower() if obj1 is not None else ""
+        t2 = str(obj2.item_type or "").strip().lower() if obj2 is not None else ""
         v1 = ItemApi.compare_value(obj1) if obj1 is not None else None
         v2 = ItemApi.compare_value(obj2) if obj2 is not None else None
         context.compare_arg1 = arg1
@@ -1106,7 +1106,7 @@ class Info:
             required_level = self._ability_level(character, meta, default=self._hero_level() + 1)
             if required_level > self._hero_level():
                 continue
-            if not parsed["show_all"] and required_level > GenericUtil.to_int(getattr(character, "level", 0), 0):
+            if not parsed["show_all"] and required_level > GenericUtil.to_int(character.level, 0):
                 continue
             if required_level < parsed["min_level"] or required_level > parsed["max_level"]:
                 continue
@@ -1182,21 +1182,21 @@ class Info:
     def _ability_metadata(self, collection_name: str) -> dict[str, Any]:
         values = self.spell_registry.all_spells() if collection_name == "spells" else self.skill_registry.all_skills()
         return {
-            str(getattr(ability, "name", "") or "").strip().lower(): ability
+            str(ability.name or "").strip().lower(): ability
             for ability in values
-            if str(getattr(ability, "name", "") or "").strip()
+            if str(ability.name or "").strip()
         }
 
     def _ability_level(self, character: Character, ability, default: int = 1) -> int:
         if ability is None:
             return default
-        values = getattr(ability, "level_by_class", {}) or {}
+        values = ability.level_by_class or {}
         return self._class_value(character, values, default=default)
 
     def _ability_rating(self, character: Character, ability, default: int = 0) -> int:
         if ability is None:
             return default
-        values = getattr(ability, "rating_by_class", {}) or {}
+        values = ability.rating_by_class or {}
         return self._class_value(character, values, default=default)
 
     def _class_value(self, character: Character, values: dict, default: int = 0) -> int:
@@ -1214,17 +1214,17 @@ class Info:
             return default
 
     def _skill_list_chunk(self, character: Character, row: dict[str, Any]) -> str:
-        if GenericUtil.to_int(getattr(character, "level", 0), 0) < row["level"]:
+        if GenericUtil.to_int(character.level, 0) < row["level"]:
             return f"{row['name']:<18} n/a      "
         return f"{row['name']:<18} {row['learned']:>3}%      "
 
     def _spell_list_chunk(self, character: Character, row: dict[str, Any]) -> str:
-        if GenericUtil.to_int(getattr(character, "level", 0), 0) < row["level"]:
+        if GenericUtil.to_int(character.level, 0) < row["level"]:
             return f"{row['name']:<18} n/a      "
         meta = row.get("meta")
-        min_mana = GenericUtil.to_int(getattr(meta, "min_mana", 0), 0)
+        min_mana = GenericUtil.to_int((meta.min_mana if meta is not None else 0), 0)
         learned_level = max(1, GenericUtil.to_int(row.get("level", 1), 1))
-        mana = max(min_mana, int(100 / max(1, 2 + GenericUtil.to_int(getattr(character, "level", 0), 0) - learned_level)))
+        mana = max(min_mana, int(100 / max(1, 2 + GenericUtil.to_int(character.level, 0) - learned_level)))
         return f"{row['name']:<18}  {mana:>3} mana  "
 
     def _hero_level(self) -> int:
@@ -1235,9 +1235,9 @@ class Info:
             return 51
 
     def _area_credit_line(self, area) -> str:
-        name = str(getattr(area, "name", "") or "").strip()
-        author = str(getattr(area, "author", "") or "").strip()
-        level_range = str(getattr(area, "suggested_level_range", "") or "").strip()
+        name = str(area.name or "").strip()
+        author = str(area.author or "").strip()
+        level_range = str(area.suggested_level_range or "").strip()
         if level_range and author:
             return f"[{level_range}] {author}: {name}"
         if author:
@@ -1249,7 +1249,7 @@ class Info:
         try:
             return GenericUtil.to_int(CharacterApi.get_trust(character), 0)
         except Exception:
-            return GenericUtil.to_int(getattr(character, "trust", getattr(character, "level", 0)), 0)
+            return GenericUtil.to_int(getattr(character, "trust", character.level), 0)
 
     @staticmethod
     def _can_see_character(character: Character, target: Character, room=None) -> bool:
@@ -1296,10 +1296,10 @@ class Info:
 
     @staticmethod
     def _argument_text(context: Context) -> str:
-        result = getattr(context, "result", "")
+        result = context.result
         if isinstance(result, str) and result.strip():
             return result.strip()
-        return " ".join(getattr(context, "parameters", []) or []).strip()
+        return " ".join(context.parameters or []).strip()
 
     @staticmethod
     def _player_act_enabled(character: Character, bit_name: str) -> bool:

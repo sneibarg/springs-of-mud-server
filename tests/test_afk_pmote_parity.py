@@ -80,6 +80,7 @@ class AfkPmoteTests(MovementFixture, unittest.IsolatedAsyncioTestCase):
         sessions = NS(get_session_by_character=lambda identifier: None)
         bus = MessageBus(manager, sessions)
         emitter = PlayerHandler.__new__(PlayerHandler)
+        emitter.command_audit = None
         emitter.message_bus = bus
         emitter._send_prompt = AsyncMock()
         context = self.ctx('pmote', "takes Bob's hand.")

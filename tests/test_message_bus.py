@@ -24,11 +24,11 @@ class TestMessageBusBroadcast(unittest.TestCase):
     def test_broadcast_only_targets_playing_sessions(self):
         async def run_test():
             connected = self.session_handler.create_session("connected-session")
-            connected.character = SimpleNamespace(id="connected-character", area_id="area-1", context={})
+            connected.character = SimpleNamespace(name="", id="connected-character", area_id="area-1", context={})
             connected.status = SessionStatus.CONNECTED
 
             playing = self.session_handler.create_session("playing-session")
-            playing.character = SimpleNamespace(id="playing-character", area_id="area-1", context={})
+            playing.character = SimpleNamespace(name="", id="playing-character", area_id="area-1", context={})
             playing.status = SessionStatus.PLAYING
 
             connection = AsyncMock()

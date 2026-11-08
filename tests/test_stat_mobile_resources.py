@@ -81,6 +81,7 @@ class StatMobileResourceTests(StatMobileResourceFixture, unittest.TestCase):
 class StatMobileCommandExecutionTests(StatMobileResourceFixture, unittest.IsolatedAsyncioTestCase):
     async def test_executor_sends_mobile_stat_without_raising(self):
         handler = PlayerHandler.__new__(PlayerHandler)
+        handler.command_audit = None
         handler.wiz_commands = self.wiz
         handler.interp_api = self.api
         handler.message_bus = NS(text_to_message=lambda text: text, send_to_character=AsyncMock(),

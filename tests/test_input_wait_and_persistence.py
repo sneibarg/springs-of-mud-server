@@ -48,7 +48,7 @@ class TestInputWait(unittest.IsolatedAsyncioTestCase):
         first, second = asyncio.Event(), asyncio.Event()
         commands = []
 
-        async def execute(player, actor, text):
+        async def execute(actor, text):
             commands.append(text)
             if text == "first":
                 actor.status_flags.pulse_wait = 2
@@ -255,7 +255,7 @@ class TestPersistenceBoundary(unittest.IsolatedAsyncioTestCase):
 
     async def test_slow_note_fetch_yields_before_domain_read_state_changes(self):
         entered, release = threading.Event(), threading.Event()
-        character = NS(name="Reader", context={})
+        character = NS(name="Reader", context={}, note_read_stamps={}, note_read_ids={})
         note = InGameNote(id="note", to_list="all", subject="Hello", date_stamp=10)
 
         def fetch(kind):
@@ -270,7 +270,7 @@ class TestPersistenceBoundary(unittest.IsolatedAsyncioTestCase):
         try:
             self.assertTrue(await asyncio.to_thread(entered.wait, 1))
             self.assertFalse(task.done())
-            self.assertFalse(getattr(character, "note_read_stamps", {}))
+            self.assertFalse(character.note_read_stamps)
         finally:
             release.set()
         payload = await asyncio.wait_for(task, 1)

@@ -47,7 +47,7 @@ class InterpService(FetchAndRegisterMixin):
     def _assign_help_to_command(self, command: Command) -> None:
         if command.help is not None:
             return
-        command_name = str(getattr(command, "name", "") or "").strip().lower()
+        command_name = str(command.name or "").strip().lower()
         if not command_name:
             return
         command.help = self.help_registry.find_topic(command_name)

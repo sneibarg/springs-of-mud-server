@@ -37,6 +37,7 @@ class Rom24ReportTests(MovementFixture, unittest.IsolatedAsyncioTestCase):
         self.listen(self.actor)
 
         player = PlayerHandler.__new__(PlayerHandler)
+        player.command_audit = None
         player.interp_api = self.api
         player.room_registry = self.rooms
         player.info_commands = Info.__new__(Info)
@@ -47,6 +48,7 @@ class Rom24ReportTests(MovementFixture, unittest.IsolatedAsyncioTestCase):
         services = NS(get_handler={"ph": player, "rh": room_handler}.get)
 
         self.interpreter = InterpHandler.__new__(InterpHandler)
+        self.interpreter.command_audit = None
         self.interpreter.registry_service = self.registries
         self.interpreter.handler_service = services
         self.interpreter.connection_manager = manager

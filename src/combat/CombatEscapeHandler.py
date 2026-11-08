@@ -55,7 +55,7 @@ class CombatEscapeHandler:
         if npc:
             wimpy = CharacterApi.is_set(victim.status_flags.act, CharacterApi.enum_bit(self.act_bits, "ACT_WIMPY"))
             wounded = wimpy and self.rng.number_bits(2) == 0 and victim.hit < victim.max_hit // 5
-            master = getattr(victim, "master", None)
+            master = victim.master
             separated = (CharacterApi.is_affected(victim, self.affected_by.AFF_CHARM.value)
                          and master is not None and master.room_id != victim.room_id)
             if wounded or separated:

@@ -398,7 +398,7 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
         handler.WearFlags = SimpleNamespace(ITEM_TAKE=SimpleNamespace(value=1))
         handler.enum_provider.get.return_value = SimpleNamespace(OBJ_VNUM_PIT=SimpleNamespace(value=999))
         registries.shop_registry.find_by_keeper_vnum.return_value = None
-        room = SimpleNamespace(contents={}, characters={}, mobiles={}, players_in_room=lambda: [SimpleNamespace(id="observer")])
+        room = SimpleNamespace(contents={}, characters={}, mobiles={}, players_in_room=lambda: [SimpleNamespace(id="observer", character_attributes=None)])
         room.player_targets = lambda actor: [ch for ch in room.players_in_room() if ch is not actor]
         room.remove_item_from_room = lambda item: room.contents.pop(item.id, None)
         registries.room_registry.all_rooms.return_value = [room]
@@ -472,7 +472,7 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
         for carried in (False, True):
             with self.subTest(carried=carried):
                 handler, registries, bus, room, item = self._object_update_fixture()
-                player = SimpleNamespace(id="player", vnum="100", silver=7, loot=[item], equipped=None)
+                player = SimpleNamespace(id="player", vnum="100", silver=7, loot=[item], equipped=None, character_attributes=None)
                 if carried:
                     room.characters[player.id] = player
                 else:
@@ -525,7 +525,7 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
                 else:
                     is_player = kind.startswith("char")
                     equipped = kind.endswith("equipped")
-                    owner = SimpleNamespace(id="owner", vnum="100", loot=[], inventory=[],
+                    owner = SimpleNamespace(id="owner", vnum="100", loot=[], inventory=[], character_attributes=None,
                                             equipped=SimpleNamespace(held=corpse) if equipped else None)
                     destination = owner.loot if is_player else owner.inventory
                     if not equipped:
@@ -540,8 +540,8 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
         handler, registries, bus, room, item = self._object_update_fixture()
         child = SimpleNamespace(id="treasure", timer=0, contains=[])
         item.item_type, item.wear_loc, item.contains = "container", 17, [child]
-        owner = SimpleNamespace(id="owner", loot=[], equipped=SimpleNamespace(floating=item))
-        viewer = SimpleNamespace(id="viewer")
+        owner = SimpleNamespace(id="owner", loot=[], character_attributes=None, equipped=SimpleNamespace(floating=item, light=None))
+        viewer = SimpleNamespace(id="viewer", character_attributes=None)
         room.characters[owner.id] = owner
         room.players_in_room = lambda: [owner, viewer]
         asyncio.run(handler.update())
@@ -597,7 +597,7 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
 
         session_handler = Mock()
         session_handler.get_playing_sessions.return_value = [
-            SimpleNamespace(character=character) for character in playing_characters
+            SimpleNamespace(character=character, metadata={}) for character in playing_characters
         ]
         effect_handler = Mock()
         effect_handler.tick_effects.return_value = SimpleNamespace(expired_effects=[])
@@ -759,7 +759,7 @@ class TestUpdateHandlerActivePlayers(unittest.TestCase):
             )
             active.equipped.light = lamp
             active.loot = [lamp, lamp]
-            room = SimpleNamespace(
+            room = SimpleNamespace(mobiles={},
                 light=1,
                 characters={"active_char": active, "viewer_char": viewer},
                 players_in_room=lambda: [active, viewer],

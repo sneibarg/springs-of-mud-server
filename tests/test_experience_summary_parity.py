@@ -49,6 +49,8 @@ class ExperienceSummaryTests(MovementFixture, unittest.TestCase):
 
     def test_npc_worth_still_shows_only_currency(self):
         mob = self.npc()
+        mob.hit = mob.max_hit = mob.mana = mob.max_mana = 0
+        mob.movement = mob.max_movement = 0
         self.assertEqual(f'You have {mob.gold} gold and {mob.silver} silver.\r\n', self.worth(mob))
 
     def test_report_announces_total_to_actor_and_room(self):
@@ -78,6 +80,8 @@ class ExperienceSummaryTests(MovementFixture, unittest.TestCase):
 
     def test_group_uses_npc_short_description_and_keeps_stats(self):
         mob = self.npc()
+        mob.hit = mob.max_hit = mob.mana = mob.max_mana = 0
+        mob.movement = mob.max_movement = 0
         mob.name, mob.short_description = 'guard sentinel', 'a sentinel'
         mob.leader = self.actor
         self.room.add_mobile_to_room(mob)

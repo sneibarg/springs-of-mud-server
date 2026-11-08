@@ -48,7 +48,7 @@ class TestCombatDeathRules(unittest.TestCase):
         self.fixtures = fixtures.TestFightHandlerAggression()
         self.actor, self.victim, self.combat = self.fixtures._killer_pair()
         self.victim.name = "Victim"
-        self.room = SimpleNamespace(name="Arena", vnum="100", player_targets=lambda actor: [self.actor] if actor is self.victim else [self.victim],
+        self.room = SimpleNamespace(characters={}, mobiles={}, name="Arena", vnum="100", player_targets=lambda actor: [self.actor] if actor is self.victim else [self.victim],
                                     exits=[], add_item_to_room=Mock())
         self.config = json.loads((ROOT / "resources/collections/SOMDB.GameData.json").read_text())[0]["combat"]["death"]
         self.registry = SimpleNamespace(interp_registry=SimpleNamespace(
@@ -149,17 +149,17 @@ class TestCombatDeathRules(unittest.TestCase):
         notices = self.death.wounds(self.actor, self.victim, self.room, 1, "POS_DEAD")
         self.assertIn("KILLED", notices[1]["to_victim"])
         witness = self.fixtures._player("witness")
-        adjacent = SimpleNamespace(player_targets=lambda actor: [witness])
+        adjacent = SimpleNamespace(characters={}, mobiles={}, player_targets=lambda actor: [witness])
         self.registry.room_registry.get_or_none.return_value = adjacent
-        self.room.exits = [SimpleNamespace(to_room_id="next")]
+        self.room.exits = [SimpleNamespace(direction=0, to_room_id="next", to_room_vnum="")]
         cries = self.death.cry(self.victim, self.room, 0, 0, SimpleNamespace())
         self.assertIn("DEAD", cries[0]["to_room"])
         self.assertEqual([witness], cries[1]["targets"])
         self.assertIn("someone's", cries[1]["to_room"])
 
     def test_real_pickup_money_conversion_and_capacity_rejection(self):
-        money = SimpleNamespace(item_type="money", value0="7", value1="3")
-        container = SimpleNamespace(remove_contained_item=Mock(), short_description="a corpse")
+        money = SimpleNamespace(item_type="money", extra_flags=0, value0="7", value1="3")
+        container = SimpleNamespace(owner=None, remove_contained_item=Mock(), short_description="a corpse")
         self.actor.silver, self.actor.gold = 1, 2
         self.actor.add_item = Mock()
         self.objects._get_item_error = Mock(return_value="")

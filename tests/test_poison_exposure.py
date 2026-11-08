@@ -144,7 +144,7 @@ class TestGasBreathIntegration(unittest.TestCase):
                                  status_flags=Mock(affected_by=0), owned_items=lambda: [])
         document = next(doc for doc in json.loads((fixtures.ROOT / 'resources/collections/SOMDB.Spells.json').read_text())
                         if doc['handlerId'] == 'spell.gas_breath')
-        ctx = SimpleNamespace(target=victim, spell=Spell.from_json({**document, 'levelByClass': {}, 'ratingByClass': {}}))
+        ctx = SimpleNamespace(actor=None, target=victim, spell=Spell.from_json({**document, 'levelByClass': {}, 'ratingByClass': {}}))
         ctx.room = None
         api._find_room_for_entity = Mock(return_value=None)
         api.send = Mock()

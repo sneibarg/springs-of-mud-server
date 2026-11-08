@@ -115,7 +115,7 @@ class TestCloneContentsParity(unittest.TestCase):
 
     @staticmethod
     def item(name, level, cost, contents=None):
-        return NS(id=name, name=name, short_description=name, level=level, cost=cost, contains=contents or [], extra_descr=[], effects=[])
+        return NS(id=name, name=name, short_description=name, level=level, cost=cost, contains=contents or [], extra_descr=[], effects=[], enchanted=False)
 
     def test_nested_contents_and_denied_subtrees_are_filtered(self):
         clone = self.Factory.copy_instance(self.outer, item_filter=lambda item: self.Util.can_clone_object(self.actor, item))
@@ -146,7 +146,7 @@ class TestCloneContentsParity(unittest.TestCase):
         mob.owned_items = lambda: [self.inner, self.allowed, self.forbidden]
         mob.equipped_slot_of = lambda item: 'head' if item is self.allowed else None
         carried, equipped = [], {}
-        MobileFactory.create = lambda *args: NS(set_alignment=lambda value: None, add_item=carried.append,
+        MobileFactory.create = lambda *args: NS(effects=[], set_alignment=lambda value: None, add_item=carried.append,
                                                 equip_item=lambda item, slot: equipped.update({slot: item}))
         MobileFactory.copy_instance(mob, None, item_filter=lambda item: self.Util.can_clone_object(self.actor, item))
         self.assertEqual([item.name for item in carried], ['inner'])

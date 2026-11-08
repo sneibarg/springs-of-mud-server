@@ -96,6 +96,7 @@ class QuitPersistenceTests(RuntimeFixture, unittest.IsolatedAsyncioTestCase):
         info = Info.__new__(Info)
         info.interp_api = self.api
         self.handler = PlayerHandler.__new__(PlayerHandler)
+        self.handler.command_audit = None
         self.handler.info_commands = info
         self.handler.interp_api = self.api
         self.handler.character_service = self.service
@@ -383,12 +384,14 @@ class FrozenInputTests(RuntimeFixture, unittest.IsolatedAsyncioTestCase):
         self.bus = Mock(send_to_character=AsyncMock(), text_to_message=lambda text: text,
                         connection_manager=NS(get_connection_by_character=lambda key: None))
         self.interp = InterpHandler.__new__(InterpHandler)
+        self.interp.command_audit = None
         for key, value in dict(registry_service=NS(interp_registry=self.commands), interp_registry=self.commands,
                                social_registry=NS(get_or_none=lambda **kw: object()), social_handler=self.social,
                                message_bus=self.bus, handler_service=self.services, room_registry=self.rooms,
                                connection_manager=self.bus.connection_manager, logger=Mock()).items():
             setattr(self.interp, key, value)
         self.nested = PlayerHandler.__new__(PlayerHandler)
+        self.nested.command_audit = None
         self.nested.interp_registry = self.commands
         self.nested.social_registry = self.interp.social_registry
         self.nested.room_registry = self.rooms
@@ -397,7 +400,7 @@ class FrozenInputTests(RuntimeFixture, unittest.IsolatedAsyncioTestCase):
     async def test_frozen_normal_alias_and_social_input_are_blocked(self):
         self.actor.aliases = {'chat': 'say hello'}
         for text in ['say hello', 'chat', 'smile']:
-            await self.interp.handle_command(NS(usage='player'), self.actor, text)
+            await self.interp.handle_command(self.actor, text)
         self.executors.do_communications_command.assert_not_awaited()
         self.social.handle_social.assert_not_awaited()
         self.assertEqual(3, self.bus.send_to_character.await_count)
@@ -416,7 +419,7 @@ class FrozenInputTests(RuntimeFixture, unittest.IsolatedAsyncioTestCase):
         self.say.payload.to_char['command_frozen'] = 'Content-owned frozen message.'
         self.assertEqual('Content-owned frozen message.\r\n', CommandAccess.check(self.actor, self.say).render(self.say))
         self.actor.status_flags.unset_flag('act', self.enums.get('playerActBits').PLR_FREEZE)
-        await self.interp.handle_command(NS(usage='player'), self.actor, 'say hello')
+        await self.interp.handle_command(self.actor, 'say hello')
         self.executors.do_communications_command.assert_awaited_once()
 
     async def test_controlled_body_uses_frozen_principal_but_npc_act_bits_are_not_player_flags(self):

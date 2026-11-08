@@ -36,7 +36,7 @@ class WizDiagnostics:
             if not WizUtil.name_matches(argument, target.name):
                 continue
             room = self.rooms.get_or_none(id=target.room_id)
-            vnum = getattr(target, 'vnum', 0) if CharacterApi.is_npc(target) else 0
+            vnum = target.vnum if CharacterApi.is_npc(target) else 0
             lines.append(f'{len(lines) + 1}) [{vnum}] {WizUtil.display_name(target)} - [{room.vnum}] {room.name}')
         return self.text(lines) if lines else f"You didn't find any {argument}.\r\n"
 
@@ -70,11 +70,11 @@ class WizDiagnostics:
             abilities = sorted([*self.registries.skill_registry.all_skills(), *self.registries.spell_registry.all_spells()],
                                key=lambda ability: ability.name.lower())
             matches = [ability for ability in abilities if rest == 'all' or (rest and (
-                ability.name.lower().startswith(rest.lower()) or str(getattr(ability, 'id', '')) == rest))]
+                ability.name.lower().startswith(rest.lower()) or str(ability.id) == rest))]
             if rest != 'all':
                 exact = [ability for ability in matches if ability.name.lower() == rest.lower()]
                 matches = (exact or matches)[:1]
-            return {'to_char': self.text([f"{ability.name}: id {getattr(ability, 'id', '')}, slot {getattr(ability, 'slot', 0)}" for ability in matches]) or 'No such skill or spell.\r\n'}
+            return {'to_char': self.text([f"{ability.name}: id {ability.id}, slot {ability.slot}" for ability in matches]) or 'No such skill or spell.\r\n'}
         query = rest if kind in ('obj', 'mob', 'char') else argument
         lines = []
         sources = []
@@ -95,7 +95,7 @@ class WizDiagnostics:
     @classmethod
     def effects(cls, target):
         return [f'Affect: {cls.fields(effect, ("type", "where", "level", "duration", "location", "modifier", "bitvector"))}'
-                for effect in getattr(target, 'effects', []) or []]
+                for effect in (target.effects if target is not None else []) or []]
 
     @classmethod
     def character_text(cls, target):
@@ -103,11 +103,11 @@ class WizDiagnostics:
                  cls.fields(target, ('name', 'id', 'room_id', 'race', 'character_class', 'guild', 'level', 'trust', 'sex', 'position')),
                  f'Hit: {target.hit}/{target.max_hit} Mana: {target.mana}/{target.max_mana} Move: {target.movement}/{target.max_movement}',
                  cls.fields(target, ('gold', 'silver', 'hit_roll', 'dam_roll', 'saving_throw', 'timer', 'size', 'material')),
-                 f'Attributes: {getattr(target, "character_attributes", "")}',
-                 f'Armor: {getattr(target, "armor_class", "")}',
-                 f'Flags: {getattr(target, "status_flags", "")}',
+                 f'Attributes: {target.character_attributes}',
+                 f'Armor: {target.armor_class}',
+                 f'Flags: {target.status_flags}',
                  cls.fields(target, ('special_name', 'description')),
-                 'Master: ' + WizUtil.display_name(getattr(target, 'master', None)) + ' Leader: ' + WizUtil.display_name(getattr(target, 'leader', None))]
+                 'Master: ' + WizUtil.display_name(target.master) + ' Leader: ' + WizUtil.display_name(target.leader)]
         lines.extend(cls.effects(target))
         lines.append('Carrying: ' + ', '.join(WizUtil.display_name(item) for item in target.owned_items()))
         return cls.text(lines)
@@ -124,7 +124,7 @@ class WizDiagnostics:
         location = ItemOwnership(None, self.rooms).find_location(obj)
         if location is not None:
             parent = location['parent']
-            lines.append(f'Location: {location["kind"]}, parent: {getattr(parent, "name", "")}, id: {getattr(parent, "id", "")}')
+            lines.append(f'Location: {location["kind"]}, parent: {parent.name}, id: {parent.id}')
         return cls.text(lines + cls.effects(obj))
 
     @classmethod

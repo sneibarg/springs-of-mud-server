@@ -156,7 +156,7 @@ class TestSharedElementalExposure(unittest.TestCase):
         child = f._item('scroll', 'scroll')
         bag = f._item('bag', 'container')
         bag.contains = [child]
-        room = SimpleNamespace(contents={'bag': bag}, add_item_to_room=Mock(), remove_item_from_room=Mock())
+        room = SimpleNamespace(characters={}, mobiles={}, contents={'bag': bag}, add_item_to_room=Mock(), remove_item_from_room=Mock())
         result = self.expose('fire breath', 'flaming', target=room)
         room.add_item_to_room.assert_called_once_with(child)
         self.assertEqual(2, room.remove_item_from_room.call_count)
@@ -176,7 +176,7 @@ class TestSharedElementalExposure(unittest.TestCase):
         Api = _load_spell_api()
         api = Api(Mock(), Mock())
         players = [SimpleNamespace(id='caster'), SimpleNamespace(id='victim')]
-        room = SimpleNamespace(contents={}, characters={'caster': players[0], 'victim': players[1]})
+        room = SimpleNamespace(mobiles={}, contents={}, characters={'caster': players[0], 'victim': players[1]})
         fight = Mock(weapon_hit_handler=self.handler)
         api._fight_handler = Mock(return_value=fight)
         api._find_room_for_entity = Mock(return_value=room)

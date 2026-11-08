@@ -25,7 +25,7 @@ class LookupUtil:
             return None
         count = 0
         for item in items:
-            if not LookupUtil.matches(keyword, getattr(item, "name", "")):
+            if not LookupUtil.matches(keyword, (item.name if item is not None else "")):
                 continue
             if visible is not None and not visible(item):
                 continue
@@ -46,7 +46,7 @@ class LookupUtil:
 
     @staticmethod
     def here(character, room, selector, *, visible=None):
-        found = LookupUtil.find(list(getattr(room, "contents", {}).values()), selector, visible=visible)
+        found = LookupUtil.find(list((room.contents if room is not None else {}).values()), selector, visible=visible)
         if found is not None:
             return found
         found = LookupUtil.inventory(character, selector, visible=visible)
@@ -74,7 +74,7 @@ class LookupUtil:
         people = getattr(room, "people", None)
         if callable(people):
             return list(people())
-        return list((getattr(room, "characters", {}) or {}).values()) + list((getattr(room, "mobiles", {}) or {}).values())
+        return list(((room.characters if room is not None else {}) or {}).values()) + list(((room.mobiles if room is not None else {}) or {}).values())
 
     @staticmethod
     def character(room, observer, selector, *, visible=None):

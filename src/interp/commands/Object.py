@@ -4,6 +4,7 @@ from item.ItemFactory import ItemFactory
 
 import random
 import re
+from typing import TYPE_CHECKING
 
 from injector import inject
 
@@ -38,6 +39,10 @@ from util.FightUtil import FightUtil
 from util.CommunicationsUtil import CommunicationsUtil
 from util.PlayerUtil import PlayerUtil
 from util.SkillUtil import SkillUtil
+
+
+if TYPE_CHECKING:
+    from game.Equipped import WearResult
 
 
 class Object:
@@ -210,9 +215,9 @@ class Object:
         }
 
         if service.get("kind") == "mana":
-            amount = random.randint(1, 8) + random.randint(1, 8) + (GenericUtil.to_int(getattr(healer, "level", 0), 0) // 3)
-            current = GenericUtil.to_int(getattr(character, "mana", 0), 0)
-            maximum = GenericUtil.to_int(getattr(character, "max_mana", current), current)
+            amount = random.randint(1, 8) + random.randint(1, 8) + (GenericUtil.to_int(healer.level, 0) // 3)
+            current = GenericUtil.to_int(character.mana, 0)
+            maximum = GenericUtil.to_int(character.max_mana, current)
             character.mana = min(maximum, current + amount)
             payload["to_char"] = self._healer_text(context, 'warm_glow', character)
             return [payload]
@@ -227,9 +232,9 @@ class Object:
             handler=self,
             room=room,
             target=character,
-            target_name=str(getattr(character, "name", "") or ""),
+            target_name=str(character.name or ""),
             target_kind="char",
-            cast_level=GenericUtil.to_int(getattr(healer, "level", 0), 0),
+            cast_level=GenericUtil.to_int(healer.level, 0),
             source="mobile",
             command_context=None,
         )
@@ -302,7 +307,7 @@ class Object:
         )
 
     def do_outfit(self, character: Character, context: Context):
-        if GenericUtil.to_int(getattr(character, "level", 0), 0) > 5 and not CharacterApi.is_immortal(character):
+        if GenericUtil.to_int(character.level, 0) > 5 and not CharacterApi.is_immortal(character):
             context.finish()
             return self.interp_api.render_message_key(context, "graduate", channel="to_char")
 
@@ -326,7 +331,7 @@ class Object:
                 replace=False,
                 effect_handler=self.effect_handler,
             )
-            if character.equipped_slot_of(item) is None or getattr(result, "blocked_key", ""):
+            if character.equipped_slot_of(item) is None or result.blocked_key:
                 try:
                     character.remove_item(item)
                 except ValueError:
@@ -413,7 +418,7 @@ class Object:
 
     def _prepare_get_context(self, character: Character, context: Context):
         arg1, rem = InterpUtil.parse_object_arguments(context.result, context.parameters)
-        room = getattr(context, "room", None)
+        room = context.room
         if room is None:
             room = self.room_registry.get_or_none(id=character.room_id)
 
@@ -437,7 +442,7 @@ class Object:
             if context.get_all:
                 context.get_candidates = self._get_matching_container_items(character, room, context.container, context.get_filter_name)
             else:
-                context.target_item = LookupUtil.find(list(getattr(context.container, "contains", []) or []), arg1, visible=lambda obj: ItemApi.can_see_object(room, character, obj))
+                context.target_item = LookupUtil.find(list(context.container.contains or []), arg1, visible=lambda obj: ItemApi.can_see_object(room, character, obj))
         elif not context.container_name:
             if context.get_all:
                 context.get_candidates = self._get_matching_room_items(character, room, context.get_filter_name)
@@ -452,7 +457,7 @@ class Object:
         if room is None:
             return []
         matches = []
-        for obj in list(getattr(room, "contents", {}).values()):
+        for obj in list(room.contents.values()):
             if not self._matches_name(obj, wanted):
                 continue
             if not ItemApi.can_see_object(room, character, obj):
@@ -462,7 +467,7 @@ class Object:
 
     def _get_matching_container_items(self, character: Character, room, container, wanted: str) -> list:
         matches = []
-        for obj in list(getattr(container, "contains", []) or []):
+        for obj in list(container.contains or []):
             if not self._matches_name(obj, wanted):
                 continue
             if room is not None and not ItemApi.can_see_object(room, character, obj):
@@ -494,7 +499,7 @@ class Object:
         return result
 
     def _get_one(self, character: Character, room, context: Context, item, container=None):
-        if (getattr(container, "owner", None) and Item.is_pc_corpse(container)
+        if (container is not None and container.owner and Item.is_pc_corpse(container)
                 and not self.can_loot(character, container)):
             return {"to_char": self._render_command_message(context, "cannot")}
         error = self._get_item_error(character, context, item, container)
@@ -504,13 +509,13 @@ class Object:
         item_short = Item.short(item)
         if container is not None:
             if self._is_donation_pit(container):
-                if CharacterApi.get_trust(character) < GenericUtil.to_int(getattr(item, "level", 0), 0):
+                if CharacterApi.get_trust(character) < GenericUtil.to_int(item.level, 0):
                     return {"to_char": self._render_command_message(context, "pit_level")}
                 if (not ItemApi.item_takeable(container, self.wear_flags)
                         and not ItemApi.has_item_flag(item, self.item_flags, "ITEM_HAD_TIMER")):
                     item.timer = 0
             item.extra_flags = GameApi.unset_bit(
-                GameApi.flags_to_int(getattr(item, "extra_flags", 0)),
+                GameApi.flags_to_int(item.extra_flags),
                 CharacterApi.enum_bit(self.item_flags, "ITEM_HAD_TIMER"),
             )
             container.remove_contained_item(item)
@@ -523,16 +528,16 @@ class Object:
             to_char = self._render_command_message(context, "default", t=item_short)
             to_room = self._render_command_message(context, "default", channel="to_room", c=character.name, t=item_short)
 
-        if str(getattr(item, "item_type", "")).lower() == "money":
-            character.silver = GenericUtil.to_int(getattr(character, "silver", 0), 0) + GenericUtil.to_int(item.value0, 0)
-            character.gold = GenericUtil.to_int(getattr(character, "gold", 0), 0) + GenericUtil.to_int(item.value1, 0)
+        if str(item.item_type).lower() == "money":
+            character.silver = GenericUtil.to_int(character.silver, 0) + GenericUtil.to_int(item.value0, 0)
+            character.gold = GenericUtil.to_int(character.gold, 0) + GenericUtil.to_int(item.value1, 0)
         else:
             character.add_item(item)
         payload = {"to_char": to_char}
         if room is not None:
             payload["to_room"] = to_room
             payload["targets"] = room.player_targets(character)
-        if str(getattr(item, "item_type", "")).lower() == "money":
+        if str(item.item_type).lower() == "money":
             split = self._autosplit(character, room, context, int(item.value0), int(item.value1))
             if split is not None:
                 return {"payloads": [payload, split]}
@@ -540,7 +545,7 @@ class Object:
 
     def _autosplit(self, character, room, context, silver, gold=0, *, sacrifice=False):
         bit = CharacterApi.enum_bit(self.PlayerActBits, "PLR_AUTOSPLIT")
-        flags = getattr(getattr(character, "status_flags", None), "act", 0)
+        flags = getattr(character.status_flags, "act", 0)
         if room is None or not bit or not CharacterApi.is_set(flags, bit):
             return None
         if silver <= 1 and (sacrifice or gold <= 0):
@@ -548,7 +553,7 @@ class Object:
         argument = str(silver) if sacrifice else f"{silver} {gold}"
         split_context = Context(character=character, room=room,
                                 registry_service=self.registry_service,
-                                handler_service=getattr(context, "handler_service", None),
+                                handler_service=context.handler_service,
                                 command=self.registry_service.interp_registry.get(name="split"),
                                 result=argument, parameters=argument.split())
         view = self.interp_api.build_interp_view(split_context)
@@ -583,7 +588,7 @@ class Object:
     def can_loot(self, character, item) -> bool:
         # Registries contain persisted players and NPC prototypes too. Only room
         # occupants and playing characters correspond to ROM's live char_list.
-        if not getattr(item, "owner", None):
+        if not item.owner:
             return True
 
         def owners():
@@ -624,7 +629,7 @@ class Object:
 
     def _prepare_envenom_context(self, character: Character, context: Context):
         arg1, _ = InterpUtil.parse_object_arguments(context.result, context.parameters)
-        room = getattr(context, "room", None)
+        room = context.room
         if room is None:
             room = self.room_registry.get_or_none(id=character.room_id)
         item = self._inventory_item(character, room, arg1) if arg1 else None
@@ -665,12 +670,12 @@ class Object:
         success = random.randint(1, 100) < context.envenom_skill_percent
         self._set_wait(character, self._skill_beats("envenom", 24))
         if success:
-            if GenericUtil.to_int(getattr(item, "value3", 0), 0) == 0:
+            if GenericUtil.to_int(item.value3, 0) == 0:
                 item.value3 = "1"
                 self._improve_item_skill(character, "envenom", True, multiplier=4)
             return self._envenom_payload(character, room, context, "food", item)
 
-        if GenericUtil.to_int(getattr(item, "value3", 0), 0) == 0:
+        if GenericUtil.to_int(item.value3, 0) == 0:
             self._improve_item_skill(character, "envenom", False, multiplier=4)
         return {"to_char": self._render_command_message(context, "food_fail", t=Item.short(item))}
 
@@ -695,7 +700,7 @@ class Object:
         return payload
 
     def _apply_weapon_poison(self, character: Character, item, percent: int) -> None:
-        level = GenericUtil.to_int(getattr(character, "level", 0), 0)
+        level = GenericUtil.to_int(character.level, 0)
         effect = Effect(
             where="TO_WEAPON",
             type="spell.poison",
@@ -718,30 +723,36 @@ class Object:
 
     def _skill_percent(self, character: Character, skill_name: str) -> int:
         if CharacterApi.is_npc(character):
-            return max(1, min(100, 40 + (2 * GenericUtil.to_int(getattr(character, "level", 0), 0))))
+            return max(1, min(100, 40 + (2 * GenericUtil.to_int(character.level, 0))))
         if hasattr(character, "skill_level"):
             return max(0, min(100, GenericUtil.to_int(character.skill_level(skill_name), 0)))
         return 0
 
     def _skill_beats(self, skill_name: str, default: int = 24) -> int:
         skill = self.skill_registry.get_or_none(name=skill_name)
-        return GenericUtil.to_int(getattr(skill, "beats", default), default) if skill is not None else default
+        return GenericUtil.to_int(skill.beats, default) if skill is not None else default
 
     @staticmethod
     def _is_poisonable_food_or_drink(item) -> bool:
-        item_type = str(getattr(item, "item_type", "") or "").strip().lower()
+        if item is None:
+            return False
+        item_type = str(item.item_type or "").strip().lower()
         return "food" in item_type or "drink" in item_type
 
     @staticmethod
     def _is_weapon(item) -> bool:
-        return "weapon" in str(getattr(item, "item_type", "") or "").strip().lower()
+        if item is None:
+            return False
+        return "weapon" in str(item.item_type or "").strip().lower()
 
     @staticmethod
     def _is_edged_weapon(item) -> bool:
-        attack = str(getattr(item, "value3", "") or "").strip()
+        if item is None:
+            return False
+        attack = str(item.value3 or "").strip()
         if attack.lstrip("-").isdigit() and int(attack) < 0:
             return False
-        raw_damage = getattr(item, "damage_type", None)
+        raw_damage = item.damage_type
         damage = str(raw_damage if raw_damage is not None else attack).strip().lower()
         if damage.lstrip("-").isdigit():
             damage_types = CharacterApi.get_enum("damageTypes")
@@ -756,13 +767,13 @@ class Object:
         return False
 
     def _has_weapon_flags(self, item, *flag_names: str) -> bool:
-        raw = GameApi.flags_to_int(getattr(item, "value4", 0))
+        raw = GameApi.flags_to_int(item.value4)
         return any((raw & EnumProvider.value(self.weapon_type, flag_name)) != 0 for flag_name in flag_names)
 
     def _set_weapon_flag(self, item, flag_name: str) -> None:
         bit = EnumProvider.value(self.weapon_type, flag_name)
         if bit:
-            item.value4 = str(GameApi.flags_to_int(getattr(item, "value4", 0)) | bit)
+            item.value4 = str(GameApi.flags_to_int(item.value4) | bit)
 
     def do_put(self, character: Character, context: Context):
         room = self._prepare_put_context(character, context)
@@ -786,14 +797,14 @@ class Object:
 
     def _is_donation_pit(self, container):
         pit = getattr(self.well_known_object_vnums, "OBJ_VNUM_PIT", None)
-        return pit is not None and str(getattr(container, "vnum", "")) == str(pit.value)
+        return pit is not None and str(container.vnum) == str(pit.value)
 
     def _put_one(self, character, room, context, item):
         if (not context.put_all and self._is_donation_pit(context.put_container)
                 and not ItemApi.item_takeable(context.put_container, self.wear_flags)):
-            if GenericUtil.to_int(getattr(item, "timer", 0), 0):
+            if GenericUtil.to_int(item.timer, 0):
                 item.extra_flags = GameApi.set_bit(
-                    GameApi.flags_to_int(getattr(item, "extra_flags", 0)),
+                    GameApi.flags_to_int(item.extra_flags),
                     CharacterApi.enum_bit(self.item_flags, "ITEM_HAD_TIMER"),
                 )
             else:
@@ -801,7 +812,7 @@ class Object:
         character.remove_item(item)
         context.put_container.add_contained_item(item)
         put_on = CharacterApi.enum_bit(self.container_state, "CONT_PUT_ON")
-        key = "on" if GameApi.is_set(getattr(context.put_container, "value1", 0), put_on) else "in"
+        key = "on" if GameApi.is_set(context.put_container.value1, put_on) else "in"
         return {
             "to_char": self._render_command_message(
                 context,
@@ -826,7 +837,7 @@ class Object:
         payloads = []
         for item in list(character.owned_items()):
             if context.put_arg1 != "all" and (not wanted or not all(
-                    LookupUtil.keyword_matches(word, getattr(item, "name", "")) for word in wanted.split())):
+                    LookupUtil.keyword_matches(word, item.name) for word in wanted.split())):
                 continue
             if not ItemApi.can_see_object(room, character, item):
                 continue
@@ -840,11 +851,11 @@ class Object:
             pit = getattr(self.well_known_object_vnums, "OBJ_VNUM_PIT", None)
             # Preserve this checkout's bulk-path predicate: the item's TAKE
             # flag controls the timer, unlike single put's container predicate.
-            if (pit is not None and str(getattr(container, "vnum", "")) == str(pit.value)
+            if (pit is not None and str(container.vnum) == str(pit.value)
                     and not ItemApi.item_takeable(item, self.wear_flags)):
-                if GenericUtil.to_int(getattr(item, "timer", 0), 0):
+                if GenericUtil.to_int(item.timer, 0):
                     item.extra_flags = GameApi.set_bit(
-                        GameApi.flags_to_int(getattr(item, "extra_flags", 0)),
+                        GameApi.flags_to_int(item.extra_flags),
                         CharacterApi.enum_bit(self.item_flags, "ITEM_HAD_TIMER"),
                     )
                 else:
@@ -854,7 +865,7 @@ class Object:
 
     def _prepare_put_context(self, character: Character, context: Context):
         arg1, rem = InterpUtil.parse_object_arguments(context.result, context.parameters)
-        room = getattr(context, "room", None)
+        room = context.room
         if room is None:
             room = self.room_registry.get_or_none(id=character.room_id)
 
@@ -902,7 +913,7 @@ class Object:
 
     def _prepare_drop_context(self, character: Character, context: Context):
         arg1, remainder = InterpUtil.parse_object_arguments(context.result, context.parameters)
-        room = getattr(context, "room", None)
+        room = context.room
         if room is None:
             room = self.room_registry.get_or_none(id=character.room_id)
 
@@ -927,7 +938,7 @@ class Object:
         enums = self.well_known_object_vnums
         piles = []
         for item in list(room.contents.values()):
-            vnum = GenericUtil.to_int(getattr(item, "vnum", 0), 0)
+            vnum = GenericUtil.to_int(item.vnum, 0)
             if vnum == enums.OBJ_VNUM_SILVER_ONE.value:
                 silver += 1
             elif vnum == enums.OBJ_VNUM_GOLD_ONE.value:
@@ -965,7 +976,7 @@ class Object:
                 continue
             if ItemApi.has_item_flag(item, self.item_flags, "ITEM_NODROP"):
                 continue
-            name = str(getattr(item, "name", "") or "").strip().lower()
+            name = str(item.name or "").strip().lower()
             if wanted and not LookupUtil.matches(wanted, name):
                 continue
             payload = self._drop_one(character, room, context, item)
@@ -1016,13 +1027,13 @@ class Object:
         return RecipientText(render(actor), {str(target.id): render(target) for target in targets}, render(None))
 
     def _melts_on_drop(self, item) -> bool:
-        return GameApi.is_set(getattr(item, "extra_flags", 0), self.item_flags.ITEM_MELT_DROP.value)
+        return GameApi.is_set(item.extra_flags, self.item_flags.ITEM_MELT_DROP.value)
 
     def _prepare_buy_context(self, character: Character, context: Context):
         raw = (context.result if isinstance(context.result, str) else "").strip()
         if not raw and context.parameters:
             raw = " ".join(context.parameters).strip()
-        room = getattr(context, "room", None)
+        room = context.room
         if room is None:
             room = self.room_registry.get_or_none(id=character.room_id)
 
@@ -1055,7 +1066,7 @@ class Object:
             context.buy_pet_name = pet_name
             context.buy_pet_proto = pet_proto
             context.buy_item = pet_proto
-            context.buy_item_short = getattr(pet_proto, "short_description", "a pet") if pet_proto is not None else ""
+            context.buy_item_short = pet_proto.short_description if pet_proto is not None else ""
             context.buy_cost = Shop.pet_price(pet_proto)
             context.buy_total_cost = context.buy_cost
             return room
@@ -1086,14 +1097,14 @@ class Object:
             return 0
         skill = self.skill_registry.get_or_none(name="haggle")
         class_name = str(getattr(getattr(character, "character_class", None), "name", "") or "").lower()
-        required = (getattr(skill, "level_by_class", {}) or {}).get(class_name, 0)
-        if GenericUtil.to_int(getattr(character, "level", 0), 0) < GenericUtil.to_int(required, 0):
+        required = ((skill.level_by_class if skill is not None else {}) or {}).get(class_name, 0)
+        if GenericUtil.to_int(character.level, 0) < GenericUtil.to_int(required, 0):
             return 0
         percent = self._skill_percent(character, "haggle")
-        flags = getattr(character, "status_flags", None)
-        if GenericUtil.to_int(getattr(flags, "pulse_daze", 0), 0) > 0:
+        flags = character.status_flags
+        if GenericUtil.to_int((flags.pulse_daze if flags is not None else 0), 0) > 0:
             percent = 2 * percent // 3
-        if GenericUtil.to_int(getattr(flags, "drunk", 0), 0) > 10:
+        if GenericUtil.to_int((flags.drunk if flags is not None else 0), 0) > 10:
             percent = 9 * percent // 10
         return percent
 
@@ -1116,7 +1127,7 @@ class Object:
             context.buy_total_cost = context.buy_cost * context.buy_quantity
             message = self._render_command_message(
                 context, "haggle_pet" if transaction == "pet" else "haggle_success",
-                q=context.buy_cost, t=getattr(context.buy_keeper, "short_description", ""))
+                q=context.buy_cost, t=context.buy_keeper.short_description if context.buy_keeper is not None else "")
         self._improve_item_skill(character, "haggle", True, multiplier=4)
         return message
 
@@ -1157,7 +1168,7 @@ class Object:
         self.registry_service.character_registry.register(pet)
         return {
             "to_char": haggle + self._render_command_message(context, "pet_purchased"),
-            "to_room": self._render_command_message(context, "pet_purchased", channel="to_room", c=character.name, t=getattr(pet, "short_description", "a pet")),
+            "to_room": self._render_command_message(context, "pet_purchased", channel="to_room", c=character.name, t=pet.short_description),
             "targets": room.player_targets(character),
         }
 
@@ -1165,7 +1176,7 @@ class Object:
         raw = (context.result if isinstance(context.result, str) else "").strip()
         if not raw and context.parameters:
             raw = " ".join(context.parameters).strip()
-        room = getattr(context, "room", None)
+        room = context.room
         if room is None:
             room = self.room_registry.get_or_none(id=character.room_id)
 
@@ -1203,8 +1214,8 @@ class Object:
         context.sell_no_drop = ItemApi.has_item_flag(obj, self.item_flags, "ITEM_NODROP")
         context.sell_keeper_cannot_see_item = not ItemApi.can_see_object(room, keeper, obj)
         context.sell_item_short = Item.short(obj)
-        context.sell_keeper_short = getattr(keeper, "short_description", "The shopkeeper")
-        context.sell_cost = shop.sell_price(obj, getattr(keeper, "inventory", []) or [], self.item_types, self.item_flags)
+        context.sell_keeper_short = keeper.short_description
+        context.sell_cost = shop.sell_price(obj, keeper.inventory or [], self.item_types, self.item_flags)
         context.sell_gold = context.sell_cost // 100
         context.sell_silver = context.sell_cost - (context.sell_gold * 100)
         context.sell_suffix = "" if context.sell_cost == 1 else "s"
@@ -1221,7 +1232,7 @@ class Object:
         raw = (context.result if isinstance(context.result, str) else "").strip()
         if not raw and context.parameters:
             raw = " ".join(context.parameters).strip()
-        room = getattr(context, "room", None)
+        room = context.room
         if room is None:
             room = self.room_registry.get_or_none(id=character.room_id)
 
@@ -1248,7 +1259,7 @@ class Object:
         context.value_shop = shop
         context.value_keeper_error = error
         if keeper is not None:
-            context.value_keeper_name = getattr(keeper, "short_description", "The shopkeeper")
+            context.value_keeper_name = keeper.short_description
         if keeper is None or shop is None:
             return room
 
@@ -1285,7 +1296,7 @@ class Object:
         silver = ItemApi.sacrifice_silver_value(context.item)
         item_name = Item.short(context.item)
         room.remove_item_from_room(context.item)
-        character.silver = int(getattr(character, "silver", 0) or 0) + silver
+        character.silver = int(character.silver or 0) + silver
         context.finish()
         payload = self.interp_api.render_message_key(context, "default", c=character.name, t=item_name)
         reward = self.interp_api.render_message_key(
@@ -1346,7 +1357,7 @@ class Object:
         if not raw and context.parameters:
             raw = " ".join(context.parameters).strip()
         arg1, rem = InterpUtil.parse_object_arguments(raw, context.parameters)
-        room = getattr(context, "room", None)
+        room = context.room
         if room is None:
             room = self.room_registry.get_or_none(id=character.room_id)
 
@@ -1393,7 +1404,7 @@ class Object:
             if victim is None:
                 return room
 
-            context.interp_tokens = {"t": getattr(victim, "name", "")}
+            context.interp_tokens = {"t": victim.name}
             context.give_insufficient_funds = (
                 GenericUtil.to_int(getattr(character, context.give_currency, 0), 0) < context.give_amount
             )
@@ -1420,7 +1431,7 @@ class Object:
         context.give_target_is_keeper = self._is_shopkeeper(victim)
         context.give_no_drop = bool(item is not None and ItemApi.has_item_flag(item, self.item_flags, "ITEM_NODROP"))
         context.interp_tokens = {
-            "t": getattr(victim, "name", ""),
+            "t": victim.name,
             "s": self._possessive_name(victim),
         }
 
@@ -1448,7 +1459,7 @@ class Object:
         victim.add_item(item)
 
         payload = {
-            "to_char": self._render_command_message(context, "item_received", t=item_short, T=getattr(victim, "name", "")),
+            "to_char": self._render_command_message(context, "item_received", t=item_short, T=victim.name),
         }
         self._transfer_notices(payload, context, "item_received", character, victim, room, items={"t": item}, T=victim)
         return payload
@@ -1463,7 +1474,7 @@ class Object:
             "to_char": self._render_command_message(
                 context,
                 "funds_received",
-                t=getattr(victim, "name", ""),
+                t=victim.name,
                 q=amount,
                 s=currency,
             ),
@@ -1495,7 +1506,7 @@ class Object:
 
     def _append_money_changer_payload(self, character, room, context, payload, payout_currency, payout):
         changer = context.victim
-        name = getattr(changer, "name", "")
+        name = changer.name
         if payout < 1:
             payload["to_char"] += self._render_command_message(context, "money_changer_insufficient_funds", t=name)
             payments = [(context.give_currency, context.give_amount)]
@@ -1518,7 +1529,7 @@ class Object:
 
     @staticmethod
     def _set_reply_target(character, target):
-        if target is not None and getattr(target, "id", None):
+        if target is not None and target.id:
             if getattr(character, "context", None) is None:
                 character.context = {}
             character.context["reply_to"] = target.id
@@ -1589,7 +1600,7 @@ class Object:
             raw = " ".join(context.parameters).strip()
         arg1, rest = InterpUtil.one_argument(raw)
         arg2, _tail = InterpUtil.one_argument(rest)
-        room = getattr(context, "room", None)
+        room = context.room
         if room is None:
             room = self.room_registry.get_or_none(id=character.room_id)
 
@@ -1619,7 +1630,7 @@ class Object:
                     (ItemApi.has_item_flag(item, self.item_flags, "ITEM_NODROP")
                      and not CharacterApi.is_immortal(character))
                     or ItemApi.has_item_flag(item, self.item_flags, "ITEM_INVENTORY")
-                    or GenericUtil.to_int(getattr(item, "level", 0), 0) > GenericUtil.to_int(getattr(character, "level", 0), 0)
+                    or GenericUtil.to_int(item.level, 0) > GenericUtil.to_int(character.level, 0)
                 )
                 max_items = character.max_items()
                 if character.carry_count() + Item.object_number(item) > max_items:
@@ -1644,7 +1655,7 @@ class Object:
         if safe_payload is not None:
             return safe_payload
 
-        if CharacterApi.is_npc(victim) and getattr(victim, "fighting", None) is not None:
+        if CharacterApi.is_npc(victim) and victim.fighting is not None:
             return {"to_char": self._render_command_message(context, "no_kill_stealing")}
         return None
 
@@ -1684,7 +1695,7 @@ class Object:
             percent += 50
 
         if not CharacterApi.is_npc(victim):
-            level_delta = abs(GenericUtil.to_int(getattr(character, "level", 0), 0) - GenericUtil.to_int(getattr(victim, "level", 0), 0))
+            level_delta = abs(GenericUtil.to_int(character.level, 0) - GenericUtil.to_int(victim.level, 0))
             if level_delta > 7:
                 return False
         return percent <= self._steal_skill_percent(character) and CharacterApi.is_clan(character)
@@ -1715,7 +1726,7 @@ class Object:
             payloads.append({"actor": victim, "payloads": [fight_payload]})
         if not CharacterApi.is_npc(character) and not CharacterApi.is_npc(victim):
             payloads.append({"to_wiznet": self._render_command_message(
-                context, "default", channel="to_wiznet", c=character.name, t=getattr(victim, "name", ""))})
+                context, "default", channel="to_wiznet", c=character.name, t=victim.name)})
             if self._mark_player_thief(character):
                 payloads.append({"to_char": self._render_command_message(context, "thief")})
                 self.fight_handler.character_service.queue_save_character(character)
@@ -1724,22 +1735,22 @@ class Object:
     def _theft_reaction_context(self, context, victim, name, argument):
         return Context(character=victim, command=self.registry_service.interp_registry.get(name=name),
                        registry_service=self.registry_service,
-                       handler_service=getattr(context, "handler_service", None), room=context.room,
+                       handler_service=context.handler_service, room=context.room,
                        parameters=argument.split(), result=argument)
 
     def _finish_steal_money(self, character: Character, context: Context) -> dict:
         victim = context.steal_victim
-        level = max(1, GenericUtil.to_int(getattr(character, "level", 1), 1))
+        level = max(1, GenericUtil.to_int(character.level, 1))
         max_level = self._max_level()
-        gold = GenericUtil.to_int(getattr(victim, "gold", 0), 0) * random.randint(1, level) // max_level
-        silver = GenericUtil.to_int(getattr(victim, "silver", 0), 0) * random.randint(1, level) // max_level
+        gold = GenericUtil.to_int(victim.gold, 0) * random.randint(1, level) // max_level
+        silver = GenericUtil.to_int(victim.silver, 0) * random.randint(1, level) // max_level
         if gold <= 0 and silver <= 0:
             return {"to_char": self._render_command_message(context, "failed_coins")}
 
-        character.gold = GenericUtil.to_int(getattr(character, "gold", 0), 0) + gold
-        character.silver = GenericUtil.to_int(getattr(character, "silver", 0), 0) + silver
-        victim.gold = max(0, GenericUtil.to_int(getattr(victim, "gold", 0), 0) - gold)
-        victim.silver = max(0, GenericUtil.to_int(getattr(victim, "silver", 0), 0) - silver)
+        character.gold = GenericUtil.to_int(character.gold, 0) + gold
+        character.silver = GenericUtil.to_int(character.silver, 0) + silver
+        victim.gold = max(0, GenericUtil.to_int(victim.gold, 0) - gold)
+        victim.silver = max(0, GenericUtil.to_int(victim.silver, 0) - silver)
         self._improve_item_skill(character, "steal", True)
 
         if silver <= 0:
@@ -1758,16 +1769,16 @@ class Object:
     def _steal_skill_percent(self, character: Character) -> int:
         if hasattr(character, "skill_level"):
             return max(1, min(100, GenericUtil.to_int(character.skill_level("steal"), 1)))
-        return max(1, min(100, 40 + (2 * GenericUtil.to_int(getattr(character, "level", 0), 0))))
+        return max(1, min(100, 40 + (2 * GenericUtil.to_int(character.level, 0))))
 
     def _steal_beats(self) -> int:
         return self._skill_beats("steal", 24)
 
     @staticmethod
     def _set_wait(character: Character, pulses: int) -> None:
-        status_flags = getattr(character, "status_flags", None)
+        status_flags = character.status_flags
         if status_flags is not None:
-            status_flags.pulse_wait = max(GenericUtil.to_int(getattr(status_flags, "pulse_wait", 0), 0), GenericUtil.to_int(pulses, 0))
+            status_flags.pulse_wait = max(GenericUtil.to_int(status_flags.pulse_wait, 0), GenericUtil.to_int(pulses, 0))
 
     @staticmethod
     def _can_see(viewer, target, room) -> bool:
@@ -1785,9 +1796,9 @@ class Object:
 
     def _mark_player_thief(self, character: Character) -> bool:
         bit = CharacterApi.enum_bit(self.PlayerActBits, "PLR_THIEF")
-        if bit <= 0 or getattr(character, "status_flags", None) is None:
+        if bit <= 0 or character.status_flags is None:
             return False
-        current = GenericUtil.to_int(getattr(character.status_flags, "act", 0), 0)
+        current = GenericUtil.to_int(character.status_flags.act, 0)
         if CharacterApi.is_set(current, bit):
             return False
         if hasattr(CharacterApi, "set_act_flags"):
@@ -1797,14 +1808,14 @@ class Object:
         return True
 
     def _max_level(self) -> int:
-        value = getattr(getattr(self, "GameParameters", None), "MAX_LEVEL", None)
+        value = getattr(self.GameParameters, "MAX_LEVEL", None)
         return max(1, GenericUtil.to_int(getattr(value, "value", value), 60))
 
     @staticmethod
     def _possessive_name(victim) -> str:
         if victim is None:
             return "their"
-        sex = str(getattr(victim, "sex", "") or "").strip().lower()
+        sex = str(victim.sex or "").strip().lower()
         if sex in {"m", "male", "1"}:
             return "his"
         if sex in {"f", "female", "2"}:
@@ -1876,7 +1887,7 @@ class Object:
         context.wear_invalid_target = False
         context.wear_invalid_message_key = "invalidTarget"
         context.wear_item_short = "" if item is None else Item.short(item)
-        context.wear_item_level = 0 if item is None else GenericUtil.to_int(getattr(item, "level", 0), 0)
+        context.wear_item_level = 0 if item is None else GenericUtil.to_int(item.level, 0)
 
         context.equip_arg1 = arg1
         context.equip_item = item
@@ -1892,7 +1903,7 @@ class Object:
             context.wear_invalid_message_key = "invalidTargetThere" if context.wear_forced_slot else "invalidTarget"
         return room
 
-    def _equipment_result_payload(self, character: Character, room, context: Context, result) -> dict:
+    def _equipment_result_payload(self, character: Character, room, context: Context, result: WearResult) -> dict:
         payload: dict[str, str | list] = {}
 
         def _render(key, **kwargs):
@@ -1907,14 +1918,14 @@ class Object:
             if room_text:
                 payload["to_room"] = f"{payload.get('to_room', '')}{room_text}"
 
-        for key, tokens in list(getattr(result, "pre_messages", []) or []):
+        for key, tokens in list(result.pre_messages or []):
             _append(_render(key, channel="to_char", **dict(tokens or {})))
-        if getattr(result, "blocked_key", ""):
+        if result.blocked_key:
             payload["blocked_key"] = result.blocked_key
-            _append(_render(result.blocked_key, **dict(getattr(result, "blocked_tokens", {}) or {})))
-        for key, tokens in list(getattr(result, "shared_messages", []) or []):
+            _append(_render(result.blocked_key, **dict(result.blocked_tokens or {})))
+        for key, tokens in list(result.shared_messages or []):
             _append(_render(key, **dict(tokens or {})))
-        for key, tokens in list(getattr(result, "char_messages", []) or []):
+        for key, tokens in list(result.char_messages or []):
             _append(_render(key, channel="to_char", **dict(tokens or {})))
 
         if payload.get("to_room") and room is not None:
@@ -1935,7 +1946,7 @@ class Object:
 
     def _prepare_remove_context(self, character: Character, context: Context):
         arg1, _ = InterpUtil.parse_object_arguments(context.result, context.parameters)
-        room = getattr(context, "room", None)
+        room = context.room
         if room is None:
             room = self.room_registry.get_or_none(id=character.room_id)
 
@@ -1952,7 +1963,7 @@ class Object:
 
     @staticmethod
     def _render_command_message(context: Context, key: str, channel: str = "to_char", **tokens) -> str:
-        command = getattr(context, "command", None)
+        command = context.command
         if command is None:
             return ""
         text = command.render_message(channel, key, **tokens)
@@ -1960,14 +1971,14 @@ class Object:
 
     @staticmethod
     def _condition_value(character: Character, name: str) -> int:
-        status_flags = getattr(character, "status_flags", None)
+        status_flags = character.status_flags
         if status_flags is None or not hasattr(status_flags, name):
             return -1
         return GenericUtil.to_int(getattr(status_flags, name, -1), -1)
 
     @staticmethod
     def _gain_condition(character: Character, name: str, amount: int, messages=None) -> int:
-        status_flags = getattr(character, "status_flags", None)
+        status_flags = character.status_flags
         if status_flags is None or not hasattr(status_flags, name):
             return -1
         current = GenericUtil.to_int(getattr(status_flags, name, -1), -1)
@@ -1999,13 +2010,13 @@ class Object:
         if blocked is not None:
             return blocked
 
-        liquid_name = str(getattr(item, "value2", "") or "")
-        liquid_affect = list(getattr(item, "liquid_affect_data", []) or [])
+        liquid_name = str(item.value2 or "")
+        liquid_affect = list(item.liquid_affect_data or [])
         serving_size = GenericUtil.to_int(liquid_affect[4], 0) if len(liquid_affect) > 4 else 0
         if Item.is_fountain(item):
             amount = max(1, serving_size * 3)
         else:
-            value1 = GenericUtil.to_int(getattr(item, "value1", 0), 0)
+            value1 = GenericUtil.to_int(item.value1, 0)
             amount = min(max(1, serving_size), value1)
 
         tokens = {
@@ -2044,10 +2055,10 @@ class Object:
                 payload["to_char"] += self._render_command_message(context, "full")
             if thirst > 40:
                 payload["to_char"] += self._render_command_message(context, "quenched")
-        if GenericUtil.to_int(getattr(item, "value3", 0), 0) != 0:
+        if GenericUtil.to_int(item.value3, 0) != 0:
             self._apply_consumed_poison(character, context, payload, amount, 3 * amount)
-        if GenericUtil.to_int(getattr(item, "value0", 0), 0) > 0:
-            item.value1 = str(GenericUtil.to_int(getattr(item, "value1", 0), 0) - amount)
+        if GenericUtil.to_int(item.value0, 0) > 0:
+            item.value1 = str(GenericUtil.to_int(item.value1, 0) - amount)
         context.finish()
         return payload
 
@@ -2061,7 +2072,7 @@ class Object:
         if blocked is not None:
             return blocked
 
-        item_type = (getattr(item, "item_type", "") or "").upper()
+        item_type = (item.item_type or "").upper()
         payload = {
             "to_char": self._render_command_message(context, "default", "to_char", p=Item.short(item)),
         }
@@ -2074,8 +2085,8 @@ class Object:
         if "FOOD" in item_type and not CharacterApi.is_npc(character):
             hunger_before = self._condition_value(character, "hunger")
             condition_messages = []
-            self._gain_condition(character, "fullness", GenericUtil.to_int(getattr(item, "value0", 0), 0), condition_messages)
-            hunger_after = self._gain_condition(character, "hunger", GenericUtil.to_int(getattr(item, "value1", 0), 0), condition_messages)
+            self._gain_condition(character, "fullness", GenericUtil.to_int(item.value0, 0), condition_messages)
+            hunger_after = self._gain_condition(character, "hunger", GenericUtil.to_int(item.value1, 0), condition_messages)
             payload["to_char"] += "".join(condition_messages)
             if hunger_before == 0 and hunger_after > 0:
                 payload["to_char"] += self._render_command_message(context, "satiated")
@@ -2083,8 +2094,8 @@ class Object:
                 payload["to_char"] += self._render_command_message(context, "full")
 
         spell_payloads = []
-        if "FOOD" in item_type and GenericUtil.to_int(getattr(item, "value3", 0), 0) != 0:
-            potency = GenericUtil.to_int(getattr(item, "value0", 0), 0)
+        if "FOOD" in item_type and GenericUtil.to_int(item.value3, 0) != 0:
+            potency = GenericUtil.to_int(item.value0, 0)
             self._apply_consumed_poison(character, context, payload, potency, 2 * potency)
         elif "PILL" in item_type:
             for spell_ref in Item.spell_refs(item, 1, 2, 3):
@@ -2144,7 +2155,7 @@ class Object:
 
     def _prepare_fill_context(self, character: Character, context: Context):
         arg1, rem = InterpUtil.parse_object_arguments(context.result, context.parameters)
-        room = getattr(context, "room", None)
+        room = context.room
         if room is None:
             room = self.room_registry.get_or_none(id=character.room_id)
 
@@ -2188,7 +2199,7 @@ class Object:
             payload = self.interp_api.render_message_key(
                 context,
                 "for_victim",
-                t=getattr(context.pour_target_character, "name", ""),
+                t=context.pour_target_character.name,
                 s=result.liquid_name,
                 c=character.name,
             )
@@ -2203,7 +2214,7 @@ class Object:
             if room is not None and payload.get("to_room"):
                 payload["targets"] = [
                     viewer for viewer in room.player_targets(character)
-                    if getattr(viewer, "id", "") != getattr(context.pour_target_character, "id", "")
+                    if viewer.id != context.pour_target_character.id
                 ]
         else:
             payload = self.interp_api.render_message_key(
@@ -2234,8 +2245,8 @@ class Object:
             if target_item is None:
                 target_character = self._find_give_target(room, target_arg, character)
                 if target_character is not None:
-                    equipped = target_character.ensure_equipped() if hasattr(target_character, "ensure_equipped") else getattr(target_character, "equipped", None)
-                    target_container = getattr(equipped, "held", None) if equipped is not None else None
+                    equipped = target_character.ensure_equipped() if hasattr(target_character, "ensure_equipped") else target_character.equipped
+                    target_container = equipped.held if equipped is not None else None
             else:
                 target_container = target_item
 
@@ -2315,7 +2326,7 @@ class Object:
 
     def do_brandish(self, character: Character, context: Context):
         room = context.room if context.room is not None else self.room_registry.get_or_none(id=character.room_id)
-        staff = getattr(character.ensure_equipped(), "held", None)
+        staff = character.ensure_equipped().held
         context.room = room
         context.brandish_item = staff
         blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
@@ -2338,17 +2349,17 @@ class Object:
                 "to_room": self._render_command_message(context, "default", channel="to_room", c=character.name, t=Item.short(staff)),
                 "targets": room.player_targets(character) if room is not None else [],
             })
-            if int(getattr(character, "level", 0) or 0) < int(getattr(staff, "level", 0) or 0) or not self._item_skill_check(character, "staves"):
+            if int(character.level or 0) < int(staff.level or 0) or not self._item_skill_check(character, "staves"):
                 self._improve_item_skill(character, "staves", False)
                 failure = self.interp_api.render_message_key(context, "failure", t=Item.short(staff))
                 if room is not None and failure.get("to_room"):
                     failure["targets"] = room.player_targets(character)
                 payloads.append(failure)
             else:
-                people = list(getattr(room, "characters", {}).values()) + list(getattr(room, "mobiles", {}).values()) if room is not None else []
+                people = list(room.characters.values()) + list(room.mobiles.values()) if room is not None else []
                 if character not in people:
                     people.insert(0, character)
-                target_type = str(getattr(spell, "target", "") or "").upper()
+                target_type = str(spell.target or "").upper()
                 for victim in people:
                     if target_type == "IGNORE" and victim is not character:
                         continue
@@ -2358,7 +2369,7 @@ class Object:
                         continue
                     if target_type == "CHAR_DEFENSIVE" and CharacterApi.is_npc(character) != CharacterApi.is_npc(victim):
                         continue
-                    payloads.extend(self._cast_item_spell(character, room, staff, spell, target=victim, target_name=getattr(victim, "name", ""), target_kind="char", command_context=context))
+                    payloads.extend(self._cast_item_spell(character, room, staff, spell, target=victim, target_name=victim.name, target_kind="char", command_context=context))
                     self._improve_item_skill(character, "staves", True)
 
         if Item.spend_charge(staff) <= 0:
@@ -2374,8 +2385,8 @@ class Object:
     def do_zap(self, character: Character, context: Context):
         arg1, _ = InterpUtil.parse_object_arguments(context.result, context.parameters)
         room = context.room if context.room is not None else self.room_registry.get_or_none(id=character.room_id)
-        wand = getattr(character.ensure_equipped(), "held", None)
-        victim = getattr(character, "fighting", None) if not arg1 else self._find_give_target(room, arg1, character)
+        wand = character.ensure_equipped().held
+        victim = character.fighting if not arg1 else self._find_give_target(room, arg1, character)
         obj = None if victim is not None else self._here_item(character, room, arg1)
 
         context.room = room
@@ -2393,10 +2404,10 @@ class Object:
         if Item.charges(wand) > 0:
             if victim is not None:
                 room_targets = room.player_targets(character) if room is not None else []
-                room_targets = [viewer for viewer in room_targets if getattr(viewer, "id", "") != getattr(victim, "id", "")]
+                room_targets = [viewer for viewer in room_targets if viewer.id != victim.id]
                 payloads.append({
-                    "to_char": self._render_command_message(context, "default", t=getattr(victim, "name", ""), T=Item.short(wand)),
-                    "to_room": self._render_command_message(context, "default", channel="to_room", c=character.name, t=getattr(victim, "name", ""), T=Item.short(wand)),
+                    "to_char": self._render_command_message(context, "default", t=victim.name, T=Item.short(wand)),
+                    "to_room": self._render_command_message(context, "default", channel="to_room", c=character.name, t=victim.name, T=Item.short(wand)),
                     "to_victim": self._render_command_message(context, "zaps_with", channel="to_victim", c=character.name, t=Item.short(wand)),
                     "victim": victim,
                     "targets": room_targets,
@@ -2408,7 +2419,7 @@ class Object:
                     "targets": room.player_targets(character) if room is not None else [],
                 })
 
-            if int(getattr(character, "level", 0) or 0) < int(getattr(wand, "level", 0) or 0) or not self._item_skill_check(character, "wands"):
+            if int(character.level or 0) < int(wand.level or 0) or not self._item_skill_check(character, "wands"):
                 self._improve_item_skill(character, "wands", False)
                 failure = self.interp_api.render_message_key(context, "failed", t=Item.short(wand), c=character.name)
                 if room is not None and failure.get("to_room"):
@@ -2451,7 +2462,7 @@ class Object:
         skill = self.skill_registry.get_or_none(name=skill_name)
         if skill is None:
             return
-        Ability.check_improve(character, getattr(skill, "id", ""), success, multiplier)
+        Ability.check_improve(character, skill.id, success, multiplier)
 
     def _cast_item_spell(self, character: Character, room, item, spell_ref, *, target=None, target_name: str = "", target_kind: str = "", command_context=None) -> list[dict]:
         spell = spell_ref
@@ -2462,7 +2473,7 @@ class Object:
 
         victim = target if target is not None and not hasattr(target, "item_type") else None
         obj = target if target is not None and hasattr(target, "item_type") else None
-        target_type = str(getattr(spell, "target", "") or "").upper().removeprefix("TAR_")
+        target_type = str(spell.target or "").upper().removeprefix("TAR_")
         if target_type == "IGNORE":
             target, target_kind = None, ""
         elif target_type in ("CHAR_DEFENSIVE", "CHAR_SELF"):
@@ -2470,12 +2481,12 @@ class Object:
         elif target_type == "OBJ_INV":
             target, target_kind = obj, "obj"
         elif target_type == "CHAR_OFFENSIVE":
-            target = victim if victim is not None else getattr(character, "fighting", None)
+            target = victim if victim is not None else character.fighting
             target_kind = "char"
         elif target_type in ("OBJ_CHAR_OFF", "OBJ_CHAR_DEF"):
             target = victim if victim is not None else obj
             if target is None:
-                target = getattr(character, "fighting", None) if target_type == "OBJ_CHAR_OFF" else character
+                target = character.fighting if target_type == "OBJ_CHAR_OFF" else character
             target_kind = "obj" if target is not None and hasattr(target, "item_type") else "char"
         else:
             self.logger.error(f"Item spell has invalid target type: {target_type}")
@@ -2512,11 +2523,11 @@ class Object:
     def _item_spell_retaliation(self, context, target_type):
         victim, actor = context.victim, context.actor
         if (target_type not in ("CHAR_OFFENSIVE", "OBJ_CHAR_OFF") or victim is None
-                or victim is actor or getattr(victim, "master", None) is actor
-                or getattr(victim, "fighting", None) is not None):
+                or victim is actor or victim.master is actor
+                or victim.fighting is not None):
             return
         room = context.room
-        if room is not None and str(getattr(actor, "room_id", "")) != str(room.id):
+        if room is not None and str(actor.room_id) != str(room.id):
             room = self.room_registry.get_or_none(id=actor.room_id)
         if room is None or not any(person is victim for person in LookupUtil.people(room)):
             return
@@ -2549,7 +2560,7 @@ class Object:
 
     def _find_keeper(self, character: Character, room):
         for mob in room.mobiles.values():
-            shop = self.shop_registry.find_by_keeper_vnum(getattr(mob, "vnum", ""))
+            shop = self.shop_registry.find_by_keeper_vnum(mob.vnum)
             if shop is None:
                 continue
             hour = GenericUtil.to_int(getattr(getattr(self.weather_handler, "time_info", None), "hour", -1), -1)
@@ -2563,7 +2574,7 @@ class Object:
         if room is None:
             return None
         healer_bit = CharacterApi.enum_bit(self.act_bits, "ACT_IS_HEALER")
-        for mob in getattr(room, "mobiles", {}).values():
+        for mob in room.mobiles.values():
             act = GenericUtil.to_int(getattr(getattr(mob, "status_flags", None), "act", 0), 0)
             if healer_bit and CharacterApi.is_set(act, healer_bit):
                 return mob
@@ -2611,11 +2622,13 @@ class Object:
 
     @staticmethod
     def _matches_name(entity, wanted: str) -> bool:
-        return not str(wanted or "").strip() or LookupUtil.matches(wanted, getattr(entity, "name", ""))
+        return not str(wanted or "").strip() or LookupUtil.matches(wanted, entity.name if entity is not None else "")
 
     @staticmethod
     def _money_value(entity) -> int:
-        return (GenericUtil.to_int(getattr(entity, "gold", 0), 0) * 100) + GenericUtil.to_int(getattr(entity, "silver", 0), 0)
+        if entity is None:
+            return 0
+        return (GenericUtil.to_int(entity.gold, 0) * 100) + GenericUtil.to_int(entity.silver, 0)
 
     def _can_afford(self, entity, amount: int) -> bool:
         return self._money_value(entity) >= GenericUtil.to_int(amount, 0)

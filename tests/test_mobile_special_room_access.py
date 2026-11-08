@@ -17,9 +17,9 @@ class PlayerBits(IntEnum):
 class MobileSpecialRoomAccessTests(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         self.room = Room(id='room')
-        self.player = SimpleNamespace(id='player', level=10, gold=100, silver=200,
+        self.player = SimpleNamespace(equipped=None, id='player', level=10, gold=100, silver=200,
                                       fighting=None, status_flags=SimpleNamespace(act=PlayerBits.PLR_KILLER))
-        self.observer = SimpleNamespace(id='observer', level=10, status_flags=SimpleNamespace(act=0))
+        self.observer = SimpleNamespace(equipped=None, fighting=None, id='observer', level=10, status_flags=SimpleNamespace(act=0))
         self.room.add_player_to_room(self.player)
         self.room.add_player_to_room(self.observer)
         self.actor = SimpleNamespace(id='guard', name='guard', short_description='a guard', vnum='100',
@@ -83,7 +83,7 @@ class MobileSpecialRoomAccessTests(unittest.IsolatedAsyncioTestCase):
         self.assertIs(MobileApi.select_room_fight_intervention_target(self.ctx, 'victim'), self.player)
 
     async def test_combat_target_selectors_include_npcs(self):
-        opponent = SimpleNamespace(id='npc', fighting=self.actor,
+        opponent = SimpleNamespace(equipped=None, id='npc', fighting=self.actor,
                                    character_attributes=SimpleNamespace(alignment=-500))
         self.room.add_mobile_to_room(opponent)
         self.assertIs(MobileApi.select_room_combat_victim(self.ctx, 'victim'), opponent)

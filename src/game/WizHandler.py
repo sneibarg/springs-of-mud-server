@@ -67,7 +67,7 @@ class WizHandler:
     def current_session(self, character):
         if character is None:
             return None
-        return self.session_handler.get_session_by_character(getattr(character, "id", ""))
+        return self.session_handler.get_session_by_character(character.id)
 
     def switched_original(self, character):
         session = self.current_session(character)
@@ -86,21 +86,21 @@ class WizHandler:
         original = session.metadata.get("switched_original") or character
         current = session.character
         if current is not None:
-            self.connection_manager.unbind_character(getattr(current, "id", ""))
+            self.connection_manager.unbind_character(current.id)
 
         session.metadata["switched_original"] = original
-        session.metadata["switched_original_id"] = getattr(original, "id", "")
+        session.metadata["switched_original_id"] = original.id
         session.character = target
-        self.connection_manager.bind_character(getattr(target, "id", ""), session.session_id)
+        self.connection_manager.bind_character(target.id, session.session_id)
 
         target.context = dict(getattr(target, "context", {}) or {})
         target.context["controller_original"] = original
-        target.context["controller_original_id"] = getattr(original, "id", "")
-        if getattr(original, "prompt_format", None) is not None:
+        target.context["controller_original_id"] = original.id
+        if original.prompt_format is not None:
             target.prompt_format = deepcopy(original.prompt_format)
-        target.carriage_return = bool(getattr(original, "carriage_return", True))
-        if getattr(target, "status_flags", None) is not None and getattr(original, "status_flags", None) is not None:
-            CharacterApi.assign_comm_flags(target, getattr(original.status_flags, "comm", 0))
+        target.carriage_return = bool(original.carriage_return)
+        if target.status_flags is not None and original.status_flags is not None:
+            CharacterApi.assign_comm_flags(target, original.status_flags.comm)
         return original
 
     def return_character(self, character):
@@ -114,13 +114,13 @@ class WizHandler:
 
         current = session.character
         if current is not None:
-            self.connection_manager.unbind_character(getattr(current, "id", ""))
+            self.connection_manager.unbind_character(current.id)
             current.context = dict(getattr(current, "context", {}) or {})
             current.context.pop("controller_original", None)
             current.context.pop("controller_original_id", None)
 
         session.character = original
-        self.connection_manager.bind_character(getattr(original, "id", ""), session.session_id)
+        self.connection_manager.bind_character(original.id, session.session_id)
         session.metadata.pop("switched_original", None)
         session.metadata.pop("switched_original_id", None)
         return original, current
@@ -160,14 +160,14 @@ class WizHandler:
                                   deny_occupied: bool = False) -> bool:
         if actor is None or room is None:
             return False
-        actor_room_id = str(getattr(actor, "room_id", "") or "")
-        if actor_room_id == str(getattr(room, "id", "") or ""):
+        actor_room_id = str(actor.room_id or "")
+        if actor_room_id == str(room.id or ""):
             return False
 
         room_flags = CharacterApi.get_enum("roomFlags")
         if room_flags is None or not room.is_private(room_flags):
             return False
-        if WizUtil.name_matches(str(getattr(actor, "name", "") or ""), str(getattr(room, "owner", "") or "")):
+        if WizUtil.name_matches(str(actor.name or ""), str(room.owner or "")):
             return False
         if deny_occupied and len(room.characters) + len(room.mobiles) > 1:
             return True
@@ -250,8 +250,8 @@ class WizHandler:
                 continue
             original = session.metadata.get("switched_original")
             names = [
-                str(getattr(current, "name", "") or "").strip().lower(),
-                str(getattr(original, "name", "") or "").strip().lower(),
+                str(current.name or "").strip().lower(),
+                str((original.name if original is not None else "") or "").strip().lower(),
             ]
             if wanted and all(not WizUtil.name_matches(wanted, name) for name in names):
                 continue
@@ -271,7 +271,7 @@ class WizHandler:
                 else:
                     host = str(peer or "unknown")
 
-            name = getattr(original, "name", "") if original is not None else getattr(current, "name", "")
+            name = original.name if original is not None else current.name
             lines.append(f"[{descriptor:>3} {int(getattr(session.status, 'value', 0)):>2}] {name}@{host}")
             count += 1
 
@@ -283,7 +283,7 @@ class WizHandler:
     def memory_report(self) -> str:
         areas = len(self.registry_service.area_registry.all_areas())
         rooms = len(list(self.room_registry.all_rooms() or []))
-        helps = len([command for command in self.registry_service.interp_registry.all_commands() if getattr(command, "help", None) is not None])
+        helps = len([command for command in self.registry_service.interp_registry.all_commands() if command.help is not None])
         socials = len(list(self.registry_service.social_registry.all_socials() or []))
         mobs = len(list(self.registry_service.mobile_registry.all_mobiles() or []))
         items = len(list(self.registry_service.item_registry.all_items() or []))
@@ -293,10 +293,10 @@ class WizHandler:
         exdes = 0
         mobile_count = 0
         for room in self.room_registry.all_rooms():
-            exits += len(list(getattr(room, "exits", []) or []))
-            exdes += 1 if getattr(room, "extra_description", None) else 0
-            mobile_count += len(list(getattr(room, "mobiles", {}).values()))
-            for obj in list(getattr(room, "contents", {}).values()):
+            exits += len(list(room.exits or []))
+            exdes += 1 if room.extra_description else 0
+            mobile_count += len(list(room.mobiles.values()))
+            for obj in list(room.contents.values()):
                 exdes += WizUtil.count_extra_descriptions(obj)
 
         lines = [

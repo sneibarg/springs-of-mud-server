@@ -36,14 +36,14 @@ class FightUtil:
     @staticmethod
     def level_for_class(skill, character) -> int:
         class_name = str(getattr(getattr(character, "character_class", None), "name", "") or "").strip().lower()
-        level_map = getattr(skill, "level_by_class", {}) or {}
+        level_map = (skill.level_by_class if skill is not None else {}) or {}
         if class_name in level_map:
             return GenericUtil.to_int(level_map.get(class_name), 99)
         return GenericUtil.to_int(level_map.get("mage", 99), 99)
 
     @staticmethod
     def min_mana(skill) -> int:
-        return max(0, GenericUtil.to_int(getattr(skill, "min_mana", 0), 0))
+        return max(0, GenericUtil.to_int((skill.min_mana if skill is not None else 0), 0))
 
     @staticmethod
     def cast_mana_cost(character, ability) -> int:
@@ -65,8 +65,8 @@ class FightUtil:
             matches = sorted(
                 (spell for spell in spell_registry.all_spells()
                  if str(spell.name or "").lower().startswith(wanted)
-                 or str(getattr(spell, "handler_id", "") or "").lower().startswith(want_handler)),
-                key=lambda spell: str(getattr(spell, "handler_id", "") or spell.name).lower(),
+                 or str(spell.handler_id or "").lower().startswith(want_handler)),
+                key=lambda spell: str(spell.handler_id or spell.name).lower(),
             )
             for spell in matches:
                 if CharacterApi.is_npc(character):
@@ -77,8 +77,8 @@ class FightUtil:
                     return spell
             return matches[0] if matches else None
         for spell in spell_registry.all_spells():
-            handler_id = str(getattr(spell, "handler_id", "") or "").strip().lower()
-            name = str(getattr(spell, "name", "") or "").strip().lower()
+            handler_id = str(spell.handler_id or "").strip().lower()
+            name = str(spell.name or "").strip().lower()
             if handler_id == want_handler or name == spell_name:
                 return spell
         return None
@@ -91,7 +91,7 @@ class FightUtil:
             if name == wanted:
                 return skill
         for skill in skill_registry.all_skills():
-            if str(getattr(skill, "name", "") or "").strip().lower() == wanted:
+            if str(skill.name or "").strip().lower() == wanted:
                 return skill
         return None
 
@@ -106,7 +106,7 @@ class FightUtil:
 
     @staticmethod
     def set_fighting_position(entity, PositionsEnum) -> None:
-        attrs = getattr(entity, "character_attributes", None)
+        attrs = (entity.character_attributes if entity is not None else None)
         if attrs is not None:
             attrs.position = PositionsEnum.POS_FIGHTING.value
             return
@@ -114,9 +114,9 @@ class FightUtil:
 
     @staticmethod
     def entity_position_value(entity) -> int:
-        attrs = getattr(entity, "character_attributes", None)
+        attrs = (entity.character_attributes if entity is not None else None)
         if attrs is not None and hasattr(attrs, "position"):
-            return GenericUtil.to_int(getattr(attrs, "position", 0), 0)
+            return GenericUtil.to_int(attrs.position, 0)
         if hasattr(entity, "position"):
             return GenericUtil.to_int(getattr(entity, "position", 0), 0)
         return GenericUtil.to_int(getattr(entity, "start_pos", 0), 0)

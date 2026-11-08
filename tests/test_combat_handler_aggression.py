@@ -625,7 +625,7 @@ class TestFightHandlerAggression(unittest.TestCase):
         spell_api._room_entities = Mock(return_value=[attacker, allowed, charmed, immortal])
         spell_api.eval_int = Mock(return_value=10)
         spell_api._queue_damage_payload = Mock()
-        ctx = SimpleNamespace(actor=attacker, room=room, spell=SimpleNamespace(name="earthquake"),
+        ctx = SimpleNamespace(actor=attacker, room=room, spell=SimpleNamespace(name="earthquake", noun_damage=""),
                               mark_performed=Mock(return_value=True))
 
         self.assertTrue(spell_api.damage_room_expr(ctx, "10", save_half=False))
@@ -870,6 +870,8 @@ class TestFightHandlerAggression(unittest.TestCase):
 
     def _safety_room(self, *entities):
         return SimpleNamespace(
+            area_id="",
+            contents={},
             room_flags=0,
             characters={entity.id: entity for entity in entities if not entity.is_npc},
             mobiles={entity.id: entity for entity in entities if entity.is_npc},
@@ -1122,6 +1124,9 @@ class TestFightHandlerAggression(unittest.TestCase):
 
     def _handler(self, room):
         handler = FightHandler.__new__(FightHandler)
+        handler.death_handler = None
+        handler.escape_handler = None
+        handler.npc_skill_handler = None
         handler.logger = _Logger()
         handler.area_registry = SimpleNamespace(get_or_none=lambda **_kwargs: None)
         handler.skill_registry = SimpleNamespace(get_or_none=lambda **_kwargs: None)
@@ -1152,13 +1157,21 @@ class TestFightHandlerAggression(unittest.TestCase):
     @staticmethod
     def _mob(mob_id: str):
         return SimpleNamespace(
+            name=mob_id,
+            short_description="",
+            equipped=None,
+            armor_class=None,
+            vnum=mob_id,
+            group="",
+            damage_dice=None,
+            default_pos=_Positions.POS_STANDING.value,
             id=mob_id,
             is_npc=True,
             is_immortal=False,
             level=10,
             room_id="room-1",
             fighting=None,
-            status_flags=SimpleNamespace(act=int(_ActBits.ACT_AGGRESSIVE), affected_by=0, off=0),
+            status_flags=SimpleNamespace(act=int(_ActBits.ACT_AGGRESSIVE), pulse_daze=0, drunk=0, affected_by=0, off=0, imm=0, res=0, vuln=0),
             character_attributes=SimpleNamespace(position=8),
             leader=None,
             master=None,
@@ -1167,6 +1180,9 @@ class TestFightHandlerAggression(unittest.TestCase):
     @staticmethod
     def _player(player_id: str):
         return SimpleNamespace(
+            name=player_id,
+            equipped=None,
+            armor_class=None,
             id=player_id,
             guild="rom",
             is_npc=False,
@@ -1174,7 +1190,7 @@ class TestFightHandlerAggression(unittest.TestCase):
             level=5,
             room_id="room-1",
             fighting=None,
-            status_flags=SimpleNamespace(act=0, affected_by=0, comm=0),
+            status_flags=SimpleNamespace(act=0, pulse_daze=0, drunk=0, affected_by=0, comm=0, imm=0, res=0, vuln=0),
             character_attributes=SimpleNamespace(position=8),
             leader=None,
             master=None,
@@ -1342,7 +1358,7 @@ class TestFightHandlerAggression(unittest.TestCase):
         attacker = self._player("char-1")
         attacker.name = "Tester"
         attacker.room_id = "room-1"
-        attacker.equipped = SimpleNamespace(wielded=SimpleNamespace(item_type="weapon", value0=1, value3="stab"))
+        attacker.equipped = SimpleNamespace(wielded=SimpleNamespace(name="blade", item_type="weapon", value0=1, value3="stab"))
         room = SimpleNamespace(id="room-1", area_id="area-1", room_flags=0, mobiles={"mob-1": victim}, characters={"char-1": attacker})
         handler = self._handler(room)
 
@@ -1371,7 +1387,7 @@ class TestFightHandlerAggression(unittest.TestCase):
         attacker = self._player("char-1")
         attacker.name = "Tester"
         attacker.room_id = "room-1"
-        attacker.equipped = SimpleNamespace(wielded=SimpleNamespace(item_type="weapon", value0=1, value3="stab"))
+        attacker.equipped = SimpleNamespace(wielded=SimpleNamespace(name="blade", item_type="weapon", value0=1, value3="stab"))
         room = SimpleNamespace(id="room-1", area_id="area-1", room_flags=0, mobiles={"mob-1": victim}, characters={"char-1": attacker})
         handler = self._handler(room)
 
@@ -1493,7 +1509,7 @@ class TestFightHandlerAggression(unittest.TestCase):
         pet.status_flags.affected_by = int(_AffectBits.AFF_CHARM)
         pet.master = owner
         pet.leader = owner
-        room = SimpleNamespace(
+        room = SimpleNamespace(contents={},
             id="room-1",
             area_id="area-1",
             room_flags=0,
@@ -1581,7 +1597,7 @@ class TestFightHandlerAggression(unittest.TestCase):
         attacker = self._player("char-1")
         victim = self._player("char-2")
         watcher = self._player("char-3")
-        room = SimpleNamespace(
+        room = SimpleNamespace(mobiles={},
             id="room-1",
             characters={"char-1": attacker, "char-2": victim, "char-3": watcher},
             player_targets=lambda character: [ch for ch in [attacker, victim, watcher] if ch.id != character.id],

@@ -107,7 +107,7 @@ class UpdateHandler:
     def _advance_input_timers(self) -> None:
         characters = []
         for session in self.session_handler.get_playing_sessions():
-            characters.extend((session.character, (getattr(session, "metadata", None) or {}).get("switched_original")))
+            characters.extend((session.character, (session.metadata or {}).get("switched_original")))
         # Link-dead players still participate in combat and recovery.
         for room in self.entity_update_handler.room_registry.all_rooms():
             if room is not None:
@@ -117,7 +117,7 @@ class UpdateHandler:
             if character is None or id(character) in seen:
                 continue
             seen.add(id(character))
-            status = getattr(character, "status_flags", None)
+            status = character.status_flags
             if status is not None:
                 status.pulse_wait = max(0, status.pulse_wait - 1)
                 status.pulse_daze = max(0, status.pulse_daze - 1)
@@ -131,10 +131,10 @@ class UpdateHandler:
         active: list[Character] = []
         seen: set[str] = set()
         for session in self.session_handler.get_playing_sessions():
-            character = getattr(session, "character", None)
+            character = session.character
             if not isinstance(character, Character):
                 continue
-            character_id = str(getattr(character, "id", "") or "")
+            character_id = str(character.id or "")
             if not character_id or character_id in seen:
                 continue
             seen.add(character_id)
@@ -152,9 +152,9 @@ class UpdateHandler:
             if room is not None:
                 characters.extend(list(room.characters.values()))
         for session in self.session_handler.get_playing_sessions():
-            characters.append(getattr(session, "character", None))
-            characters.append((getattr(session, "metadata", None) or {}).get("switched_original"))
-            body = getattr(session, "character", None)
+            characters.append(session.character)
+            characters.append((session.metadata or {}).get("switched_original"))
+            body = session.character
             characters.append((getattr(body, "context", None) or {}).get("controller_original"))
         live = {}
         for character in characters:

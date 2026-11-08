@@ -184,6 +184,7 @@ class HelpTopicLookupTests(HelpFixture, unittest.TestCase):
 class HelpCommandEmissionTests(HelpFixture, unittest.IsolatedAsyncioTestCase):
     async def test_help_command_sends_one_message_with_one_document(self):
         handler = PlayerHandler.__new__(PlayerHandler)
+        handler.command_audit = None
         handler.info_commands = self.info
         handler.message_bus = NS(send_to_character=AsyncMock(), text_to_message=lambda value: value)
         context = self.context('help', 'cast')

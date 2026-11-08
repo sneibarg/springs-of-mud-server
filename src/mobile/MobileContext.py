@@ -73,7 +73,8 @@ class MobileContext:
         return CharacterApi.is_npc(entity)
 
     def same_special(self, entity) -> bool:
-        return str(getattr(entity, "special_name", "") or "").strip().lower() == str(getattr(self.actor, "special_name", "") or "").strip().lower()
+        actor_special = self.actor.special_name if self.actor is not None else ""
+        return str(getattr(entity, "special_name", "") or "").strip().lower() == str(actor_special or "").strip().lower()
 
     def is_safe(self, entity) -> bool:
         safe, _ = self.handler.fight_handler.is_safe(self.actor, entity, room=self.room)
@@ -81,4 +82,4 @@ class MobileContext:
 
     def room_players(self, exclude_ids: Optional[set[str]] = None) -> list[Any]:
         exclude = {str(value) for value in (exclude_ids or set())}
-        return [player for player in self.room.players_in_room() if str(getattr(player, "id", "")) not in exclude]
+        return [player for player in self.room.players_in_room() if str(player.id) not in exclude]

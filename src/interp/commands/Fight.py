@@ -121,7 +121,7 @@ class Fight:
         context.cast_target_kind = target_kind
         context.cast_target_error = target_error
         late_guards = {"insufficient_mana"}
-        if str(getattr(spell, "target", "") or "").upper() == "CHAR_OFFENSIVE":
+        if str(spell.target or "").upper() == "CHAR_OFFENSIVE":
             late_guards.add("is_follower")
         payload = self.interp_api.evaluate_guards_only(
             context, context.command.name, guard_filter=lambda guard: guard.message_key not in late_guards)
@@ -207,30 +207,30 @@ class Fight:
         chance = self.skill_api.get_rating(character, skill)
         if self._position(character) == self._pos("POS_FIGHTING"):
             chance += 10
-        hp = GenericUtil.to_int(getattr(character, "hit", 0), 0)
-        max_hit = max(1, GenericUtil.to_int(getattr(character, "max_hit", 1), 1))
+        hp = GenericUtil.to_int(character.hit, 0)
+        max_hit = max(1, GenericUtil.to_int(character.max_hit, 1))
         hp_percent = (100 * hp) // max_hit
         chance += 25 - hp_percent // 2
 
         if random.randint(1, 100) < chance:
-            duration = self.fight_handler.rng.number_fuzzy(GenericUtil.to_int(getattr(character, "level", 1), 1) // 8)
-            bonus = max(1, GenericUtil.to_int(getattr(character, "level", 1), 1) // 5)
-            ac_penalty = max(10, 10 * max(1, GenericUtil.to_int(getattr(character, "level", 1), 1) // 5))
+            duration = self.fight_handler.rng.number_fuzzy(GenericUtil.to_int(character.level, 1) // 8)
+            bonus = max(1, GenericUtil.to_int(character.level, 1) // 5)
+            ac_penalty = max(10, 10 * max(1, GenericUtil.to_int(character.level, 1) // 5))
             self._set_wait(character, self.game_parameters.PULSE_VIOLENCE.value)
-            character.mana = max(0, GenericUtil.to_int(getattr(character, "mana", 0), 0) - 50)
-            character.movement = max(0, GenericUtil.to_int(getattr(character, "movement", 0), 0) // 2)
-            character.hit = min(GenericUtil.to_int(getattr(character, "max_hit", 0), 0), GenericUtil.to_int(getattr(character, "hit", 0), 0) + GenericUtil.to_int(getattr(character, "level", 0), 0) * 2)
+            character.mana = max(0, GenericUtil.to_int(character.mana, 0) - 50)
+            character.movement = max(0, GenericUtil.to_int(character.movement, 0) // 2)
+            character.hit = min(GenericUtil.to_int(character.max_hit, 0), GenericUtil.to_int(character.hit, 0) + GenericUtil.to_int(character.level, 0) * 2)
             self._check_improve(character, skill, True, 2)
-            self.effect_handler.affect_to_char(character, Effect(where="TO_AFFECTS", type="skill.berserk", level=getattr(character, "level", 0), duration=duration, location="APPLY_HITROLL", modifier=bonus, bitvector="AFF_BERSERK"))
-            self.effect_handler.affect_to_char(character, Effect(where="TO_AFFECTS", type="skill.berserk", level=getattr(character, "level", 0), duration=duration, location="APPLY_DAMROLL", modifier=bonus, bitvector="0"))
-            self.effect_handler.affect_to_char(character, Effect(where="TO_AFFECTS", type="skill.berserk", level=getattr(character, "level", 0), duration=duration, location="APPLY_AC", modifier=ac_penalty, bitvector="0"))
+            self.effect_handler.affect_to_char(character, Effect(where="TO_AFFECTS", type="skill.berserk", level=character.level, duration=duration, location="APPLY_HITROLL", modifier=bonus, bitvector="AFF_BERSERK"))
+            self.effect_handler.affect_to_char(character, Effect(where="TO_AFFECTS", type="skill.berserk", level=character.level, duration=duration, location="APPLY_DAMROLL", modifier=bonus, bitvector="0"))
+            self.effect_handler.affect_to_char(character, Effect(where="TO_AFFECTS", type="skill.berserk", level=character.level, duration=duration, location="APPLY_AC", modifier=ac_penalty, bitvector="0"))
             room = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
             context.finish()
             return {"payloads": [InterpApi.command_payload("success", targets=room.player_targets(character), token_factory=self._actor_tokens)]}
 
         self._set_wait(character, self.game_parameters.PULSE_VIOLENCE.value * 3)
-        character.mana = max(0, GenericUtil.to_int(getattr(character, "mana", 0), 0) - 25)
-        character.movement = max(0, GenericUtil.to_int(getattr(character, "movement", 0), 0) // 2)
+        character.mana = max(0, GenericUtil.to_int(character.mana, 0) - 25)
+        character.movement = max(0, GenericUtil.to_int(character.movement, 0) // 2)
         self._check_improve(character, skill, False, 2)
         context.finish()
         return {"payloads": [InterpApi.command_payload("failed")]}
@@ -259,7 +259,7 @@ class Fight:
             result = self.fight_handler.damage(character, victim, random.randint(2, 5), dt="dirt", dam_type="DAM_NONE", show=False)
             self._check_improve(character, skill, True, 2)
             self._set_wait(character, self._skill_beats(skill, 12))
-            self.effect_handler.affect_to_char(victim, Effect(where="TO_AFFECTS", type="skill.dirt", level=getattr(character, "level", 0), duration=0, location="APPLY_HITROLL", modifier=-4, bitvector="AFF_BLIND"))
+            self.effect_handler.affect_to_char(victim, Effect(where="TO_AFFECTS", type="skill.dirt", level=character.level, duration=0, location="APPLY_HITROLL", modifier=-4, bitvector="AFF_BLIND"))
             round_payload = self.fight_handler.build_round_payload(character, victim, room, result, pre_corpse_ids)
             payload = {
                 "payloads": [
@@ -280,7 +280,7 @@ class Fight:
 
     def do_disarm(self, character: Character, context: Context):
         view = self.fight_api.build_fight_view(context, skill_name="disarm", current_target_fallback=True)
-        weapon = getattr(getattr(character, "equipped", None), "wielded", None)
+        weapon = (character.equipped.wielded if character.equipped is not None else None)
         hand_to_hand = self.skill_api.get_rating(character, self.skill_registry.get(name="hand to hand"))
         view.extra["hand_to_hand"] = hand_to_hand
         payload = self.fight_api.evaluate_guards_only_view(view)
@@ -291,7 +291,7 @@ class Fight:
         room = view.room
         victim = view.victim
         notice = self.fight_handler.check_killer(character, victim)
-        obj = getattr(getattr(victim, "equipped", None), "wielded", None)
+        obj = (victim.equipped.wielded if victim.equipped is not None else None)
 
         chance = self._disarm_chance(character, victim, skill, weapon, obj, hand_to_hand)
 
@@ -309,12 +309,12 @@ class Fight:
 
     def do_flee(self, character: Character, context: Context):
         was_in = context.room if context.room is not None else self.room_registry.get(id=character.room_id)
-        exits = list(getattr(was_in, "exits", []) or [])
+        exits = list((was_in.exits if was_in is not None else []) or [])
         to_room = None
-        if was_in is not None and getattr(character, "fighting", None) is not None:
+        if was_in is not None and character.fighting is not None:
             for _ in range(6):
                 direction = random.randint(0, 5)
-                ex = next((exit for exit in exits if GenericUtil.to_int(getattr(exit, "direction", -1), -1) == direction), None)
+                ex = next((exit for exit in exits if GenericUtil.to_int(exit.direction, -1) == direction), None)
                 if ex is None:
                     continue
                 candidate = self._flee_destination(character, was_in, ex)
@@ -363,7 +363,7 @@ class Fight:
         skill = view.skill
         room = view.room
         victim = view.victim
-        foe = getattr(victim, "fighting", None)
+        foe = victim.fighting
 
         self._set_wait(character, self._skill_beats(skill, 12))
         if random.randint(1, 100) > max(1, self.skill_api.get_rating(character, skill)):
@@ -398,7 +398,7 @@ class Fight:
         pre_corpse_ids = self._pre_corpse_ids(room)
         if random.randint(1, 100) < self.skill_api.get_rating(character, skill):
             self._check_improve(character, skill, True, 1)
-            result = self.fight_handler.damage(character, victim, random.randint(1, max(1, GenericUtil.to_int(getattr(character, "level", 1), 1))), dt="kick", dam_type="DAM_BASH")
+            result = self.fight_handler.damage(character, victim, random.randint(1, max(1, GenericUtil.to_int(character.level, 1))), dt="kick", dam_type="DAM_BASH")
         else:
             self._check_improve(character, skill, False, 1)
             result = self.fight_handler.damage(character, victim, 0, dt="kick", dam_type="DAM_BASH")
@@ -446,14 +446,14 @@ class Fight:
         return payload
 
     def _resolve_spell_target(self, character: Character, room, spell, target_arg: str):
-        target_type = str(getattr(spell, "target", "") or "").upper()
+        target_type = str(spell.target or "").upper()
         argument = str(target_arg or "").strip()
 
         if target_type == "IGNORE":
             return None, "ignore", ""
 
         if target_type == "CHAR_SELF":
-            if argument and argument.lower() not in {"self", str(getattr(character, "name", "")).lower()}:
+            if argument and argument.lower() not in {"self", str(character.name).lower()}:
                 return None, "", "invalid_target"
             return character, "char", ""
 
@@ -462,7 +462,7 @@ class Fight:
             return (victim, "char", "") if victim is not None else (None, "", "no_target")
 
         if target_type == "CHAR_OFFENSIVE":
-            victim = PlayerUtil.get_target(character, argument, room) if argument else getattr(character, "fighting", None)
+            victim = PlayerUtil.get_target(character, argument, room) if argument else character.fighting
             if victim is None:
                 return None, "", "no_target"
             if not CharacterApi.is_npc(character):
@@ -492,7 +492,7 @@ class Fight:
 
         if target_type == "OBJ_CHAR_OFF":
             if not argument:
-                victim = getattr(character, "fighting", None)
+                victim = character.fighting
                 if victim is None:
                     return None, "", "missing_target"
             else:
@@ -513,24 +513,24 @@ class Fight:
     def _has_skill_access(self, character: Character, skill: Skill) -> bool:
         if CharacterApi.is_npc(character):
             return True
-        if GenericUtil.to_int(getattr(character, "level", 0), 0) < FightUtil.level_for_class(skill, character):
+        if GenericUtil.to_int(character.level, 0) < FightUtil.level_for_class(skill, character):
             return False
         return self.skill_api.get_rating(character, skill) > 0
 
     @staticmethod
     def _skill_beats(skill_meta, default: int = 12) -> int:
-        return max(1, GenericUtil.to_int(getattr(skill_meta, "beats", default), default))
+        return max(1, GenericUtil.to_int((skill_meta.beats if skill_meta is not None else default), default))
 
     @staticmethod
     def _check_improve(character: Character, skill_meta, success: bool, multiplier: int) -> None:
-        skill_id = str(getattr(skill_meta, "id", "") or "").strip()
+        skill_id = str((skill_meta.id if skill_meta is not None else "") or "").strip()
         if not skill_id:
             return
         Ability.check_improve(character, skill_id, success, multiplier)
 
     @staticmethod
     def _room_targets(room, *excluded):
-        excluded_ids = {str(getattr(entity, "id", "") or "") for entity in excluded if entity is not None}
+        excluded_ids = {str(entity.id or "") for entity in excluded if entity is not None}
         if room is None:
             return []
         return [ch for ch in room.characters.values() if ch.id not in excluded_ids]
@@ -538,9 +538,9 @@ class Fight:
     @staticmethod
     def _pre_corpse_ids(room) -> set[str]:
         return {
-            str(getattr(item, "id", "") or "")
-            for item in getattr(room, "contents", {}).values()
-            if "corpse" in str(getattr(item, "item_type", "") or "").lower()
+            str(item.id or "")
+            for item in (room.contents if room is not None else {}).values()
+            if "corpse" in str(item.item_type or "").lower()
         }
 
     def _resolve_optional_target(self, character: Character, room, context: Context, no_target_text: str):
@@ -550,7 +550,7 @@ class Fight:
             if victim is None:
                 return None, "They aren't here.\r\n"
             return victim, ""
-        victim = getattr(character, "fighting", None)
+        victim = character.fighting
         if victim is None:
             return None, no_target_text
         return victim, ""
@@ -577,7 +577,7 @@ class Fight:
         if weight is not None:
             return GenericUtil.to_int(weight() if callable(weight) else weight, 0)
         items = entity.owned_items() if callable(getattr(entity, "owned_items", None)) else getattr(entity, "inventory", [])
-        return sum(GenericUtil.to_int(getattr(item, "weight", 0), 0) for item in items)
+        return sum(GenericUtil.to_int(item.weight, 0) for item in items)
 
     def _bash_chance(self, character, victim, skill) -> int:
         chance = self.skill_api.get_rating(character, skill)
@@ -588,7 +588,7 @@ class Fight:
         chance += self._attribute(character, "strength", 10)
         dexterity = self._attribute(victim, "dexterity", 10)
         chance -= 4 * dexterity // 3
-        armor = getattr(victim, "armor_class", None)
+        armor = victim.armor_class
         bash_ac = GenericUtil.to_int(getattr(armor, "bashing", getattr(armor, "bash", 0)), 0)
         from game.Equipped import Equipped
         bash_ac -= Equipped.armor_contribution(victim, 'bash')
@@ -634,7 +634,7 @@ class Fight:
         chance = self.skill_api.get_rating(character, skill)
         chance += self._attribute(character, primary_stat, 10)
         chance -= self._attribute(victim, defend_stat, 10)
-        chance += (GenericUtil.to_int(getattr(character, "level", 0), 0) - GenericUtil.to_int(getattr(victim, "level", 0), 0)) * level_scale
+        chance += (GenericUtil.to_int(character.level, 0) - GenericUtil.to_int(victim.level, 0)) * level_scale
         if CharacterApi.is_affected_by_name(character, self.AffectBits, "AFF_HASTE"):
             chance += 10
         if CharacterApi.is_affected_by_name(victim, self.AffectBits, "AFF_HASTE"):
@@ -649,57 +649,59 @@ class Fight:
 
     @staticmethod
     def _entity_has_effect_type(entity, effect_type: str) -> bool:
+        if entity is None:
+            return False
         wanted = str(effect_type or "").strip().lower()
-        for effect in list(getattr(entity, "effects", []) or []):
-            if str(getattr(effect, "type", "") or "").strip().lower() == wanted:
+        for effect in list(entity.effects or []):
+            if str(effect.type or "").strip().lower() == wanted:
                 return True
         return False
 
     @staticmethod
     def _current_wait(entity) -> int:
-        status_flags = getattr(entity, "status_flags", None)
+        status_flags = (entity.status_flags if entity is not None else None)
         if status_flags is not None:
-            return GenericUtil.to_int(getattr(status_flags, "pulse_wait", 0), 0)
+            return GenericUtil.to_int(status_flags.pulse_wait, 0)
         return 0
 
     @staticmethod
     def _current_daze(entity) -> int:
-        status_flags = getattr(entity, "status_flags", None)
+        status_flags = (entity.status_flags if entity is not None else None)
         if status_flags is not None:
-            return GenericUtil.to_int(getattr(status_flags, "pulse_daze", 0), 0)
+            return GenericUtil.to_int(status_flags.pulse_daze, 0)
         return 0
 
     def _set_wait(self, entity, pulses: int) -> None:
         amount = max(self._current_wait(entity), GenericUtil.to_int(pulses, 0))
-        status_flags = getattr(entity, "status_flags", None)
+        status_flags = (entity.status_flags if entity is not None else None)
         if status_flags is not None:
             status_flags.pulse_wait = amount
             return
 
     def _set_daze(self, entity, pulses: int) -> None:
         amount = max(self._current_daze(entity), GenericUtil.to_int(pulses, 0))
-        status_flags = getattr(entity, "status_flags", None)
+        status_flags = (entity.status_flags if entity is not None else None)
         if status_flags is not None:
             status_flags.pulse_daze = amount
             return
 
     def _kill_steal_blocked(self, character, victim) -> bool:
-        current = getattr(victim, "fighting", None)
+        current = victim.fighting
         print(f"Checking kill steal block for {character.name} against {victim.name}, current: {current}")
         return CharacterApi.is_npc(victim) and current is not None and current is not character
 
     def _disarm_payload(self, character, victim, room, obj) -> dict:
         item_flags = CharacterApi.get_enum("itemFlags")
-        if GameApi.is_set(getattr(obj, "extra_flags", 0), item_flags.ITEM_NOREMOVE.value):
+        if GameApi.is_set(obj.extra_flags, item_flags.ITEM_NOREMOVE.value):
             return InterpApi.command_payload("no_remove", victim=victim, targets=self._room_targets(room, character, victim), token_factory=self._actor_victim_tokens)
 
         self.effect_handler.remove_item_effects(victim, obj)
         victim.unequip_item("wielded")
 
         keep_inventory = False
-        if GameApi.is_set(getattr(obj, "extra_flags", 0), item_flags.ITEM_NODROP.value):
+        if GameApi.is_set(obj.extra_flags, item_flags.ITEM_NODROP.value):
             keep_inventory = True
-        if GameApi.is_set(getattr(obj, "extra_flags", 0), item_flags.ITEM_INVENTORY.value):
+        if GameApi.is_set(obj.extra_flags, item_flags.ITEM_INVENTORY.value):
             keep_inventory = True
 
         retrieved = False
@@ -720,7 +722,7 @@ class Fight:
             command = self.registry_service.interp_registry.get_or_none(name="get")
             if command is not None:
                 pickup = InterpApi.command_payload("default", channel="to_room", targets=room.player_targets(victim),
-                                               tokens={"c": victim.name, "t": str(getattr(obj, "short_description", obj.name))})
+                                               tokens={"c": victim.name, "t": str(obj.short_description)})
                 pickup_context = Context(character=victim, command=command, room=room,
                                          registry_service=self.registry_service)
                 return {"payloads": [success, {"actor": victim, "context": pickup_context, "payloads": [pickup]}]}
@@ -728,32 +730,32 @@ class Fight:
 
     @staticmethod
     def _actor_tokens(*, character: Character, context: Context, payload: dict) -> dict:
-        return {"actor_name": str(getattr(character, "name", "") or "")}
+        return {"actor_name": str(character.name or "")}
 
     @staticmethod
     def _actor_victim_tokens(*, character: Character, context: Context, payload: dict) -> dict:
         victim = payload.get("victim")
         return {
-            "actor_name": str(getattr(character, "name", "") or ""),
+            "actor_name": str(character.name or ""),
             "victim_name": DisplayUtil.entity_name(victim, is_npc=CharacterApi.is_npc),
         }
 
     def _flee_destination(self, character, room, ex):
         exit_flags = CharacterApi.get_enum("exitFlags")
         room_flags = CharacterApi.get_enum("roomFlags")
-        if ex is None or getattr(ex, "to_room_vnum", None) is None:
+        if ex is None or ex.to_room_vnum is None:
             return None
         closed = MovementApi.flag_value(exit_flags, "EX_CLOSED", "CLOSED")
-        flags = GenericUtil.to_int(getattr(ex, "exit_flags", 0), 0)
+        flags = GenericUtil.to_int(ex.exit_flags, 0)
         if closed and (flags & closed) != 0:
             return None
-        to_room = self.room_registry.get_or_none(vnum=str(getattr(ex, "to_room_vnum", "")))
+        to_room = self.room_registry.get_or_none(vnum=str(ex.to_room_vnum))
         if to_room is None:
             return None
         if random.randint(0, self._current_daze(character)) != 0:
             return None
         no_mob = MovementApi.flag_value(room_flags, "ROOM_NO_MOB")
-        if CharacterApi.is_npc(character) and no_mob and GenericUtil.to_int(getattr(to_room, "room_flags", 0), 0) & no_mob:
+        if CharacterApi.is_npc(character) and no_mob and GenericUtil.to_int(to_room.room_flags, 0) & no_mob:
             return None
         travel_context = Context(character=character, room=room, registry_service=self.registry_service)
         direction = MovementUtil.DIR_NAME[GenericUtil.to_int(ex.direction, -1)]
@@ -772,7 +774,7 @@ class Fight:
         water_noswim = GenericUtil.to_int(sector_types.SECT_WATER_NOSWIM.value, -1)
         air = GenericUtil.to_int(sector_types.SECT_AIR.value, -1)
         desert = GenericUtil.to_int(sector_types.SECT_DESERT.value, -1)
-        sector = GenericUtil.to_int(getattr(room, "sector_type", 0), 0)
+        sector = GenericUtil.to_int((room.sector_type if room is not None else 0), 0)
         if sector in (water_swim, water_noswim, air):
             return None
         if sector == inside:

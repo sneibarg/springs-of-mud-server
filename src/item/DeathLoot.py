@@ -1,7 +1,7 @@
 def victim_name(entity, is_npc):
     if is_npc(entity):
-        return str(getattr(entity, "short_description", "") or getattr(entity, "name", "someone"))
-    return str(getattr(entity, "name", "someone"))
+        return str(entity.short_description or entity.name)
+    return str(entity.name)
 
 
 def format_template(text, name):

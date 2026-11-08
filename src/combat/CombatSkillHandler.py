@@ -42,8 +42,8 @@ class CombatSkillHandler:
         name, flag = choices[number]
         allowed = CharacterApi.is_set(actor.status_flags.off, CharacterApi.enum_bit(self.off_bits, flag))
         if name == "disarm" and not allowed:
-            weapon = getattr(getattr(actor, "equipped", None), "wielded", None)
-            armed = weapon is not None and str(getattr(weapon, "item_type", "")).lower() == "weapon"
+            weapon = actor.equipped.wielded if actor.equipped is not None else None
+            armed = weapon is not None and str(weapon.item_type).lower() == "weapon"
             allowed = armed and any(CharacterApi.is_set(actor.status_flags.act, CharacterApi.enum_bit(self.act_bits, bit))
                                     for bit in ("ACT_WARRIOR", "ACT_THIEF"))
         if not allowed or (name == "berserk" and CharacterApi.is_affected(

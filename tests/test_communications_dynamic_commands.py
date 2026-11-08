@@ -173,6 +173,7 @@ def _enum_provider():
 
 class _StatusFlags:
     def __init__(self, comm: int = 0, act: int = 0, affected_by: int = 0):
+        self.pulse_wait = 0
         self.comm = comm
         self.act = act
         self.affected_by = affected_by

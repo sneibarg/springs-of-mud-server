@@ -410,6 +410,8 @@ class TestObjectFountainCommands(unittest.TestCase):
 
     def test_drink_from_fountain_does_not_require_current_amount(self):
         fountain = SimpleNamespace(
+            value3="0",
+            liquid_affect_data=[],
             id="obj1",
             name="fountain water",
             short_description="a fountain",
@@ -428,6 +430,8 @@ class TestObjectFountainCommands(unittest.TestCase):
 
     def test_fill_from_fountain_ignores_empty_current_amount(self):
         fountain = SimpleNamespace(
+            value3="0",
+            liquid_affect_data=[],
             id="obj1",
             name="fountain water",
             short_description="a fountain",
@@ -437,6 +441,8 @@ class TestObjectFountainCommands(unittest.TestCase):
             value2="water",
         )
         skin = SimpleNamespace(
+            value3="0",
+            liquid_affect_data=[],
             id="obj2",
             name="waterskin skin",
             short_description="a waterskin",
@@ -456,6 +462,7 @@ class TestObjectFountainCommands(unittest.TestCase):
 
     def test_drink_updates_separate_fullness_and_thirst_conditions(self):
         drink = SimpleNamespace(
+            value3="0",
             id="obj1",
             name="waterskin water",
             short_description="a waterskin",
@@ -478,6 +485,7 @@ class TestObjectFountainCommands(unittest.TestCase):
 
     def test_drink_buffalo_skin_matches_rom_water_math(self):
         drink = SimpleNamespace(
+            value3="0",
             id="obj1",
             name="skin water buffalo",
             short_description="a buffalo water skin",
@@ -501,6 +509,7 @@ class TestObjectFountainCommands(unittest.TestCase):
 
     def test_drink_refuses_when_fullness_meter_is_already_full(self):
         fountain = SimpleNamespace(
+            value3="0",
             id="obj1",
             name="fountain water",
             short_description="a fountain",
@@ -520,6 +529,7 @@ class TestObjectFountainCommands(unittest.TestCase):
 
     def test_eat_updates_hunger_and_stops_when_sated(self):
         food = SimpleNamespace(
+            liquid_affect_data=[],
             id="obj1",
             name="bread loaf",
             short_description="a loaf of bread",

@@ -283,6 +283,7 @@ class SavedShutdownTests(fixtures.RuntimeFixture, unittest.IsolatedAsyncioTestCa
 
     async def test_player_command_delegates_announcement_to_saved_shutdown(self):
         handler = PlayerHandler.__new__(PlayerHandler)
+        handler.command_audit = None
         payload = {'shutdown_kind': 'reboot'}
         handler.wiz_commands = NS(execute=lambda actor, ctx: payload)
         handler.runtime_control = self.control
@@ -295,6 +296,7 @@ class SavedShutdownTests(fixtures.RuntimeFixture, unittest.IsolatedAsyncioTestCa
 class PurgePersistenceTests(fixtures.RuntimeFixture, unittest.IsolatedAsyncioTestCase):
     async def test_player_save_failure_leaves_target_in_world(self):
         handler = PlayerHandler.__new__(PlayerHandler)
+        handler.command_audit = None
         handler.wiz_handler = NS(current_session=lambda value: NS(session_id='victim', metadata={}))
         connection = NS(close=AsyncMock())
         handler.message_bus = NS(connection_manager=NS(get_connection=lambda sid: connection))
@@ -313,6 +315,7 @@ class PurgePersistenceTests(fixtures.RuntimeFixture, unittest.IsolatedAsyncioTes
 
     async def test_player_is_saved_before_extraction_and_disconnection(self):
         handler = PlayerHandler.__new__(PlayerHandler)
+        handler.command_audit = None
         events = []
         session = NS(session_id='victim', metadata={})
         handler.wiz_handler = NS(current_session=lambda value: session)
@@ -333,6 +336,7 @@ class PurgePersistenceTests(fixtures.RuntimeFixture, unittest.IsolatedAsyncioTes
 
     async def test_cancelled_save_releases_retirement_and_session_gate(self):
         handler = PlayerHandler.__new__(PlayerHandler)
+        handler.command_audit = None
         session = NS(session_id='victim', metadata={})
         handler.wiz_handler = NS(current_session=lambda value: session)
         handler.message_bus = NS(connection_manager=NS(get_connection=lambda sid: NS(close=AsyncMock())))

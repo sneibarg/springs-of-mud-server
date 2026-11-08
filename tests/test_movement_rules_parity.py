@@ -161,6 +161,7 @@ class TravelRulesTests(MovementFixture, unittest.TestCase):
         CharacterApi.set_position(sleeping, "POS_SLEEPING")
         self.flag(self.actor, "AFF_INVISIBLE")
         player = PlayerHandler.__new__(PlayerHandler)
+        player.command_audit = None
         player.interp_api = self.api
 
         portal = self.portal()

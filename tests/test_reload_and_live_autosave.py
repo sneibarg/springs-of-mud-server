@@ -242,7 +242,7 @@ class LiveAutosaveTests(unittest.IsolatedAsyncioTestCase):
     async def test_disconnect_retains_save_bucket_eligibility_without_saving_offline_records(self):
         player = Character.from_json(build_character_data('link-dead'))
         room = Room(characters={player.id: player})
-        sessions = [NS(character=player)]
+        sessions = [NS(character=player, metadata={})]
         handler = self.handler(sessions, [room])
         handler.save_number = handler._autosave_bucket(player.id)
         sessions.clear()  # Disconnect removes the session, retaining the live room body.
@@ -273,7 +273,7 @@ class LiveAutosaveTests(unittest.IsolatedAsyncioTestCase):
         duplicate = Character.from_json(build_character_data('original'))
         body = Mobile.__new__(Mobile)
         body.context = {'controller_original': original}
-        sessions = [NS(character=body, metadata={'switched_original': original}), NS(character=duplicate)]
+        sessions = [NS(character=body, metadata={'switched_original': original}), NS(character=duplicate, metadata={})]
         room = Room(characters={original.id: original}, mobiles={'body': body})
         handler = self.handler(sessions, [room, room])
         handler.save_number = handler._autosave_bucket(original.id)

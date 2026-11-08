@@ -47,8 +47,8 @@ class ItemFactory:
 
         item = Item.from_json(data)
 
-        item_type = (getattr(item, "item_type", "") or "").strip().lower()
-        if "light" in item_type and str(getattr(item, "value2", None)) == "999":
+        item_type = (item.item_type or "").strip().lower()
+        if "light" in item_type and str(item.value2) == "999":
             item.value2 = "-1"
         elif "jukebox" in item_type:
             for v in ("value0", "value1", "value2", "value3", "value4"):
@@ -63,14 +63,14 @@ class ItemFactory:
         clone.description = getattr(obj, "description", "")
         for field_name in ("value0", "value1", "value2", "value3", "value4"):
             setattr(clone, field_name, getattr(obj, field_name, "0"))
-        clone.enchanted = bool(getattr(obj, "enchanted", False))
+        clone.enchanted = bool(obj.enchanted)
         clone.extra_descr = list(getattr(obj, "extra_descr", []) or [])
         if len(clone.extra_descr) >= 2:
             Item.update_extra_description(clone)
-        effects = getattr(obj, "effects", None)
+        effects = obj.effects
         clone.effects = deepcopy(effects) if effects is not None else None
         clone.contains = [ItemFactory.copy_instance(item, item_filter=item_filter)
-                          for item in list(getattr(obj, "contains", []) or [])
+                          for item in list(obj.contains or [])
                           if item_filter is None or item_filter(item)]
         return clone
 

@@ -79,7 +79,7 @@ class TestCombatSurvival(unittest.TestCase):
                 entity.add_item(carried)
                 entity.add_item(worn)  # a legacy duplicate inventory/equipment reference
                 corpse = SimpleNamespace(contains=[])
-                room = SimpleNamespace(add_item_to_room=Mock())
+                room = SimpleNamespace(characters={}, mobiles={}, add_item_to_room=Mock())
                 handler = self.fixtures._handler(room)
                 handler.effect_handler.remove_item_effects = Mock()
 
@@ -217,7 +217,7 @@ class TestCombatSurvival(unittest.TestCase):
     def test_real_flee_command_moves_before_returning_and_preserves_its_context(self):
         handler = self._escape()
         self.attacker.fighting, self.victim.fighting = self.victim, self.attacker
-        destination = SimpleNamespace(id="room-2", area_id="area-2", add_player_to_room=Mock(),
+        destination = SimpleNamespace(characters={}, mobiles={}, id="room-2", area_id="area-2", add_player_to_room=Mock(),
                                       player_targets=lambda _actor: [])
         self.room.exits = [SimpleNamespace(direction=direction) for direction in range(6)]
         self.room.player_targets = lambda _actor: [self.attacker]
@@ -255,7 +255,7 @@ class TestCombatSurvival(unittest.TestCase):
 
     def test_real_recall_command_stops_fighting_and_updates_area(self):
         handler = self._escape(connected=False)
-        temple = SimpleNamespace(id="temple", area_id="temple-area", add_player_to_room=Mock(),
+        temple = SimpleNamespace(characters={}, mobiles={}, id="temple", area_id="temple-area", add_player_to_room=Mock(),
                                  player_targets=lambda _actor: [])
         self.room.room_flags = 0
         self.room.player_targets = lambda _actor: []

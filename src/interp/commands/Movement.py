@@ -71,13 +71,13 @@ class Movement:
         return {'actor': character, 'context': context, 'payloads': [payload]}
 
     def _move_char(self, character: Character, direction: str, context: Context, *, follow: bool, leader, visited: set[str], travel_only=False):
-        character_key = str(getattr(character, "id", id(character)))
+        character_key = str(character.id)
         if character_key in visited:
             return {"payloads": []}
         visited.add(character_key)
 
         original_character = context.character
-        original_room = getattr(context, "room", None)
+        original_room = context.room
         context.character = character
         state = MovementApi.move_state(context, direction=direction)
         context.room = state.in_room
@@ -90,7 +90,7 @@ class Movement:
         if blocked is not None:
             if follow:
                 text = str(blocked.get("to_char", "") or "")
-                return {"payloads": [], "target_messages": ([{"id": getattr(character, "id", ""), "text": text}] if text else [])}
+                return {"payloads": [], "target_messages": ([{"id": character.id, "text": text}] if text else [])}
             return blocked
 
         MovementApi.pay_movement(character, state)
@@ -104,15 +104,15 @@ class Movement:
         self._add_to_room(to_room, character)
         character.room_id = to_room.id
         character.on = None
-        if getattr(to_room, "area_id", None) is not None:
+        if to_room.area_id is not None:
             character.area_id = to_room.area_id
 
         payloads = []
         target_messages = []
         if follow and leader is not None:
             target_messages.append({
-                "id": getattr(character, "id", ""),
-                "text": f"You follow {getattr(leader, 'name', '')}.\r\n",
+                "id": character.id,
+                "text": f"You follow {leader.name}.\r\n",
             })
         arrival = self._travel_notice("arrived", to_room, character) if announce else {}
         arrival.update(to_room_obj=to_room, view_character=character,
@@ -369,7 +369,7 @@ class Movement:
                 self._wait(character, 4)
                 context.finish()
                 return {"payloads": payloads + [InterpApi.command_payload("failed", channel="to_char")]}
-            loss = 25 if getattr(context, "conn", None) is not None else 50
+            loss = 25 if context.conn is not None else 50
             CharacterAdvancement.gain_experience(character, -loss)
             Ability.check_improve_by_name(character, "recall", True, 4)
             payloads.append(InterpApi.command_payload("combat_recall", channel="to_char", tokens={"d": loss}))
@@ -381,7 +381,7 @@ class Movement:
         character.room_id = temple_room.id
         character.on = None
         character.area_id = temple_room.area_id
-        character.movement = max(0, GenericUtil.to_int(getattr(character, "movement", 0), 0) // 2)
+        character.movement = max(0, GenericUtil.to_int(character.movement, 0) // 2)
         context.finish()
         arrival = self._travel_notice("appears_room", temple_room, character)
         arrival.update(to_room_obj=temple_room, view_character=character,
@@ -391,7 +391,7 @@ class Movement:
         if pet is not None:
             pet_context = Context(character=pet, command=context.command, room=self.room_registry.get_or_none(id=pet.room_id),
                                   registry_service=self.registry_service,
-                                  handler_service=getattr(context, "handler_service", None), result="", parameters=[])
+                                  handler_service=context.handler_service, result="", parameters=[])
             payloads.append({"actor": pet, "context": pet_context, "payloads": [self._recall(pet, pet_context, visited)]})
         return {"payloads": payloads}
 
@@ -402,7 +402,7 @@ class Movement:
         if id(character) in visited:
             return {}
         visited.add(id(character))
-        if getattr(character, "fighting", None) is not None:
+        if character.fighting is not None:
             context.finish()
             return None
 
@@ -438,7 +438,7 @@ class Movement:
         self._add_to_room(destination, character)
         character.room_id = destination.id
         character.on = None
-        if getattr(destination, "area_id", None) is not None:
+        if destination.area_id is not None:
             character.area_id = destination.area_id
 
         if self._portal_flag(portal, "GATE_GOWITH"):
@@ -474,7 +474,7 @@ class Movement:
                 continue
             follower_context = Context(character=follower, room=room, command=context.command,
                                        registry_service=self.registry_service,
-                                       handler_service=getattr(context, "handler_service", None), result=raw, parameters=[raw])
+                                       handler_service=context.handler_service, result=raw, parameters=[raw])
             payloads.append({"actor": follower, "context": follower_context,
                              "payloads": [self._enter(follower, follower_context, visited)]})
         portal_room = destination if self._portal_flag(portal, "GATE_GOWITH") else room
@@ -510,8 +510,8 @@ class Movement:
             context.finish()
             return InterpApi.command_payload("no_trainer", channel="to_char")
 
-        attrs = getattr(character, "character_attributes", None)
-        trains = GenericUtil.to_int(getattr(attrs, "trains", 0), 0) if attrs is not None else 0
+        attrs = character.character_attributes
+        trains = GenericUtil.to_int(attrs.trains, 0) if attrs is not None else 0
         if raw == "":
             context.finish()
             return {
@@ -530,8 +530,8 @@ class Movement:
                 context.finish()
                 return InterpApi.command_payload("insufficient_sessions", channel="to_char")
             attrs.trains = trains - 1
-            character.max_hit = GenericUtil.to_int(getattr(character, "max_hit", 0), 0) + 10
-            character.hit = GenericUtil.to_int(getattr(character, "hit", 0), 0) + 10
+            character.max_hit = GenericUtil.to_int(character.max_hit, 0) + 10
+            character.hit = GenericUtil.to_int(character.hit, 0) + 10
             context.finish()
             return InterpApi.command_payload(
                 "durability_increases",
@@ -544,8 +544,8 @@ class Movement:
                 context.finish()
                 return InterpApi.command_payload("insufficient_sessions", channel="to_char")
             attrs.trains = trains - 1
-            character.max_mana = GenericUtil.to_int(getattr(character, "max_mana", 0), 0) + 10
-            character.mana = GenericUtil.to_int(getattr(character, "mana", 0), 0) + 10
+            character.max_mana = GenericUtil.to_int(character.max_mana, 0) + 10
+            character.mana = GenericUtil.to_int(character.mana, 0) + 10
             context.finish()
             return InterpApi.command_payload(
                 "power_increases",
@@ -607,25 +607,25 @@ class Movement:
             context.finish()
             return InterpApi.command_payload("tells_i_do_not", channel="to_char", tokens={"t": self._entity_label(trainer)})
 
-        attrs = getattr(character, "character_attributes", None)
+        attrs = character.character_attributes
         subcommand, _ = InterpUtil.one_argument(raw)
         if subcommand and "list".startswith(subcommand):
             context.finish()
             return {"to_char": self._gain_list(character)}
 
         if subcommand and "convert".startswith(subcommand):
-            practices = GenericUtil.to_int(getattr(attrs, "practices", 0), 0) if attrs is not None else 0
+            practices = GenericUtil.to_int(attrs.practices, 0) if attrs is not None else 0
             if practices < 10:
                 context.finish()
                 return InterpApi.command_payload("tells_not_yet_ready", channel="to_char", tokens={"t": self._entity_label(trainer)})
             attrs.practices = practices - 10
-            attrs.trains = GenericUtil.to_int(getattr(attrs, "trains", 0), 0) + 1
+            attrs.trains = GenericUtil.to_int(attrs.trains, 0) + 1
             context.finish()
             return InterpApi.command_payload("helps_apply_practice_training", channel="to_char", tokens={"t": self._entity_label(trainer)})
 
         if subcommand and "points".startswith(subcommand):
-            trains = GenericUtil.to_int(getattr(attrs, "trains", 0), 0) if attrs is not None else 0
-            points = GenericUtil.to_int(getattr(attrs, "points", 0), 0) if attrs is not None else 0
+            trains = GenericUtil.to_int(attrs.trains, 0) if attrs is not None else 0
+            points = GenericUtil.to_int(attrs.points, 0) if attrs is not None else 0
             if trains < 2:
                 context.finish()
                 return InterpApi.command_payload("tells_not_yet_ready2", channel="to_char", tokens={"t": self._entity_label(trainer)})
@@ -647,19 +647,19 @@ class Movement:
             if cost <= 0:
                 context.finish()
                 return InterpApi.command_payload("tells_group_beyond_powers", channel="to_char", tokens={"t": self._entity_label(trainer)})
-            trains = GenericUtil.to_int(getattr(attrs, "trains", 0), 0) if attrs is not None else 0
+            trains = GenericUtil.to_int(attrs.trains, 0) if attrs is not None else 0
             if trains < cost:
                 context.finish()
                 return InterpApi.command_payload("tells_not_yet_ready3", channel="to_char", tokens={"t": self._entity_label(trainer)})
             self._add_group(character, group)
             attrs.trains = trains - cost
             context.finish()
-            return InterpApi.command_payload("trains_art", channel="to_char", tokens={"t": self._entity_label(trainer), "s": getattr(group, "name", raw)})
+            return InterpApi.command_payload("trains_art", channel="to_char", tokens={"t": self._entity_label(trainer), "s": group.name})
 
         skill = self._find_gain_skill(raw)
         if skill is not None:
-            skill_name = str(getattr(skill, "name", raw) or raw)
-            if str(getattr(skill, "kind", "skill") or "skill").strip().lower() != "skill":
+            skill_name = str(skill.name or raw)
+            if str(skill.kind or "skill").strip().lower() != "skill":
                 context.finish()
                 return InterpApi.command_payload("tells_must_learn_full", channel="to_char", tokens={"t": self._entity_label(trainer)})
             if self._has_learned(character, skill_name, "skills"):
@@ -669,7 +669,7 @@ class Movement:
             if cost <= 0:
                 context.finish()
                 return InterpApi.command_payload("tells_skill_beyond_powers", channel="to_char", tokens={"t": self._entity_label(trainer)})
-            trains = GenericUtil.to_int(getattr(attrs, "trains", 0), 0) if attrs is not None else 0
+            trains = GenericUtil.to_int(attrs.trains, 0) if attrs is not None else 0
             if trains < cost:
                 context.finish()
                 return InterpApi.command_payload("tells_not_yet_ready4", channel="to_char", tokens={"t": self._entity_label(trainer)})
@@ -695,9 +695,9 @@ class Movement:
 
     def _gain_list(self, character: Character) -> str:
         lines = [self._format_gain_row_header("group"), "\r\n"]
-        groups = sorted(self.group_registry.all_groups(), key=lambda group: str(getattr(group, "name", "") or "").lower())
+        groups = sorted(self.group_registry.all_groups(), key=lambda group: str(group.name or "").lower())
         entries = [
-            (str(getattr(group, "name", "") or ""), self._group_rating(character, group))
+            (str(group.name or ""), self._group_rating(character, group))
             for group in groups
             if not self._knows_group(character, group) and self._group_rating(character, group) > 0
         ]
@@ -705,13 +705,13 @@ class Movement:
         lines.append("\r\n")
         lines.append(self._format_gain_row_header("skill"))
         lines.append("\r\n")
-        skills = sorted(self.skill_registry.all_skills(), key=lambda skill: str(getattr(skill, "name", "") or "").lower())
+        skills = sorted(self.skill_registry.all_skills(), key=lambda skill: str(skill.name or "").lower())
         skill_entries = [
-            (str(getattr(skill, "name", "") or ""), self._ability_rating(character, skill))
+            (str(skill.name or ""), self._ability_rating(character, skill))
             for skill in skills
-            if str(getattr(skill, "name", "") or "").strip().lower() != "reserved"
-            and str(getattr(skill, "kind", "skill") or "skill").strip().lower() == "skill"
-            and not self._has_learned(character, str(getattr(skill, "name", "") or ""), "skills")
+            if str(skill.name or "").strip().lower() != "reserved"
+            and str(skill.kind or "skill").strip().lower() == "skill"
+            and not self._has_learned(character, str(skill.name or ""), "skills")
             and self._ability_rating(character, skill) > 0
         ]
         lines.append(self._format_gain_rows(skill_entries))
@@ -739,7 +739,7 @@ class Movement:
             return None
         act_bits = self.act_bits or CharacterApi.get_enum("actBits")
         gain_bit = EnumProvider.value(act_bits, "ACT_GAIN")
-        for mob in list((getattr(room, "mobiles", {}) or {}).values()):
+        for mob in list((room.mobiles or {}).values()):
             if gain_bit and CharacterApi.is_set(self._mobile_act(mob), gain_bit) and self._can_see_character(character, mob, room):
                 return mob
         return None
@@ -760,13 +760,13 @@ class Movement:
             return None
         # Registry order supplies the stable first match, as ROM's tables do.
         for entry in candidates:
-            name = str(getattr(entry, "name", "") or "").strip().lower()
+            name = str(entry.name or "").strip().lower()
             if name.startswith(wanted):
                 return entry
         return registry.get_or_none(name=raw)
 
     def _group_rating(self, character: Character, group) -> int:
-        ratings = list(getattr(group, "rating", []) or [])
+        ratings = list(group.rating or [])
         index = self._class_index(character)
         return GenericUtil.to_int(ratings[index], 0) if 0 <= index < len(ratings) else 0
 
@@ -853,7 +853,7 @@ class Movement:
         return str(getattr(entity, "short_description", "") or getattr(entity, "name", "") or "Someone")
 
     def _is_portal(self, item) -> bool:
-        item_type = getattr(item, "item_type", "")
+        item_type = (item.item_type if item is not None else "")
         portal_type = EnumProvider.value(self.item_types, "ITEM_PORTAL")
         if portal_type and GenericUtil.to_int(item_type, None) == portal_type:
             return True
@@ -863,20 +863,20 @@ class Movement:
         if CharacterApi.get_trust(character) >= int(CharacterApi.get_enum("gameParameters").ANGEL):
             return False
         closed_bit = EnumProvider.value(self.exit_flags, "EX_CLOSED")
-        return bool(closed_bit and (GenericUtil.to_int(getattr(portal, "value1", 0), 0) & closed_bit))
+        return bool(closed_bit and (GenericUtil.to_int(portal.value1, 0) & closed_bit))
 
     def _portal_curse_blocked(self, portal, character, room) -> bool:
         if CharacterApi.get_trust(character) >= int(CharacterApi.get_enum("gameParameters").ANGEL) or self._portal_flag(portal, "GATE_NOCURSE"):
             return False
         no_recall = EnumProvider.value(self.room_flags, "ROOM_NO_RECALL")
-        return CharacterApi.is_affected_by_name(character, self.affected_bits, "AFF_CURSE") or bool(room is not None and no_recall and (GenericUtil.to_int(getattr(room, "room_flags", 0), 0) & no_recall))
+        return CharacterApi.is_affected_by_name(character, self.affected_bits, "AFF_CURSE") or bool(room is not None and no_recall and (GenericUtil.to_int(room.room_flags, 0) & no_recall))
 
     def _portal_destination(self, portal, current_room, character):
-        destination_ref = str(getattr(portal, "value3", "") or "").strip()
+        destination_ref = str(portal.value3 or "").strip()
         if self._portal_flag(portal, "GATE_RANDOM") or destination_ref == "-1":
             destination = self._random_room(character)
             if destination is not None:
-                setattr(portal, "value3", str(getattr(destination, "vnum", "") or getattr(destination, "id", "")))
+                setattr(portal, "value3", str(destination.vnum or destination.id))
             return destination
         if self._portal_flag(portal, "GATE_BUGGY") and random.randint(1, 100) < 5:
             return self._random_room(character)
@@ -896,7 +896,7 @@ class Movement:
 
     def _portal_flag(self, portal, flag_name: str) -> bool:
         bit = EnumProvider.value(self.gate_flags, flag_name)
-        return bool(bit and (GenericUtil.to_int(getattr(portal, "value2", 0), 0) & bit))
+        return bool(bit and (GenericUtil.to_int(portal.value2, 0) & bit))
 
     def _room_private_for(self, room, character) -> bool:
         if room is None or CharacterApi.get_trust(character) >= int(CharacterApi.get_enum("gameParameters").IMPLEMENTOR):
@@ -909,7 +909,7 @@ class Movement:
             return False
         aggressive = EnumProvider.value(self.act_bits, "ACT_AGGRESSIVE")
         law = EnumProvider.value(self.room_flags, "ROOM_LAW")
-        return bool(aggressive and law and (self._mobile_act(character) & aggressive) and (GenericUtil.to_int(getattr(destination, "room_flags", 0), 0) & law))
+        return bool(aggressive and law and (self._mobile_act(character) & aggressive) and (GenericUtil.to_int(destination.room_flags, 0) & law))
 
     @staticmethod
     def _find_room_item(room, wanted: str, character):
@@ -926,7 +926,7 @@ class Movement:
         if callable(remover):
             remover(item)
         elif room is not None:
-            getattr(room, "contents", {}).pop(getattr(item, "id", ""), None)
+            room.contents.pop(item.id, None)
 
     @staticmethod
     def _add_item_to_room(room, item) -> None:
@@ -934,11 +934,11 @@ class Movement:
         if callable(adder):
             adder(item)
         elif room is not None:
-            getattr(room, "contents", {})[getattr(item, "id", "")] = item
+            room.contents[item.id] = item
 
     @staticmethod
     def _decrement_portal_charge(portal) -> bool:
-        charges = GenericUtil.to_int(getattr(portal, "value0", 0), 0)
+        charges = GenericUtil.to_int(portal.value0, 0)
         if charges <= 0:
             return charges == -1
         charges -= 1
@@ -946,7 +946,7 @@ class Movement:
         return charges == 0
 
     def _room(self, character: Character, context: Context):
-        room = getattr(context, "room", None)
+        room = context.room
         if room is not None:
             return room
         return self.room_registry.get_or_none(id=character.room_id)
@@ -986,12 +986,12 @@ class Movement:
         if callable(people):
             candidates = list(people())
         else:
-            candidates = list((getattr(room, "characters", {}) or {}).values()) + list((getattr(room, "mobiles", {}) or {}).values())
-        return [candidate for candidate in candidates if candidate is not character and getattr(candidate, "master", None) == character]
+            candidates = list((room.characters or {}).values()) + list((room.mobiles or {}).values())
+        return [candidate for candidate in candidates if candidate is not character and candidate.master == character]
 
     def _should_stand_charmed_follower(self, follower, master) -> bool:
         return (
-            getattr(follower, "master", None) == master
+            follower.master == master
             and CharacterApi.is_affected_by_name(follower, self.affected_bits, "AFF_CHARM")
             and not CharacterApi.is_affected_by_name(follower, self.affected_bits, "AFF_SLEEP")
             and CharacterApi.position_value(follower) in tuple(CharacterApi.pos_value(name)
@@ -999,7 +999,7 @@ class Movement:
         )
 
     def _should_follow(self, follower, master, to_room) -> bool:
-        if getattr(follower, "master", None) != master:
+        if follower.master != master:
             return False
         if CharacterApi.position_value(follower) != CharacterApi.pos_value("POS_STANDING"):
             return False
@@ -1011,7 +1011,7 @@ class Movement:
 
     @staticmethod
     def _wait(character, pulses):
-        character.status_flags.pulse_wait = max(GenericUtil.to_int(getattr(character.status_flags, "pulse_wait", 0), 0), pulses)
+        character.status_flags.pulse_wait = max(GenericUtil.to_int(character.status_flags.pulse_wait, 0), pulses)
 
     @staticmethod
     def _remove_from_room(room, character) -> None:
@@ -1033,12 +1033,12 @@ class Movement:
 
     @staticmethod
     def _actor_tokens(character: Character) -> dict:
-        return {"c": str(getattr(character, "name", "") or "")}
+        return {"c": str(character.name or "")}
 
     @staticmethod
     def _actor_door_tokens(character: Character, keyword: str) -> dict:
-        return {"c": str(getattr(character, "name", "") or ""), "t": str(keyword or "door")}
+        return {"c": str(character.name or ""), "t": str(keyword or "door")}
 
     @staticmethod
     def _actor_item_tokens(character: Character, short_name: str) -> dict:
-        return {"c": str(getattr(character, "name", "") or ""), "t": str(short_name or "it")}
+        return {"c": str(character.name or ""), "t": str(short_name or "it")}

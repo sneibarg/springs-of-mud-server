@@ -40,7 +40,7 @@ class AdditionalParityTests(unittest.IsolatedAsyncioTestCase):
         f = self.f
         for connection in f.connections.values():
             connection.send_message.reset_mock()
-        await f.interpreter.handle_command(None, f.actor, text)
+        await f.interpreter.handle_command(f.actor, text)
         return {person.name: f.messages(person) for person in (f.actor, f.bob, f.cara)}
 
     async def test_punctuation_matches_full_command_delivery(self):

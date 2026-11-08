@@ -28,7 +28,7 @@ class BodyParts:
 
     @classmethod
     def configure(cls, game_data: GameData) -> None:
-        member_map = dict(getattr(game_data, "enums", {}).get("bodyParts", {}))
+        member_map = dict(game_data.enums.get("bodyParts", {}))
         if not member_map:
             raise RuntimeError("GameData is missing bodyParts enum definitions.")
 
@@ -114,10 +114,10 @@ class BodyParts:
         part_item.timer = random.randint(4, 7)
 
         victim_name = death_victim_name(victim, CharacterApi.is_npc)
-        part_item.short_description = format_template(getattr(part_item, "short_description", ""), victim_name)
-        part_item.long_description = format_template(getattr(part_item, "long_description", ""), victim_name)
+        part_item.short_description = format_template(part_item.short_description, victim_name)
+        part_item.long_description = format_template(part_item.long_description, victim_name)
 
-        item_type = str(getattr(part_item, "item_type", "") or "").lower()
+        item_type = str(part_item.item_type or "").lower()
         if "food" in item_type:
             if BodyForm.has(form_flags, BodyForm.value("FORM_POISON")):
                 part_item.value3 = "1"

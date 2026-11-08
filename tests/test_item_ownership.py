@@ -18,7 +18,7 @@ class TestItemOwnership(unittest.TestCase):
         for kind, inventory in (("char_equipped", "loot"), ("mob_equipped", "inventory")):
             with self.subTest(kind=kind):
                 effects = EffectHandler(NS(get=ENUMS.get))
-                owner = NS(equipped=NS(shield=None), effects=[],
+                owner = NS(equipped=NS(shield=None, wielded=None), effects=[],
                            character_attributes=NS(strength=10), status_flags=NS(affected_by=0))
                 setattr(owner, inventory, [])
                 item = NS(id="shield", wear_location="shield", wear_loc=11, effects=[

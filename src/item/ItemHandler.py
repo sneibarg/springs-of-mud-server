@@ -65,7 +65,7 @@ class ItemHandler:
             if not ItemApi.can_see_object(room, character, item):
                 continue
 
-            for extra in ExtraDescriptionData.entries(getattr(item, 'extra_description', None)):
+            for extra in ExtraDescriptionData.entries(item.extra_description):
                 if LookupUtil.keyword_matches(token, extra.keyword or ''):
                     if context.register_match():
                         await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message((extra.description or '') + "\r\n"))
@@ -81,7 +81,7 @@ class ItemHandler:
                     context.finish()
                     return
 
-        room_extra = next((entry for entry in ExtraDescriptionData.entries(getattr(room, "extra_description", None))
+        room_extra = next((entry for entry in ExtraDescriptionData.entries(room.extra_description)
                            if LookupUtil.keyword_matches(token, entry.keyword or "")), None)
         if room_extra is not None:
             if context.register_match():

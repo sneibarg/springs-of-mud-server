@@ -42,26 +42,26 @@ class CombatDeathHandler:
 
     def item_transfer(self, item, floating, victim, room, flags):
         notices = []
-        item.extra_flags = ItemApi.flags_to_int(getattr(item, "extra_flags", 0))
+        item.extra_flags = ItemApi.flags_to_int(item.extra_flags)
         has = lambda name: ItemApi.has_item_flag(item, flags, name)
         if has("ITEM_ROT_DEATH") and not floating:
             item.timer = random.randint(5, 10)
             item.extra_flags = CharacterApi.unset_bit(item.extra_flags, CharacterApi.enum_bit(flags, "ITEM_ROT_DEATH"))
-        item.extra_flags = CharacterApi.unset_bit(getattr(item, "extra_flags", 0), CharacterApi.enum_bit(flags, "ITEM_VIS_DEATH"))
+        item.extra_flags = CharacterApi.unset_bit(item.extra_flags, CharacterApi.enum_bit(flags, "ITEM_VIS_DEATH"))
         if has("ITEM_INVENTORY"):
             self.discard(item)
             return False, notices
         if floating:
             if has("ITEM_ROT_DEATH"):
-                contents = list(getattr(item, "contains", []) or [])
+                contents = list(item.contains or [])
                 notices.append(self.room_notice(room, "evaporatesContents" if contents else "evaporates", victim,
-                                                item=str(getattr(item, "short_description", "") or item.name)))
+                                                item=str(item.short_description or item.name)))
                 item.contains = []
                 for child in contents:
                     room.add_item_to_room(child)
                 self.discard(item)
                 return False, notices
-            notices.append(self.room_notice(room, "falls", victim, item=str(getattr(item, "short_description", "") or item.name)))
+            notices.append(self.room_notice(room, "falls", victim, item=str(item.short_description or item.name)))
         return True, notices
 
     def wounds(self, attacker, victim, room, damage, position):
@@ -89,7 +89,7 @@ class CombatDeathHandler:
         victim_name = str(getattr(victim, "short_description", "") or victim.name)
         killer = str(getattr(attacker, "short_description", "") or attacker.name)
         return {"to_wiznet": self.text("to_wiznet", "death", victim=victim_name, killer=killer,
-                                      room=getattr(room, "name", ""), vnum=getattr(room, "vnum", "")),
+                                      room=room.name if room is not None else "", vnum=room.vnum if room is not None else ""),
                 "wiznet_actor": None, "wiznet_flag": "WIZ_MOBDEATHS" if CharacterApi.is_npc(victim) else "WIZ_DEATHS"}
 
     def cry(self, victim, room, roll, parts, body_parts):
@@ -103,12 +103,12 @@ class CombatDeathHandler:
         elif roll in mapping and body_parts.has(parts, body_parts.value(mapping[roll][0])):
             key = mapping[roll][1]
         notices = [self.room_notice(room, key, victim)]
-        for exit in list(getattr(room, "exits", []) or []):
-            if not 0 <= GenericUtil.to_int(getattr(exit, "direction", 0), 0) <= 5:
+        for exit in (list(room.exits or []) if room is not None else []):
+            if not 0 <= GenericUtil.to_int(exit.direction, 0) <= 5:
                 continue
-            destination = self.registry.room_registry.get_or_none(id=getattr(exit, "to_room_id", ""))
+            destination = self.registry.room_registry.get_or_none(id=exit.to_room_id)
             if destination is None:
-                destination = self.registry.room_registry.get_or_none(vnum=str(getattr(exit, "to_room_vnum", "")))
+                destination = self.registry.room_registry.get_or_none(vnum=str(exit.to_room_vnum))
             if destination is not None and destination is not room:
                 notices.append(self.room_notice(destination, "npcCry" if CharacterApi.is_npc(victim) else "playerCry", victim))
         return notices
@@ -120,7 +120,7 @@ class CombatDeathHandler:
         context = Context(character=actor, command=command, room=room, registry_service=self.registry)
         results = []
         for item in list(corpse.contains):
-            if money_only and str(getattr(item, "item_type", "")).lower() != "money":
+            if money_only and str(item.item_type).lower() != "money":
                 continue
             if ItemApi.can_see_object(room, actor, item):
                 results.append(self.object_commands._get_one(actor, room, context, item, corpse))
@@ -130,7 +130,7 @@ class CombatDeathHandler:
         if CharacterApi.is_npc(actor) or room is None:
             return []
         corpse = combat._find_latest_corpse(room, victim, pre_corpse_ids)
-        if corpse is None or "corpse_npc" not in str(getattr(corpse, "item_type", "")).lower() or not ItemApi.can_see_object(room, actor, corpse):
+        if corpse is None or "corpse_npc" not in str(corpse.item_type).lower() or not ItemApi.can_see_object(room, actor, corpse):
             return []
         results = []
         autoloot = combat._player_act_enabled(actor, "PLR_AUTOLOOT")
@@ -158,6 +158,6 @@ class CombatDeathHandler:
     @classmethod
     def discard(cls, item):
         # Live objects are owned by containers, not the prototype registry.
-        for child in list(getattr(item, "contains", []) or []):
+        for child in list(item.contains or []):
             cls.discard(child)
         item.contains = []

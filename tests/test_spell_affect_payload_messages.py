@@ -294,7 +294,7 @@ class TestSpellAffectPayloadMessages(unittest.TestCase):
         victim = SimpleNamespace()
         fight = SimpleNamespace(_check_immunity=Mock(), damage=Mock(return_value={}),
                                 is_safe_spell=Mock(return_value=False))
-        ctx = SimpleNamespace(actor=object(), victim=victim, target=victim, level=20,
+        ctx = SimpleNamespace(cast_level=None, actor=object(), victim=victim, target=victim, level=20,
                               spell=SimpleNamespace(name="test", noun_damage="test"), room=object(),
                               handler=SimpleNamespace(fight_handler=fight),
                               resolve=lambda value: value, mark_performed=Mock(return_value=True))
@@ -440,6 +440,7 @@ class TestSpellAffectPayloadMessages(unittest.TestCase):
         room = SimpleNamespace(characters={actor.id: actor, victim.id: victim, observer.id: observer})
         payloads = []
         ctx = SimpleNamespace(
+            cast_level=None,
             actor=actor,
             target=victim,
             victim=victim,
@@ -483,6 +484,7 @@ class TestSpellAffectPayloadMessages(unittest.TestCase):
         room = SimpleNamespace(characters={actor.id: actor})
         payloads = []
         ctx = SimpleNamespace(
+            cast_level=None,
             actor=actor,
             target=actor,
             victim=actor,
@@ -719,7 +721,7 @@ class TestTableDamageSpells(unittest.TestCase):
         self.api._fight_handler = Mock(return_value=self.fight)
         self.api._effect_active = Mock(return_value=False)
         self.api.saves_spell = Mock(return_value=False)
-        self.victim = SimpleNamespace(name="Target")
+        self.victim = SimpleNamespace(id="target", name="Target")
         self.enterContext(patch.object(_CharacterApi, 'is_awake', side_effect=self.PositionApi.is_awake, create=True))
         self.enterContext(patch.object(_CharacterApi, 'set_position', side_effect=self.PositionApi.set_position, create=True))
         self.enterContext(patch.object(_CharacterApi, 'pos_value', side_effect=self.PositionApi.pos_value, create=True))
@@ -734,9 +736,9 @@ class TestTableDamageSpells(unittest.TestCase):
             self.documents[name], levelByClass={}, ratingByClass={})) for name in ('blindness', 'curse', 'bless', 'frenzy')])
         registries = SimpleNamespace(spell_registry=registry, room_registry=SimpleNamespace(
             all_rooms=lambda: [], get_or_none=lambda **_: None))
-        return self.Context(actor=SimpleNamespace(level=level), spell=spell,
+        return self.Context(actor=SimpleNamespace(id="caster", level=level), spell=spell,
                             handler=SimpleNamespace(spell_api=self.api, registry_service=registries),
-                            room=object(), target=self.victim, cast_level=level)
+                            room=SimpleNamespace(characters={}, mobiles={}), target=self.victim, cast_level=level)
 
     def test_cause_spell_content_deals_full_damage_without_rolling_a_save(self):
         for name, dice_count, expected in [('cause light', 1, 15),
@@ -1362,6 +1364,7 @@ class TestTableDamageSpells(unittest.TestCase):
         ctx.victim.vnum = '1'
         for room in rooms:
             observer = self.effect_room_member(room.id + '-observer')
+            observer.loot = []
             observer.room_id, observer.area_id = room.id, room.area_id
             room.add_player_to_room(observer)
         def get_room(**kwargs):
@@ -2005,8 +2008,8 @@ class TestTableDamageSpells(unittest.TestCase):
                 ctx = self.live_effect_context(name, 23)
                 wearer = ctx.actor
                 wearer.saving_throw = 10
-                obj = SimpleNamespace(id='ring', name='ring', item_type='armor', effects=[], extra_flags='', level=40)
-                wearer.equipped = SimpleNamespace(held=obj)
+                obj = SimpleNamespace(id='ring', name='ring', short_description='ring', item_type='armor', effects=[], extra_flags='', level=40)
+                wearer.equipped = self.Equipped(held=obj)
                 self.api.effect_handler.apply_item_effects(wearer, obj)
                 ctx.set_target(obj)
                 game = self.game_api()
@@ -2034,8 +2037,8 @@ class TestTableDamageSpells(unittest.TestCase):
         wearer = ctx.actor
         wearer.saving_throw = 10
         wearer.loot = []
-        obj = SimpleNamespace(id='ring', name='ring', item_type='armor', effects=[], extra_flags='', level=40)
-        wearer.equipped = SimpleNamespace(held=obj)
+        obj = SimpleNamespace(id='ring', name='ring', short_description='ring', item_type='armor', effects=[], extra_flags='', level=40)
+        wearer.equipped = self.Equipped(held=obj)
         self.api.effect_handler.apply_item_effects(wearer, obj)
         ctx.set_target(obj)
         self.assertTrue(self.api.execute_lambdas(ctx))
@@ -2198,9 +2201,9 @@ class TestTableDamageSpells(unittest.TestCase):
         return ctx
 
     def effect_room_member(self, name, *, npc=False, level=20, leader=None):
-        member = SimpleNamespace(id=name, name=name, is_npc=npc, level=level, leader=leader,
+        member = SimpleNamespace(id=name, name=name, is_npc=npc, level=level, leader=leader, equipped=None,
             character_attributes=SimpleNamespace(position=int(self.enums['positions'].POS_STANDING)),
-            status_flags=SimpleNamespace(affected_by=0, act=0, imm=0, off=0),
+            status_flags=SimpleNamespace(affected_by=0, act=0, imm=0, off=0, invis_level=0),
             effects=[], hit_roll=10, dam_roll=20, fighting=None)
         member.status_flags.assign_bitfield = lambda field, value: setattr(member.status_flags, field, value)
         self.PositionApi.set_position(member, 'POS_STANDING')
@@ -2406,7 +2409,7 @@ class TestTableDamageSpells(unittest.TestCase):
                 movement.affected_bits = self.enums['affectedBy']
                 def command_context(result=''):
                     ctx.room.player_targets = lambda _character: []
-                    context = SimpleNamespace(room=ctx.room, result=result, done=False)
+                    context = SimpleNamespace(room=ctx.room, result=result, parameters=[], done=False)
                     context.finish = lambda: setattr(context, 'done', True)
                     return context
                 with patch.dict(module.Movement.do_stand.__globals__, CharacterApi=self.PositionApi,
@@ -2600,9 +2603,9 @@ class TestTableDamageSpells(unittest.TestCase):
 
     def test_mass_invis_group_filter_includes_fighting_pet_and_skips_ungrouped_pc(self):
         ctx = self.guard_context('mass invis')
-        pet = SimpleNamespace(name='Pet', is_npc=True, leader=ctx.actor, fighting=object(), effects=[],
+        pet = SimpleNamespace(id='pet', name='Pet', is_npc=True, leader=ctx.actor, fighting=object(), effects=[],
                               status_flags=SimpleNamespace(affected_by=0))
-        invisible = SimpleNamespace(name='Innate', leader=ctx.actor, effects=[],
+        invisible = SimpleNamespace(id='innate', name='Innate', leader=ctx.actor, effects=[],
                                     status_flags=SimpleNamespace(affected_by=int(self.enums['affectedBy'].AFF_INVISIBLE)))
         ctx.victim.leader = None
         ctx.room.mobiles = {'pet': pet, 'invisible': invisible}

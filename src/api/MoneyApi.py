@@ -39,7 +39,7 @@ class MoneyApi:
     def split_insufficient_funds(cls, view: InterpView) -> bool:
         amounts = cls.split_amounts(view)
         actor = view.context.character
-        return GenericUtil.to_int(getattr(actor, "silver", 0), 0) < amounts["silver"] or GenericUtil.to_int(getattr(actor, "gold", 0), 0) < amounts["gold"]
+        return GenericUtil.to_int(actor.silver, 0) < amounts["silver"] or GenericUtil.to_int(actor.gold, 0) < amounts["gold"]
 
     @classmethod
     def split_members(cls, view: InterpView) -> list[Any]:
@@ -82,8 +82,8 @@ class MoneyApi:
         shares = cls.split_shares(view)
         members = cls.split_members(view)
 
-        character.silver = GenericUtil.to_int(getattr(character, "silver", 0), 0) - amounts["silver"] + shares["silver"] + shares["extra_silver"]
-        character.gold = GenericUtil.to_int(getattr(character, "gold", 0), 0) - amounts["gold"] + shares["gold"] + shares["extra_gold"]
+        character.silver = GenericUtil.to_int(character.silver, 0) - amounts["silver"] + shares["silver"] + shares["extra_silver"]
+        character.gold = GenericUtil.to_int(character.gold, 0) - amounts["gold"] + shares["gold"] + shares["extra_gold"]
 
         to_char = ""
         if shares["silver"] > 0:
@@ -115,14 +115,14 @@ class MoneyApi:
         for member in members:
             if member == character:
                 continue
-            member.gold = GenericUtil.to_int(getattr(member, "gold", 0), 0) + shares["gold"]
-            member.silver = GenericUtil.to_int(getattr(member, "silver", 0), 0) + shares["silver"]
+            member.gold = GenericUtil.to_int(member.gold, 0) + shares["gold"]
+            member.silver = GenericUtil.to_int(member.silver, 0) + shares["silver"]
             if CharacterApi.position_value(member) < resting:
                 continue
             sender = DisplayUtil.visible_tokens({"c": character}, member, room)["c"]
             sender = sender[:1].upper() + sender[1:]
             target_messages.append({
-                "id": getattr(member, "id", ""),
+                "id": member.id,
                 "text": interp_api.render_message_key(
                     context,
                     victim_message_key,

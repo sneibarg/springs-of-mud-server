@@ -160,7 +160,9 @@ class AreaHandler:
             mob.status_flags.set_flag("act", pet_bit)
 
     def _is_pet_shop_stock_room(self, room) -> bool:
-        room_vnum = GenericUtil.to_int(getattr(room, "vnum", 0), 0)
+        if room is None:
+            return False
+        room_vnum = GenericUtil.to_int(room.vnum, 0)
         if room_vnum <= 0:
             return False
 
@@ -176,7 +178,7 @@ class AreaHandler:
     def _is_pet_shop_room(self, room) -> bool:
         if room is None:
             return False
-        return ItemApi.is_set(GenericUtil.to_int(getattr(room, "room_flags", 0), 0), self.RoomFlags.ROOM_PET_SHOP.value)
+        return ItemApi.is_set(GenericUtil.to_int(room.room_flags, 0), self.RoomFlags.ROOM_PET_SHOP.value)
 
     def _register_live_character(self, character) -> None:
         if character is None:
@@ -216,7 +218,7 @@ class AreaHandler:
         if live_count >= limit and rng.number_range(0, 4) != 0:
             return False
 
-        count = Item.count_obj_list(obj_vnum, getattr(obj_to, "contains", []) or [])
+        count = Item.count_obj_list(obj_vnum, obj_to.contains or [])
         if count > max_in_target:
             return False
 
@@ -248,7 +250,7 @@ class AreaHandler:
             obj = ItemFactory.create(template_obj)
             inventory_bit = GenericUtil.to_int(self.ItemFlags.ITEM_INVENTORY.value, 0)
             if inventory_bit:
-                obj.extra_flags = GenericUtil.to_int(getattr(obj, "extra_flags", 0), 0) | inventory_bit
+                obj.extra_flags = GenericUtil.to_int(obj.extra_flags, 0) | inventory_bit
             self._give_reset_item(reset, mob, obj)
             return True
 
@@ -314,8 +316,8 @@ class AreaHandler:
                 continue
             if area_id and str(candidate_room.area_id or "") != area_id:
                 continue
-            for mob in getattr(candidate_room, "mobiles", {}).values():
-                if str(getattr(mob, "vnum", "") or "") == wanted_vnum:
+            for mob in candidate_room.mobiles.values():
+                if str(mob.vnum or "") == wanted_vnum:
                     count += 1
         return count
 
@@ -326,7 +328,7 @@ class AreaHandler:
 
         count = 0
         for item in self._iter_unique_world_items():
-            if str(getattr(item, "vnum", "") or "") == wanted_vnum:
+            if str(item.vnum or "") == wanted_vnum:
                 count += 1
         return count
 
@@ -342,19 +344,19 @@ class AreaHandler:
                     continue
                 seen.add(key)
                 yield item
-                yield from walk(getattr(item, "contains", []) or [])
+                yield from walk(item.contains or [])
 
         for room in self.room_registry.all_rooms():
             if room is None:
                 continue
-            yield from walk(getattr(room, "contents", {}).values())
-            for character in getattr(room, "characters", {}).values():
-                yield from walk(getattr(character, "loot", []) or [])
-                equipped = getattr(character, "equipped", None)
+            yield from walk(room.contents.values())
+            for character in room.characters.values():
+                yield from walk(character.loot or [])
+                equipped = character.equipped
                 if equipped is not None:
-                    yield from walk(getattr(equipped, "__dict__", {}).values())
-            for mob in getattr(room, "mobiles", {}).values():
-                yield from walk(getattr(mob, "inventory", []) or [])
-                equipped = getattr(mob, "equipped", None)
+                    yield from walk(vars(equipped).values())
+            for mob in room.mobiles.values():
+                yield from walk(mob.inventory or [])
+                equipped = mob.equipped
                 if equipped is not None:
-                    yield from walk(getattr(equipped, "__dict__", {}).values())
+                    yield from walk(vars(equipped).values())

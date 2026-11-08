@@ -111,7 +111,7 @@ async def check_public_paths(test):
         assert len(list(ExtraDescriptionData.entries(f.room.extra_description))) == 2
         for token in ('banner', 'mural'):
             clear()
-            await f.interpreter.handle_command(None, f.actor, 'look ' + token)
+            await f.interpreter.handle_command(f.actor, 'look ' + token)
             results['look_' + token] = f.messages(f.actor)
         assert results['look_banner'] == ['A bright banner.\r\n']
         assert results['look_mural'] == ['A hidden mural.\r\n']
@@ -133,7 +133,7 @@ async def check_public_paths(test):
             else:
                 f.flag(f.actor, 'AFF_BLIND')
             clear()
-            await f.interpreter.handle_command(None, f.actor, 'exits')
+            await f.interpreter.handle_command(f.actor, 'exits')
             results['exits_' + scenario] = f.messages(f.actor)
             test.assertTrue(f.messages(f.actor))
             expected = {'closed': 'None.', 'restricted': 'None.', 'dark_destination': 'Too dark to tell',
@@ -150,7 +150,7 @@ async def check_public_paths(test):
         f.actor.trust = 60
         f.destination.room_flags = 0
         clear()
-        await f.interpreter.handle_command(None, f.actor, 'exits')
+        await f.interpreter.handle_command(f.actor, 'exits')
         test.assertIn(f'({f.destination.vnum})', f.messages(f.actor)[0])
         f.actor.trust = 0
 
@@ -181,7 +181,7 @@ async def check_public_paths(test):
             f.bob.status_flags.assign_bitfield('comm', int(original_flags))
             body.status_flags.assign_bitfield('comm', int(body_flags))
             clear()
-            await f.interpreter.handle_command(None, f.actor, 'gossip hello')
+            await f.interpreter.handle_command(f.actor, 'gossip hello')
             test.assertEqual(bool(f.messages(f.bob)), not original_flags)
     finally:
         holder.doCleanups()

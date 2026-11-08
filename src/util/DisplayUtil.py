@@ -33,7 +33,7 @@ class DisplayUtil:
         if room is None:
             return []
         candidates = list(room.players_in_room() if actor is None else room.player_targets(actor))
-        candidates.extend(mobile for mobile in getattr(room, 'mobiles', {}).values()
+        candidates.extend(mobile for mobile in room.mobiles.values()
                           if mobile is not actor
                           and (getattr(mobile, 'context', None) or {}).get('controller_original') is not None)
         resting = CharacterApi.pos_value('POS_RESTING')
@@ -49,7 +49,7 @@ class DisplayUtil:
                 tokens[token] = ""
             elif hasattr(entity, "item_type"):
                 from util.LookupUtil import LookupUtil
-                tokens[token] = ((getattr(entity, "short_description", "") or getattr(entity, "name", "something"))
+                tokens[token] = ((entity.short_description or entity.name)
                                  if observer is not None and LookupUtil.object_visible(observer, room, entity)
                                  else "something")
             else:
@@ -61,7 +61,7 @@ class DisplayUtil:
     @staticmethod
     def room_text(text, render, room):
         fallback = render(None)
-        variants = {str(player.id): render(player) for player in getattr(room, "characters", {}).values()}
+        variants = {str(player.id): render(player) for player in (room.characters if room is not None else {}).values()}
         return RecipientText(text, variants, fallback)
 
     @staticmethod
@@ -69,8 +69,8 @@ class DisplayUtil:
         if entity is None:
             return "someone"
         if is_npc(entity):
-            return str(getattr(entity, "short_description", "") or getattr(entity, "name", "someone"))
-        return str(getattr(entity, "name", "someone"))
+            return str(entity.short_description or entity.name)
+        return str(entity.name)
 
     @staticmethod
     def display_effect_message(message) -> str:

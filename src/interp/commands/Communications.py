@@ -292,7 +292,7 @@ class Communications:
         targets = room.player_targets(actor) if room is not None else []
         # Switched mobiles retain a connected controller in their runtime context.
         if room is not None:
-            targets += [mobile for mobile in getattr(room, 'mobiles', {}).values()
+            targets += [mobile for mobile in room.mobiles.values()
                         if mobile is not actor
                         and (getattr(mobile, 'context', None) or {}).get('controller_original') is not None]
         resting = CharacterApi.get_enum('positions').POS_RESTING
@@ -485,7 +485,7 @@ class Communications:
         payload["victim"] = target
         if not self._can_receive_follow_notice(context, target, character):
             payload.pop("to_victim", None)
-        if getattr(character, "master", None) is not None:
+        if character.master is not None:
             previous = self._stop_following(character)
             if previous is not None:
                 character.master = target
@@ -510,9 +510,9 @@ class Communications:
 
         game_params = CharacterApi.get_enum("gameParameters")
         pulse_violence = CharacterApi.enum_bit(game_params, "PULSE_VIOLENCE") if game_params is not None else 12
-        status_flags = getattr(context.character, "status_flags", None)
+        status_flags = context.character.status_flags
         if status_flags is not None:
-            status_flags.pulse_wait = max(GenericUtil.to_int(getattr(status_flags, "pulse_wait", 0), 0), pulse_violence or 12)
+            status_flags.pulse_wait = max(GenericUtil.to_int(status_flags.pulse_wait, 0), pulse_violence or 12)
 
         _target, command_text, _command = self.communications_api.order_args(view)
         context.finish()
@@ -550,7 +550,7 @@ class Communications:
     def _group_listing(self, context: Context) -> str:
         view = self.interp_api.build_interp_view(context)
         character = context.character
-        leader = getattr(character, "leader", None) or character
+        leader = character.leader or character
         room = self.communications_api.current_room(view)
         leader_name = DisplayUtil.visible_tokens({'leader': leader}, character, room)['leader']
         lines = [f"{leader_name}'s group:"]
@@ -563,11 +563,11 @@ class Communications:
         class_name = "Mob" if CharacterApi.is_npc(member) else self._class_who_name(member)
         exp = CharacterAdvancement.total_experience(member)
         return (
-            f"[{GenericUtil.to_int(getattr(member, 'level', 0), 0):2d} {class_name}] "
+            f"[{GenericUtil.to_int(member.level, 0):2d} {class_name}] "
             f"{name.capitalize():<16} "
-            f"{GenericUtil.to_int(getattr(member, 'hit', 0), 0):4d}/{GenericUtil.to_int(getattr(member, 'max_hit', 0), 0):4d} hp "
-            f"{GenericUtil.to_int(getattr(member, 'mana', 0), 0):4d}/{GenericUtil.to_int(getattr(member, 'max_mana', 0), 0):4d} mana "
-            f"{GenericUtil.to_int(getattr(member, 'movement', 0), 0):4d}/{GenericUtil.to_int(getattr(member, 'max_movement', 0), 0):4d} mv "
+            f"{GenericUtil.to_int(member.hit, 0):4d}/{GenericUtil.to_int(member.max_hit, 0):4d} hp "
+            f"{GenericUtil.to_int(member.mana, 0):4d}/{GenericUtil.to_int(member.max_mana, 0):4d} mana "
+            f"{GenericUtil.to_int(member.movement, 0):4d}/{GenericUtil.to_int(member.max_movement, 0):4d} mv "
             f"{exp:5d} xp"
         )
 
@@ -577,15 +577,15 @@ class Communications:
         who = getattr(character_class, "who_name", None)
         if who:
             return str(who)
-        name = str(getattr(character_class, "name", "") or "")
+        name = str((character_class.name if character_class is not None else "") or "")
         return name[:3].capitalize() if name else "Mob"
 
     @staticmethod
     def _display_name(member) -> str:
-        return str(getattr(member, "name", "") or getattr(member, "short_description", "") or "someone")
+        return str(member.name or getattr(member, "short_description", "") or "someone")
 
     def _group_payload(self, context: Context, message_key: str, victim) -> dict:
-        actor_sex = str(getattr(context.character, "sex", "") or "").strip().lower()
+        actor_sex = str(context.character.sex or "").strip().lower()
         s_poss = "his" if actor_sex in ("1", "male", "m") else "her" if actor_sex in ("2", "female", "f") else "its"
         m_pronoun = "him" if actor_sex in ("1", "male", "m") else "her" if actor_sex in ("2", "female", "f") else "it"
         context.interp_tokens = {
@@ -596,11 +596,11 @@ class Communications:
         }
         payload = self.interp_api.render_message_key(context, message_key)
         payload["victim"] = victim
-        room = context.room if context.room is not None else self.room_registry.get_or_none(id=getattr(context.character, "room_id", ""))
+        room = context.room if context.room is not None else self.room_registry.get_or_none(id=context.character.room_id)
         targets = []
         if room is not None:
             targets = [
-                target for target in list((getattr(room, "characters", {}) or {}).values())
+                target for target in list((room.characters or {}).values())
                 if target not in (context.character, victim)
             ]
         payload["targets"] = targets
@@ -667,8 +667,8 @@ class Communications:
     def _clan_targets(self, character, clan_key: str) -> list:
         targets = []
         for session in list(self.session_handler.get_playing_sessions() or []):
-            victim = getattr(session, "character", None)
-            if victim is None or getattr(victim, "id", None) == getattr(character, "id", None):
+            victim = session.character
+            if victim is None or victim.id == character.id:
                 continue
             if self._clan_key(victim) != clan_key:
                 continue
@@ -714,12 +714,12 @@ class Communications:
 
     @staticmethod
     def _stop_following(character):
-        previous = getattr(character, "master", None)
+        previous = character.master
         character.master = None
         return previous
 
     def _follow_payload(self, context: Context, message_key: str, victim) -> dict:
-        context.interp_tokens = {"t": getattr(victim, "name", "")}
+        context.interp_tokens = {"t": (victim.name if victim is not None else "")}
         payload = self.interp_api.render_message_key(context, message_key)
         payload["victim"] = victim
         if not self._can_receive_follow_notice(context, victim, context.character):
@@ -729,7 +729,7 @@ class Communications:
     def _can_receive_follow_notice(self, context: Context, viewer, character) -> bool:
         room = context.room
         if room is None:
-            room = self.room_registry.get_or_none(id=getattr(character, "room_id", ""))
+            room = self.room_registry.get_or_none(id=character.room_id)
         try:
             return CharacterApi.can_see(viewer, character, room)
         except (AttributeError, TypeError):

@@ -15,7 +15,7 @@ class SkillUtil:
         if weapon is None:
             return "hand to hand"
 
-        raw = getattr(weapon, "value0", None)
+        raw = weapon.value0
         token = str(raw or "").strip()
         members = weapon_class_names.__members__ if weapon_class_names is not None else {}
 
@@ -52,9 +52,9 @@ class SkillUtil:
 
     @staticmethod
     def adjusted_percent(entity, skill: int) -> int:
-        status = getattr(entity, "status_flags", None)
-        if GenericUtil.to_int(getattr(status, "pulse_daze", 0), 0) > 0:
+        status = entity.status_flags if entity is not None else None
+        if GenericUtil.to_int((status.pulse_daze if status is not None else 0), 0) > 0:
             skill = 2 * skill // 3
-        if not CharacterApi.is_npc(entity) and GenericUtil.to_int(getattr(status, "drunk", 0), 0) > 10:
+        if not CharacterApi.is_npc(entity) and GenericUtil.to_int((status.drunk if status is not None else 0), 0) > 10:
             skill = 9 * skill // 10
         return max(0, min(100, skill))

@@ -94,8 +94,7 @@ class Ability:
         from skill.AbilityResolver import AbilityResolver
         from skill.LearningService import LearningService
         try:
-            get_registry = getattr(CharacterApi, "get_registry", None)
-            registry = get_registry() if callable(get_registry) else None
+            registry = CharacterApi.get_registry()
         except RuntimeError:
             registry = None
         resolver = (AbilityResolver(registry.skill_registry, registry.spell_registry)

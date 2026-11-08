@@ -20,7 +20,7 @@ class MobilePulseTests(unittest.IsolatedAsyncioTestCase):
     def handler(self):
         room = Room(id='room', area_id='area', name='Room', vnum='1')
         actor = SimpleNamespace(id='mob', name='scavenger', short_description='a scavenger',
-                                vnum='2', room_id='room', area_id='area', inventory=[],
+                                special_name=None, special_function=[], vnum='2', room_id='room', area_id='area', inventory=[],
                                 status_flags=SimpleNamespace(act=1), gold=0, silver=0, wealth=5000000)
         actor.add_item = actor.inventory.append
         room.mobiles[actor.id] = actor
@@ -61,7 +61,7 @@ class MobilePulseTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_collection_scavenge_skips_owned_item_and_announces_best_allowed_item(self):
         handler, room, actor = self.handler()
-        viewer = SimpleNamespace(id='viewer', name='Owner')
+        viewer = SimpleNamespace(id='viewer', name='Owner', character_attributes=None, status_flags=None)
         room.characters[viewer.id] = viewer
         protected = SimpleNamespace(id='protected', owner='Owner', cost=100, wear_flags=1,
                                     short_description='a protected gem')

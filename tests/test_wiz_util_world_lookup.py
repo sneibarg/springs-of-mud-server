@@ -77,6 +77,7 @@ class TestWizUtilWorldLookup(unittest.TestCase):
     def test_find_world_entity_finds_mobile_from_character_list(self):
         guard = SimpleNamespace(
             id="mob-9582",
+            room_id="room",
             name="oldstyle royal elite guard",
             short_description="the oldstyle royal elite guard",
             vnum="9582",
@@ -93,6 +94,7 @@ class TestWizUtilWorldLookup(unittest.TestCase):
     def test_find_world_entity_respects_include_mobiles_when_registry_contains_mobiles(self):
         guard = SimpleNamespace(
             id="mob-9582",
+            room_id="room",
             name="oldstyle royal elite guard",
             short_description="the oldstyle royal elite guard",
             vnum="9582",

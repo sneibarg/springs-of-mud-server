@@ -76,7 +76,7 @@ class TestWeaponHitEffects(unittest.TestCase):
         self.attacker.fighting = self.victim
         self.weapon = self._item("blade", "weapon")
         self.weapon.level = 24
-        self.room = SimpleNamespace(add_item_to_room=Mock(), remove_item_from_room=Mock())
+        self.room = SimpleNamespace(characters={}, mobiles={}, add_item_to_room=Mock(), remove_item_from_room=Mock())
         self.damage = Mock(return_value={"killed": False, "xp_gain": 0})
         self.immunity = Mock(return_value="IS_NORMAL")
 

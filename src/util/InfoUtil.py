@@ -134,7 +134,7 @@ class InfoUtil:
     
     @staticmethod
     def score_position_line(attributes: Any) -> str:
-        position_value = GenericUtil.to_int(getattr(attributes, "position", 0), 0)
+        position_value = GenericUtil.to_int((attributes.position if attributes is not None else 0), 0)
         positions = CharacterApi.get_enum("positions")
         if position_value == positions.POS_DEAD.value:
             return "You are DEAD!!"

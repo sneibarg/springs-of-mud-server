@@ -139,6 +139,7 @@ class CollectionApiBoundaryTests(unittest.TestCase):
         command.payload.to_char['multiple_silver'] = 'Custom reward: %d.'
         command.payload.to_room['default'] = '%c offers %t.'
         combat = FightHandler.__new__(FightHandler)
+        combat.death_handler = None
         combat.registry_service = NS(interp_registry=NS(get_or_none=Mock(return_value=command)))
         combat.WearFlags = self.enums.get('wearFlags')
         combat.ItemFlags = self.enums.get('itemFlags')

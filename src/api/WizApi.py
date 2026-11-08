@@ -16,7 +16,7 @@ class WizApi:
 
     @staticmethod
     def prefix_abbreviated(view) -> bool:
-        raw = getattr(view.context, 'raw_command', None) or ''
+        raw = view.context.raw_command or ''
         verb, _ = InterpUtil.one_argument(raw)
         return verb in ('pref', 'prefi')
 
@@ -621,8 +621,8 @@ class WizApi:
             return None
         handler = view.context.wiz_handler()
         if argument.isdigit() and handler is not None:
-            connection_manager = getattr(handler, "connection_manager", None)
-            session_handler = getattr(handler, "session_handler", None)
+            connection_manager = handler.connection_manager
+            session_handler = handler.session_handler
             if connection_manager is not None and session_handler is not None:
                 for connection in connection_manager.get_all_connections():
                     try:

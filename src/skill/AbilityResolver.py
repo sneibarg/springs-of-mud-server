@@ -45,8 +45,8 @@ class AbilityResolver:
             wanted, wanted.replace("spell.", ""), wanted.replace("skill.", "")}
         definitions = self._spells() if spell_only else chain(self._spells(), self._skills())
         for ability in definitions:
-            names = {str(getattr(ability, key, "") or "").strip().lower()
-                     for key in ("handler_id", "name", "id")}
+            names = {str(value or "").strip().lower()
+                     for value in (ability.handler_id, ability.name, ability.id)}
             if candidates & names:
                 return ability
         return None

@@ -188,7 +188,7 @@ class TestObjectCurrencyParity(unittest.TestCase):
     def test_automatic_split_needs_no_command_or_player_handler_in_parent_context(self):
         ally = self.member()
         self.actor.silver += 8
-        context = NS(character=self.actor, room=self.room)
+        context = NS(handler_service=None, character=self.actor, room=self.room)
         payload = self.commands._autosplit(self.actor, self.room, context, 8)
         self.assertEqual((104, 4), (self.actor.silver, ally.silver))
         self.assertIsNone(payload["context"].handler_service)

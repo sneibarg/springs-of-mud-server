@@ -33,7 +33,7 @@ class AreaApi:
                 # a carried/contained object does not identify its outer room.
                 return location['parent'] if location is not None and location['kind'] == 'room' else None
             return next((room for room in room_registry.all_rooms() if room is not None
-                         and name_matches_fn(value, getattr(room, 'name', ''))), None)
+                         and name_matches_fn(value, room.name)), None)
 
         victim = (CharacterApi.find_character_world(value, character_registry, name_matches_fn, allow_self=False)
                   if character_registry is not None else None)
@@ -45,14 +45,14 @@ class AreaApi:
             if room is None:
                 continue
             for mob in room.mobiles.values():
-                mob_name = f"{getattr(mob, 'name', '')} {getattr(mob, 'short_description', '')}".strip()
+                mob_name = f"{mob.name} {mob.short_description}".strip()
                 if name_matches_fn(q, mob_name):
                     return room
 
         for room in room_registry.all_rooms():
             if room is None:
                 continue
-            if name_matches_fn(value, getattr(room, "name", "")):
+            if name_matches_fn(value, room.name):
                 return room
         return None
 

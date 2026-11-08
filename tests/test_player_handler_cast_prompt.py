@@ -62,6 +62,7 @@ class TestPlayerHandlerCastPrompt(unittest.TestCase):
             events = []
 
             handler = PlayerHandler.__new__(PlayerHandler)
+            handler.command_audit = None
             handler.fight_commands = Mock()
             handler.fight_commands.do_cast.return_value = {"payloads": [{"to_char": "Cast result.\r\n"}]}
             handler.room_registry = Mock()
@@ -98,6 +99,7 @@ class TestPlayerHandlerCastPrompt(unittest.TestCase):
             events = []
 
             handler = PlayerHandler.__new__(PlayerHandler)
+            handler.command_audit = None
             handler.room_registry = Mock()
             handler.room_registry.get_or_none.return_value = room
             handler.area_registry = Mock()
@@ -136,6 +138,7 @@ class TestPlayerHandlerCastPrompt(unittest.TestCase):
             events = []
 
             handler = PlayerHandler.__new__(PlayerHandler)
+            handler.command_audit = None
             handler.room_registry = Mock()
             handler.room_registry.get_or_none.return_value = room
             handler.area_registry = Mock()

@@ -191,16 +191,18 @@ class SocialParityTests(MovementFixture, unittest.IsolatedAsyncioTestCase):
 
     async def test_typing_and_nested_interpretation_enforce_the_same_social_rules(self):
         interp = InterpHandler.__new__(InterpHandler)
+        interp.command_audit = None
         interp.interp_registry = NS(get_or_none=lambda **kw: None, all_commands=lambda: [])
         interp.registry_service = NS(interp_registry=interp.interp_registry)
         interp.social_registry, interp.social_handler = self.registry, self.handler
         interp.message_bus = self.bus
         nested = PlayerHandler.__new__(PlayerHandler)
+        nested.command_audit = None
         nested.interp_registry, nested.social_registry, nested.message_bus = interp.interp_registry, self.registry, self.bus
         services = NS(get_handler=lambda name: self.handler if name == 'sh' else None)
         context = Context(registry_service=self.registries, character=self.actor, handler_service=services, room=self.room)
         self.actor.status_flags.set_flag('comm', self.enums.get('commFlags').COMM_NOEMOTE)
-        await interp.handle_command(None, self.actor, 'smile')
+        await interp.handle_command(self.actor, 'smile')
         await nested._interpret_nested_command(self.actor, context, 'smile')
         self.assertEqual(['You are anti-social!\r\n'] * 2, self.texts(self.actor))
 

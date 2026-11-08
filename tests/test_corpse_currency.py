@@ -27,7 +27,7 @@ Item = _item_class()
 class TestCorpseCurrency(unittest.TestCase):
     def setUp(self):
         self.fixtures = fixtures.TestFightHandlerAggression()
-        self.room = SimpleNamespace(add_item_to_room=Mock())
+        self.room = SimpleNamespace(characters={}, mobiles={}, add_item_to_room=Mock())
         self.handler = self.fixtures._handler(self.room)
         self.handler.item_registry = SimpleNamespace(get=Mock(return_value=object()))
         self.handler.WellKnownObjectVnums = SimpleNamespace(

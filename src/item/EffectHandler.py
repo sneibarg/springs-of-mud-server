@@ -46,7 +46,7 @@ class EffectHandler:
         status_flags = getattr(entity, "status_flags", None)
         if status_flags is None:
             return 0
-        return GenericUtil.to_int(getattr(status_flags, "affected_by", 0), 0)
+        return GenericUtil.to_int(status_flags.affected_by, 0)
 
     @staticmethod
     def _set_affected_raw(entity, value: int) -> None:
@@ -71,15 +71,15 @@ class EffectHandler:
             return
 
         if location == location_name("APPLY_STR"):
-            attrs.strength = GenericUtil.to_int(getattr(attrs, "strength", 0), 0) + modifier
+            attrs.strength = GenericUtil.to_int(attrs.strength, 0) + modifier
         elif location == location_name("APPLY_DEX"):
-            attrs.dexterity = GenericUtil.to_int(getattr(attrs, "dexterity", 0), 0) + modifier
+            attrs.dexterity = GenericUtil.to_int(attrs.dexterity, 0) + modifier
         elif location == location_name("APPLY_INT"):
-            attrs.intelligence = GenericUtil.to_int(getattr(attrs, "intelligence", 0), 0) + modifier
+            attrs.intelligence = GenericUtil.to_int(attrs.intelligence, 0) + modifier
         elif location == location_name("APPLY_WIS"):
-            attrs.wisdom = GenericUtil.to_int(getattr(attrs, "wisdom", 0), 0) + modifier
+            attrs.wisdom = GenericUtil.to_int(attrs.wisdom, 0) + modifier
         elif location == location_name("APPLY_CON"):
-            attrs.constitution = GenericUtil.to_int(getattr(attrs, "constitution", 0), 0) + modifier
+            attrs.constitution = GenericUtil.to_int(attrs.constitution, 0) + modifier
         elif location == location_name("APPLY_HIT"):
             entity.max_hit += modifier
         elif location == location_name("APPLY_MANA"):
@@ -88,17 +88,17 @@ class EffectHandler:
             entity.max_movement += modifier
         elif location == location_name("APPLY_SEX"):
             if hasattr(entity, "sex"):
-                entity.sex = str(GenericUtil.to_int(getattr(entity, "sex", 0), 0) + modifier)
+                entity.sex = str(GenericUtil.to_int(entity.sex, 0) + modifier)
         elif location in (location_name("APPLY_HITROLL"), location_name("APPLY_HIT_ROLL")):
             if hasattr(entity, "hit_roll"):
-                entity.hit_roll = GenericUtil.to_int(getattr(entity, "hit_roll", 0), 0) + modifier
+                entity.hit_roll = GenericUtil.to_int(entity.hit_roll, 0) + modifier
             elif hasattr(entity, "hitroll"):
-                entity.hitroll = GenericUtil.to_int(getattr(entity, "hitroll", 0), 0) + modifier
+                entity.hitroll = GenericUtil.to_int(entity.hitroll, 0) + modifier
         elif location in (location_name("APPLY_DAMROLL"), location_name("APPLY_DAM_ROLL")):
             if hasattr(entity, "dam_roll"):
-                entity.dam_roll = GenericUtil.to_int(getattr(entity, "dam_roll", 0), 0) + modifier
+                entity.dam_roll = GenericUtil.to_int(entity.dam_roll, 0) + modifier
             elif hasattr(entity, "damroll"):
-                entity.damroll = GenericUtil.to_int(getattr(entity, "damroll", 0), 0) + modifier
+                entity.damroll = GenericUtil.to_int(entity.damroll, 0) + modifier
         elif location == location_name("APPLY_AC"):
             from game.ArmorValues import ArmorValues
             armor = getattr(entity, "armor_class", None)
@@ -106,7 +106,7 @@ class EffectHandler:
                 ArmorValues.adjust_all(armor, modifier)
         elif location in (location_name("APPLY_SAVING_SPELL"), location_name("APPLY_SAVES")):
             if hasattr(entity, "saving_throw"):
-                entity.saving_throw = GenericUtil.to_int(getattr(entity, "saving_throw", 0), 0) + modifier
+                entity.saving_throw = GenericUtil.to_int(entity.saving_throw, 0) + modifier
 
     def as_effect(self, affect_like, source: str = "") -> Effect:
         if isinstance(affect_like, Effect):
@@ -144,13 +144,13 @@ class EffectHandler:
         return effects
 
     def affect_modify(self, entity, effect: Effect, add: bool) -> None:
-        where = EffectUtil.enum_value(self.where_enum, getattr(effect, "where", None), EffectUtil.enum_value(self.where_enum, "TO_AFFECTS", 0))
-        location = EffectUtil.enum_value(self.apply_types, getattr(effect, "location", None), 0)
-        modifier = GenericUtil.to_int(getattr(effect, "modifier", 0), 0)
+        where = EffectUtil.enum_value(self.where_enum, effect.where, EffectUtil.enum_value(self.where_enum, "TO_AFFECTS", 0))
+        location = EffectUtil.enum_value(self.apply_types, effect.location, 0)
+        modifier = GenericUtil.to_int(effect.modifier, 0)
         if not add:
             modifier = -modifier
 
-        raw_bit = getattr(effect, "bitvector", 0)
+        raw_bit = effect.bitvector
         defense = self._defense_field(where)
         if defense is not None:
             field, enums = defense
@@ -170,13 +170,13 @@ class EffectHandler:
         elif where == EffectUtil.enum_value(self.where_enum, "TO_OBJECT", -1):
             bit = EffectUtil.enum_value(self.item_flags, raw_bit, 0)
             if bit != 0 and hasattr(entity, "extra_flags"):
-                flags = GameApi.convert_flags(getattr(entity, "extra_flags", "") or "")
+                flags = GameApi.convert_flags(entity.extra_flags or "")
                 flags = GameApi.set_bit(flags, bit) if add else GameApi.unset_bit(flags, bit)
                 entity.extra_flags = GameApi.flags_to_letters(flags)
         elif where == EffectUtil.enum_value(self.where_enum, "TO_WEAPON", -1):
             bit = EffectUtil.enum_value(self.weapon_type, raw_bit, 0)
             if bit != 0 and hasattr(entity, "value4"):
-                value = GenericUtil.to_int(getattr(entity, "value4", 0), 0)
+                value = GenericUtil.to_int(entity.value4, 0)
                 value = GameApi.set_bit(value, bit) if add else GameApi.unset_bit(value, bit)
                 entity.value4 = str(value)
 
@@ -184,7 +184,8 @@ class EffectHandler:
         self._check_wield_weight(entity)
 
     def _check_wield_weight(self, entity):
-        weapon = getattr(getattr(entity, "equipped", None), "wielded", None)
+        equipped = getattr(entity, "equipped", None)
+        weapon = equipped.wielded if equipped is not None else None
         if weapon is None or id(entity) in self._dropping_weapons:
             return
         from game.Equipped import Equipped
@@ -204,7 +205,7 @@ class EffectHandler:
     def affect_find(self, effects: list[Effect], effect_type) -> Effect | None:
         wanted = str(effect_type).strip().lower()
         for effect in effects or []:
-            if str(getattr(effect, "type", "")).strip().lower() == wanted:
+            if str(effect.type).strip().lower() == wanted:
                 return effect
         return None
 
@@ -251,8 +252,8 @@ class EffectHandler:
             effects = self.ensure_effects(entity)
             if effect not in effects:
                 return False
-            where = getattr(effect, "where", 0)
-            vector = getattr(effect, "bitvector", 0)
+            where = effect.where
+            vector = effect.bitvector
             effects.remove(effect)
             self.affect_modify(entity, effect, False)
             if not hasattr(entity, "item_type"):
@@ -275,13 +276,13 @@ class EffectHandler:
     def affect_strip(self, entity, effect_type) -> None:
         want = str(effect_type).strip().lower()
         for effect in list(self.ensure_effects(entity)):
-            if str(getattr(effect, "type", "")).strip().lower() == want:
+            if str(effect.type).strip().lower() == want:
                 self.remove_effect(entity, effect)
 
     def affect_join(self, entity, effect: Effect):
         new_effect = self.as_effect(effect)
         for old in list(self.ensure_effects(entity)):
-            if str(getattr(old, "type", "")).strip().lower() != str(getattr(new_effect, "type", "")).strip().lower():
+            if str(old.type).strip().lower() != str(new_effect.type).strip().lower():
                 continue
             new_effect.level = (GenericUtil.to_int(new_effect.level, 0) + GenericUtil.to_int(old.level, 0)) // 2
             new_effect.duration = GenericUtil.to_int(new_effect.duration, 0) + GenericUtil.to_int(old.duration, 0)
@@ -292,7 +293,7 @@ class EffectHandler:
 
     def effect_from_spell_affect(self, spell, affect_like, caster_level: int, source: str = "") -> Effect:
         effect = self.as_effect(affect_like, source=source)
-        raw_type = str(getattr(effect, "type", "") or "").strip().lower()
+        raw_type = str(effect.type or "").strip().lower()
         if raw_type in ("sn", "skill", "spell"):
             effect.type = str(getattr(spell, "handler_id", "") or getattr(spell, "name", ""))
         effect.evaluate_expressions(caster_level, EffectUtil.safe_eval_int)
@@ -309,7 +310,7 @@ class EffectHandler:
             caster_level = GenericUtil.to_int(getattr(caster, "level", 0), 0)
         for affect_like in affects:
             effect = self.effect_from_spell_affect(spell, affect_like, caster_level, source=source)
-            apply_to = str(getattr(effect, "apply_to", "") or "").strip().lower()
+            apply_to = str(effect.apply_to or "").strip().lower()
             where = EffectUtil.enum_value(self.where_enum, effect.where, -1)
             wants_object = apply_to in ("item", "object") or where in (
                 EffectUtil.enum_value(self.where_enum, "TO_OBJECT", -2),
@@ -326,7 +327,7 @@ class EffectHandler:
     def apply_item_effects(self, character, item) -> None:
         self.remove_item_effects(character, item)
         item._effect_wearer = character
-        effects = list(getattr(item, "effects", []) or [])
+        effects = list(item.effects or [])
         if not effects:
             return
         source = Effect.item_source(item.id)
@@ -363,7 +364,7 @@ class EffectHandler:
     def dispel_effects(self, dis_level: int, victim, effect_type) -> list[Effect]:
         want = str(effect_type).strip().lower()
         matching = [effect for effect in self.ensure_effects(victim)
-                    if str(getattr(effect, "type", "")).strip().lower() == want]
+                    if str(effect.type).strip().lower() == want]
         for effect in matching:
             if effect.try_dispel(dis_level, EffectUtil.saves_dispel):
                 for removed in matching:
@@ -432,10 +433,10 @@ class EffectHandler:
         expired_effects: list[Effect] = []
         effects = list(self.ensure_effects(entity))
         for idx, effect in enumerate(effects):
-            duration = GenericUtil.to_int(getattr(effect, "duration", 0), 0)
+            duration = GenericUtil.to_int(effect.duration, 0)
             if duration > 0:
                 effect.duration = duration - 1
-                level = GenericUtil.to_int(getattr(effect, "level", 0), 0)
+                level = GenericUtil.to_int(effect.level, 0)
                 if level > 0 and random.randint(0, 4) == 0:
                     effect.level = level - 1
                 continue
@@ -445,8 +446,8 @@ class EffectHandler:
             next_effect = effects[idx + 1] if idx + 1 < len(effects) else None
             suppress_msg = (
                 next_effect is not None
-                and str(getattr(next_effect, "type", "")).strip().lower() == str(getattr(effect, "type", "")).strip().lower()
-                and GenericUtil.to_int(getattr(next_effect, "duration", 0), 0) <= 0
+                and str(next_effect.type).strip().lower() == str(effect.type).strip().lower()
+                and GenericUtil.to_int(next_effect.duration, 0) <= 0
             )
             if not suppress_msg:
                 expired_effects.append(effect)

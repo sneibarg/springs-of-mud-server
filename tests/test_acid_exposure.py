@@ -67,7 +67,7 @@ class TestAcidExposure(unittest.TestCase):
         self.room = SimpleNamespace(contents={})
         self.room.add_item_to_room = lambda obj: self.room.contents.update({obj.id: obj})
         self.room.remove_item_from_room = lambda obj: self.room.contents.pop(obj.id, None)
-        self.victim = SimpleNamespace(inventory=[], equipped=SimpleNamespace(), effects=[],
+        self.victim = SimpleNamespace(inventory=[], equipped=SimpleNamespace(wielded=None), effects=[],
                                       character_attributes=SimpleNamespace(),
                                       armor_class=SimpleNamespace(piercing=0, bashing=0, slashing=0, magic=0))
         self.victim.owned_items = lambda: list(self.victim.inventory) + [v for v in vars(self.victim.equipped).values() if v]

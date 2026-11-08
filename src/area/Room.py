@@ -79,7 +79,7 @@ class Room:
         return ", ".join(name for name in names if name) or "none"
 
     def adjust_light(self, amount: int) -> None:
-        self.light = max(0, GenericUtil.to_int(getattr(self, "light", 0), 0) + amount)
+        self.light = max(0, GenericUtil.to_int(self.light, 0) + amount)
 
     def item_locations(self):
         """Yield the room's top-level items and their immediate ownership locations."""
@@ -87,10 +87,11 @@ class Room:
             yield item, {"kind": "room", "parent": self, "container": None, "room": self}
         for kind, entities, inventory in (("char", self.characters, "loot"), ("mob", self.mobiles, "inventory")):
             for entity in list(entities.values()):
-                for item in list(getattr(entity, inventory, []) or []):
+                items = entity.loot if kind == "char" else entity.inventory
+                for item in list(items or []):
                     yield item, {"kind": f"{kind}_{inventory}", "parent": entity, "container": None, "room": self}
-                equipped = getattr(entity, "equipped", None)
-                for item in getattr(equipped, "__dict__", {}).values() if equipped is not None else []:
+                equipped = entity.equipped
+                for item in vars(equipped).values() if equipped is not None else []:
                     if item is not None:
                         yield item, {"kind": f"{kind}_equipped", "parent": entity, "container": None, "room": self}
 
@@ -274,7 +275,7 @@ class Room:
                                     visible=lambda target: CharacterApi.can_see(observer, target, self))
 
     def is_private(self, room_flags) -> bool:
-        if getattr(self, "owner", ""):
+        if self.owner:
             return True
         private = room_flags.ROOM_PRIVATE.value
         solitary = room_flags.ROOM_SOLITARY.value
@@ -368,7 +369,9 @@ class Room:
 
         slots = {i: None for i in range(len(Exit.DIRECTION_NAMES))}
         for exit_obj in self.exits:
-            direction = int(getattr(exit_obj, "direction", -1))
+            if exit_obj is None:
+                continue
+            direction = int(exit_obj.direction)
             if 0 <= direction < len(Exit.DIRECTION_NAMES):
                 slots[direction] = exit_obj
 

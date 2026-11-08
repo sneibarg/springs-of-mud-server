@@ -107,7 +107,7 @@ class TestElementalVisibility(unittest.TestCase):
         api.send = Mock()
         spell = SimpleNamespace(message=lambda channel, key, **tokens:
                                 tokens.get('victim', '') + ' looks very ill.' if channel == 'to_room' else 'You feel ill.')
-        ctx = SimpleNamespace(target=self.victim, room=self.room, spell=spell)
+        ctx = SimpleNamespace(actor=None, target=self.victim, room=self.room, spell=spell)
         game_api = SimpleNamespace(get_enum=poison.fixtures.ENUMS.get,
                                    item_table_map=lambda: poison.fixtures.DATA['itemTable'])
         with patch.dict(Api.poison_effect.__globals__, GameApi=game_api, DisplayUtil=DisplayUtil), patch.dict(sys.modules, {

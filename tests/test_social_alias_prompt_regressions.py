@@ -59,7 +59,7 @@ class SocialInterpreterRegressions(MovementFixture, unittest.IsolatedAsyncioTest
         self.actor.name = 'Actor'
         self.viewer = Character.from_json(build_character_data('viewer-id'))
         self.viewer.name = 'Viewer'
-        self.npc = NS(id='npc-id', name='city guard')
+        self.npc = NS(id='npc-id', name='city guard', sex='neutral', character_attributes=None)
         self.room = Room(id=self.actor.room_id,
                          characters={p.id: p for p in (self.actor, self.target, self.viewer)},
                          mobiles={self.npc.id: self.npc})
@@ -71,6 +71,7 @@ class SocialInterpreterRegressions(MovementFixture, unittest.IsolatedAsyncioTest
         rooms = Mock(get=Mock(return_value=self.room))
         handler = SocialHandler(bus, registry, Mock(), rooms)
         interp = InterpHandler.__new__(InterpHandler)
+        interp.command_audit = None
         interp.social_registry = registry
         interp.social_handler = handler
         interp.interp_registry = Mock(get_or_none=Mock(return_value=None), all_commands=Mock(return_value=[]))
@@ -88,7 +89,7 @@ class SocialInterpreterRegressions(MovementFixture, unittest.IsolatedAsyncioTest
             with self.subTest(argument=argument):
                 interp, bus = self.setup_interpreter()
                 with patch.object(CharacterApi, 'can_see', return_value=True):
-                    await interp.handle_command(None, self.actor, 'SMILE ' + argument)
+                    await interp.handle_command(self.actor, 'SMILE ' + argument)
                 interp.social_registry.get_or_none.assert_called_once_with(name='smile')
                 self.assertEqual((self.actor.id, expected + '\r\n'), bus.send_to_character.call_args_list[0].args)
                 if victim == 'missing':
@@ -103,7 +104,7 @@ class SocialInterpreterRegressions(MovementFixture, unittest.IsolatedAsyncioTest
     async def test_invisible_target_is_not_resolved(self):
         interp, bus = self.setup_interpreter()
         self.target.status_flags.invis_level = 1000
-        await interp.handle_command(None, self.actor, 'smile Tester')
+        await interp.handle_command(self.actor, 'smile Tester')
         bus.send_to_character.assert_awaited_once_with(self.actor.id, 'Nobody here.\r\n')
         bus.send_to_room.assert_not_called()
 

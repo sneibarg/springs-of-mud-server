@@ -132,7 +132,9 @@ class Equipped:
 
     @classmethod
     def unequip_item(cls, character, slot_name: str):
-        equipped = getattr(character, "equipped", None)
+        if character is None:
+            return None
+        equipped = character.equipped
         if equipped is None or not hasattr(equipped, slot_name):
             return None
         item = getattr(equipped, slot_name)
@@ -166,9 +168,10 @@ class Equipped:
     @staticmethod
     def light_contribution(character) -> int:
         from util.GenericUtil import GenericUtil
-        item = getattr(getattr(character, 'equipped', None), 'light', None)
+        equipment = character.equipped if character is not None else None
+        item = equipment.light if equipment is not None else None
         return int(item is not None and Item.enum_type_name(item) == 'ITEM_LIGHT'
-                   and GenericUtil.to_int(getattr(item, 'value2', 0), 0) != 0)
+                   and GenericUtil.to_int(item.value2, 0) != 0)
 
     @staticmethod
     def armor_contribution(character, category) -> int:
@@ -180,7 +183,7 @@ class Equipped:
         slots = {'torso': 3, 'head': 2, 'legs': 2, 'body': 2,
                  'feet': 1, 'hands': 1, 'arms': 1, 'shield': 1, 'neck1': 1,
                  'neck2': 1, 'waist': 1, 'wrist1': 1, 'wrist2': 1, 'held': 1}
-        equipment = getattr(character, 'equipped', None)
+        equipment = character.equipped if character is not None else None
         return sum(multiplier * GenericUtil.to_int(getattr(obj, f'value{index}', 0), 0)
                    for slot, multiplier in slots.items()
                    if (obj := getattr(equipment, slot, None)) is not None

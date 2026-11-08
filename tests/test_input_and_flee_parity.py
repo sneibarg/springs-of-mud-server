@@ -122,6 +122,7 @@ class InputHideParityTests(MovementFixture, unittest.IsolatedAsyncioTestCase):
     def setUp(self):
         super().setUp()
         self.handler = InterpHandler.__new__(InterpHandler)
+        self.handler.command_audit = None
         self.handler.registry_service = NS(interp_registry=NS())
         self.handler.interp_registry = NS(all_commands=lambda: [])
         self.handler.social_registry = NS(get_or_none=lambda **kw: None)
@@ -141,7 +142,7 @@ class InputHideParityTests(MovementFixture, unittest.IsolatedAsyncioTestCase):
             if frozen:
                 self.actor.status_flags.set_flag('act', self.enums.get('playerActBits').PLR_FREEZE)
             with patch.object(InterpUtil, 'extract_parameters', side_effect=lambda *args: (None, '')):
-                await self.handler.handle_command(None, self.actor, 'unknown')
+                await self.handler.handle_command(self.actor, 'unknown')
             self.assertFalse(self.hidden())
         for flag in ('AFF_SNEAK', 'AFF_INVISIBLE'):
             self.assertTrue(CharacterApi.is_affected_by_name(self.actor, self.enums.get('affectedBy'), flag))
@@ -149,7 +150,7 @@ class InputHideParityTests(MovementFixture, unittest.IsolatedAsyncioTestCase):
     async def test_empty_input_does_not_break_hide(self):
         for text in (None, '', '   '):
             self.flag(self.actor, 'AFF_HIDE')
-            await self.handler.handle_command(None, self.actor, text)
+            await self.handler.handle_command(self.actor, text)
             self.assertTrue(self.hidden())
 
     async def test_known_input_breaks_hide_before_dispatch_and_can_rehide(self):
@@ -159,19 +160,20 @@ class InputHideParityTests(MovementFixture, unittest.IsolatedAsyncioTestCase):
             self.flag(self.actor, 'AFF_HIDE')
         self.handler._call_lambda = dispatch
         with patch.object(InterpUtil, 'extract_parameters', return_value=(NS(name='hide'), '')):
-            await self.handler.handle_command(None, self.actor, 'hide')
+            await self.handler.handle_command(self.actor, 'hide')
         self.assertTrue(self.hidden())
 
     async def test_social_input_breaks_hide(self):
         self.flag(self.actor, 'AFF_HIDE')
         self.handler.social_registry.get_or_none = lambda **kw: object()
         with patch.object(InterpUtil, 'extract_parameters', return_value=(None, '')):
-            await self.handler.handle_command(None, self.actor, 'smile')
+            await self.handler.handle_command(self.actor, 'smile')
         self.assertFalse(self.hidden())
         self.handler.social_handler.handle_social.assert_awaited_once()
 
     async def test_nested_unknown_input_breaks_hide_and_empty_input_does_not(self):
         handler = PlayerHandler.__new__(PlayerHandler)
+        handler.command_audit = None
         handler.interp_registry = NS()
         handler.social_registry = self.handler.social_registry
         handler.message_bus = self.handler.message_bus

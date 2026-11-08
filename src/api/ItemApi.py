@@ -49,18 +49,18 @@ class ItemApi(GameApi):
 
         if CharacterApi.is_immortal(character):
             return True
-        owner_name = str(getattr(item, "owner", "") or "").casefold()
+        owner_name = str((item.owner if item is not None else "") or "").casefold()
         if not owner_name:
             return True
         owner = next((entity for entity in owners
-                      if str(getattr(entity, "name", "") or "").casefold() == owner_name), None)
+                      if str(entity.name or "").casefold() == owner_name), None)
         if owner is None:
             return True
-        if str(getattr(character, "name", "") or "").casefold() == owner_name:
+        if str(character.name or "").casefold() == owner_name:
             return True
         can_loot = cls.enum_bit(cls.get_enum("playerActBits"), "PLR_CANLOOT")
         if not CharacterApi.is_npc(owner) and cls.is_set(
-            getattr(getattr(owner, "status_flags", None), "act", 0), can_loot
+            (owner.status_flags.act if owner.status_flags is not None else 0), can_loot
         ):
             return True
         return CharacterApi.is_same_group(character, owner)
@@ -104,8 +104,8 @@ class ItemApi(GameApi):
     def carried_weight(character, *, include_coins=True) -> int:
         weight = sum(Item.object_weight(item) for item in character.owned_items())
         if include_coins:
-            weight += GenericUtil.to_int(getattr(character, "silver", 0), 0) // 10
-            weight += GenericUtil.to_int(getattr(character, "gold", 0), 0) * 2 // 5
+            weight += GenericUtil.to_int(character.silver, 0) // 10
+            weight += GenericUtil.to_int(character.gold, 0) * 2 // 5
         return weight
 
     @classmethod
@@ -143,7 +143,7 @@ class ItemApi(GameApi):
         take = int(CharacterApi.get_enum("wearFlags").ITEM_TAKE)
         source_wear = GameApi.flags_to_int(source_item.wear_flags)
         equipped = character.equipped
-        for slot_item in getattr(equipped, "__dict__", {}).values() if equipped is not None else []:
+        for slot_item in vars(equipped).values() if equipped is not None else []:
             if slot_item is None or slot_item == source_item:
                 continue
             item_type = Item.enum_type_name(slot_item)
@@ -201,7 +201,7 @@ class ItemApi(GameApi):
 
     @classmethod
     def is_newbie_pit(cls, item) -> bool:
-        if getattr(item, "vnum", None) is None:
+        if item is None or item.vnum is None:
             return False
         well_known_obj_vnums = cls.get_enum("wellKnownObjectVnums")
         return str(item.vnum) == str(well_known_obj_vnums.OBJ_VNUM_PIT.value)

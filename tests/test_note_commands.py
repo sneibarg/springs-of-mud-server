@@ -114,6 +114,14 @@ class _Context(SimpleNamespace):
         self.done = True
 
 
+class _Character(SimpleNamespace):
+    def __init__(self, **kwargs):
+        kwargs.setdefault("guild", "")
+        kwargs.setdefault("note_read_stamps", {})
+        kwargs.setdefault("note_read_ids", {})
+        super().__init__(**kwargs)
+
+
 class _NoteService:
     def __init__(self, notes=None):
         self.notes = list(notes or [])
@@ -220,7 +228,7 @@ class TestNoteCommands(unittest.TestCase):
     def test_lists_and_reads_visible_notes(self):
         note = InGameNote(id="n1", type=0, sender="Ann", to_list="all", subject="Hello", text="Body", date_stamp=10)
         handler, _service = self._handler([note])
-        character = SimpleNamespace(name="Bob", context={}, immortal=False)
+        character = _Character(name="Bob", context={}, immortal=False)
 
         payload = asyncio.run(handler.execute(character, self._context("note", "list")))
         self.assertIn("[  1] Ann: Hello", payload["to_char"])
@@ -232,15 +240,15 @@ class TestNoteCommands(unittest.TestCase):
     def test_note_list_and_read_accept_exact_clan_recipients(self):
         note = InGameNote(id="n1", type=0, sender="Ann", to_list="rom", subject="Clan news", text="Body", date_stamp=10)
         handler, _service = self._handler([note])
-        member = SimpleNamespace(name="Bob", guild="ROM", context={}, immortal=False)
-        outsider = SimpleNamespace(name="Cal", guild="roma", context={}, immortal=False)
+        member = _Character(name="Bob", guild="ROM", context={}, immortal=False)
+        outsider = _Character(name="Cal", guild="roma", context={}, immortal=False)
         self.assertIn("Clan news", asyncio.run(handler.execute(member, self._context("note", "list")))["to_char"])
         self.assertIn("Body", asyncio.run(handler.execute(member, self._context("note", "read")))["to_char"])
         self.assertNotIn("Clan news", asyncio.run(handler.execute(outsider, self._context("note", "list")))["to_char"])
 
     def test_draft_flow_posts_note_through_service(self):
         handler, service = self._handler()
-        character = SimpleNamespace(name="Bob", context={}, immortal=False)
+        character = _Character(name="Bob", context={}, immortal=False)
 
         for text in ("write", "to all", "subject Greetings", "+ First line", "+ Second line"):
             payload = asyncio.run(handler.execute(character, self._context("note", text)))
@@ -263,7 +271,7 @@ class TestNoteCommands(unittest.TestCase):
                     handler, service = self._handler()
                     draft = {"type": handler.note_types[board], "to_list": "all",
                              "subject": "Original", "lines": ["Original body"]}
-                    character = SimpleNamespace(name="Bob", trust=threshold - 1, immortal=True,
+                    character = _Character(name="Bob", trust=threshold - 1, immortal=True,
                                                 context={"note_draft": deepcopy(draft)})
                     payload = asyncio.run(handler.execute(character, self._context(board, action)))
                     self.assertTrue(payload.get("blocked"))
@@ -276,7 +284,7 @@ class TestNoteCommands(unittest.TestCase):
         for board, threshold in (("news", 53), ("changes", 59)):
             with self.subTest(board=board):
                 handler, service = self._handler()
-                character = SimpleNamespace(name="Admin", trust=threshold, context={})
+                character = _Character(name="Admin", trust=threshold, context={})
                 for action in ("to all", "subject Bulletin", "+ Body", "post"):
                     payload = asyncio.run(handler.execute(character, self._context(board, action)))
                     self.assertIn("Ok.", payload["to_char"])
@@ -290,7 +298,7 @@ class TestNoteCommands(unittest.TestCase):
                 note_type = handler.note_types[board]
                 service.notes.append(InGameNote(id="n1", type=note_type, sender="Admin",
                                                 to_list="all", subject="Bulletin", date_stamp=10))
-                character = SimpleNamespace(name="Bob", trust=1, immortal=False, context={})
+                character = _Character(name="Bob", trust=1, immortal=False, context={})
                 for action in ("list", "read next", "read all", "catchup"):
                     payload = asyncio.run(handler.execute(character, self._context(board, action)))
                     self.assertFalse(payload.get("blocked"))
@@ -304,7 +312,7 @@ class TestNoteCommands(unittest.TestCase):
                                      ("text Body", "lines", ["Body"]), ("-", "lines", [])):
             with self.subTest(action=action):
                 handler, _ = self._handler()
-                character = SimpleNamespace(name="Bob", context={})
+                character = _Character(name="Bob", context={})
                 asyncio.run(handler.execute(character, self._context("note", action)))
                 draft = deepcopy(character.context["note_draft"])
                 self.assertEqual(value, draft[field])
@@ -321,7 +329,7 @@ class TestNoteCommands(unittest.TestCase):
                  InGameNote(id="second", type=0, sender="Ann", to_list="Bob",
                             subject="Second", date_stamp=20)]
         handler, _ = self._handler(notes)
-        character = SimpleNamespace(name="Bob", context={}, immortal=False)
+        character = _Character(name="Bob", context={}, immortal=False)
         for selector, subject, stamp in (("next", "First", 10), ("ne", "Second", 20),
                                          ("all", "First", 20)):
             payload = asyncio.run(handler.execute(character, self._context("note", "read " + selector)))
@@ -336,8 +344,8 @@ class TestNoteCommands(unittest.TestCase):
     def test_remove_preserves_other_recipients_and_delete_requires_creator(self):
         note = InGameNote(id="n1", type=2, sender="Ann", to_list="Bob Admin", subject="Hello", text="Body", date_stamp=10)
         handler, service = self._handler([note])
-        mortal = SimpleNamespace(name="Bob", context={}, immortal=False)
-        immortal = SimpleNamespace(name="Admin", context={}, immortal=True, trust=55)
+        mortal = _Character(name="Bob", context={}, immortal=False)
+        immortal = _Character(name="Admin", context={}, immortal=True, trust=55)
 
         payload = asyncio.run(handler.execute(mortal, self._context("penalty", "remove 1")))
         self.assertIn("Ok.", payload["to_char"])
@@ -356,14 +364,14 @@ class TestNoteCommands(unittest.TestCase):
     def test_author_and_last_recipient_can_remove_but_failed_update_is_non_destructive(self):
         for sender, recipients, reader in (('Ann', 'Bob Cara', 'Ann'), ('Ann', 'Bob', 'Bob')):
             handler, service = self._handler([InGameNote(id='n1', type=2, sender=sender, to_list=recipients)])
-            payload = asyncio.run(handler.execute(SimpleNamespace(name=reader, context={}, immortal=False),
+            payload = asyncio.run(handler.execute(_Character(name=reader, context={}, immortal=False),
                                                  self._context('penalty', 'remove 1')))
             self.assertIn('Ok.', payload['to_char'])
             self.assertEqual(service.deleted, ['n1'])
         note = InGameNote(id='n1', type=2, sender='Ann', to_list='Bob Cara')
         handler, service = self._handler([note])
         service.update_note = lambda document: None
-        payload = asyncio.run(handler.execute(SimpleNamespace(name='Bob', context={}, immortal=False),
+        payload = asyncio.run(handler.execute(_Character(name='Bob', context={}, immortal=False),
                                              self._context('penalty', 'remove 1')))
         self.assertIn("can't", payload['to_char'])
         self.assertEqual(note.to_list, 'Bob Cara')

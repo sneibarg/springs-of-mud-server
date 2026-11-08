@@ -195,6 +195,7 @@ class NestedSocialTests(RuntimeFixture, unittest.IsolatedAsyncioTestCase):
     async def test_at_force_and_order_resolve_only_social_verb_preserving_target_text(self):
         social = object()
         handler = PlayerHandler.__new__(PlayerHandler)
+        handler.command_audit = None
         handler.interp_registry = NS(get_or_none=lambda **kw: None, all_commands=lambda: [])
         handler.social_registry = NS(get_or_none=Mock(side_effect=lambda **kw: social if kw['name'] == 'smile' else None))
         handler.room_registry = self.rooms
@@ -271,6 +272,7 @@ class RetirementTests(RuntimeFixture, unittest.IsolatedAsyncioTestCase):
 
     def quit_handler(self, save):
         handler = PlayerHandler.__new__(PlayerHandler)
+        handler.command_audit = None
         handler.info_commands = NS(do_quit=lambda ctx: {'to_char': 'Bye', 'to_room': 'Left'})
         handler.room_registry = self.rooms
         handler.character_registry = NS(remove_playing=Mock(), set_playing=Mock())

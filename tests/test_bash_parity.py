@@ -13,7 +13,9 @@ class TestBashParity(unittest.TestCase):
     def setUp(self):
         self.commands = Module.Fight.__new__(Module.Fight)
         self.actor = self.entity()
+        self.actor.id = "actor"
         self.victim = self.entity()
+        self.victim.id = "victim"
         self.skill = SimpleNamespace(name="bash", beats=13)
         self.room = SimpleNamespace(contents={}, characters={})
         self.context = SimpleNamespace(finish=Mock())
@@ -36,7 +38,7 @@ class TestBashParity(unittest.TestCase):
 
     @staticmethod
     def entity():
-        return SimpleNamespace(is_npc=False, level=20, size=2, carry_weight=lambda: 0,
+        return SimpleNamespace(equipped=None, is_npc=False, level=20, size=2, carry_weight=lambda: 0,
             armor_class=SimpleNamespace(bashing=0), status_flags=SimpleNamespace(pulse_wait=0, pulse_daze=0),
             character_attributes=SimpleNamespace(strength=18, dexterity=15, position="POS_FIGHTING"))
 

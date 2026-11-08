@@ -247,6 +247,7 @@ buyer = SimpleNamespace(id="buyer1", name="Buyer", gold=5, silver=0, pet=None)
 shop_room = room(3031)
 shop_room.area_id = "midgaard"
 pet = SimpleNamespace(
+    short_description="a pet",
     id="pet1",
     name="kitten",
     description="A kitten.\r\n",

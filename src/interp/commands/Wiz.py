@@ -21,7 +21,7 @@ from game.WizHandler import WizHandler
 from interp.Context import Context
 from interp.CommandDefaults import render_command_message
 from item.ExtraDescriptionData import ExtraDescriptionData
-from notes.InGameNote import InGameNoteEnum
+from notes.InGameNote import InGameNote, InGameNoteEnum
 from player.Character import Character
 from player.CharacterService import CharacterService
 from player.PlayerService import PlayerService
@@ -149,11 +149,11 @@ class Wiz:
         from interp.CommandAccess import CommandAccess
         names = []
         for cmd in self.interp_registry.all_commands():
-            required = CommandAccess._required_level(getattr(cmd, 'level', None), CharacterApi.get_enum('gameParameters'))
-            if ((getattr(cmd, "role", "") or "").strip().lower() == "immortal"
-                    and getattr(cmd, 'enabled', False) and getattr(cmd, 'show', True)
+            required = CommandAccess._required_level(cmd.level, CharacterApi.get_enum('gameParameters'))
+            if ((cmd.role or "").strip().lower() == "immortal"
+                    and cmd.enabled and cmd.show
                     and required is not None and required <= CharacterApi.get_trust(context.character)):
-                names.append(str(getattr(cmd, "name", "") or ""))
+                names.append(str(cmd.name or ""))
         context.finish()
         return {"to_char": "Wizard commands:\r\n" + " ".join(sorted(name for name in names if name)) + "\r\n"}
 
@@ -377,7 +377,7 @@ class Wiz:
             wiznet_flag="WIZ_SWITCHES",
             wiznet_skip_flag="WIZ_SECURE",
             wiznet_min_level=CharacterApi.get_trust(character),
-            tokens={"c": getattr(original, "name", ""), "t": WizUtil.display_name(body)},
+            tokens={"c": original.name, "t": WizUtil.display_name(body)},
         )
 
     def do_nochannels(self, character: Character, context: Context):
@@ -467,7 +467,7 @@ class Wiz:
                     InterpApi.command_payload(
                         "default",
                         channel="to_wiznet",
-                        tokens={"t": f"room {getattr(room, 'vnum', '')}"},
+                        tokens={"t": f"room {room.vnum}"},
                         wiznet_flag="WIZ_RESTORE",
                         wiznet_skip_flag="WIZ_SECURE",
                         wiznet_min_level=CharacterApi.get_trust(character),
@@ -522,11 +522,11 @@ class Wiz:
             for victim in list(room.mobiles.values()):
                 if victim == character:
                     continue
-                if nopurge_act and CharacterApi.is_set(getattr(victim.status_flags, "act", 0), nopurge_act):
+                if nopurge_act and CharacterApi.is_set(victim.status_flags.act, nopurge_act):
                     continue
                 self.entity_extractor.extract(victim)
             for obj in list(room.contents.values()):
-                if nopurge_item and GameApi.is_set(getattr(obj, "extra_flags", 0), nopurge_item):
+                if nopurge_item and GameApi.is_set(obj.extra_flags, nopurge_item):
                     continue
                 room.remove_item_from_room(obj)
             context.finish()
@@ -670,7 +670,7 @@ class Wiz:
         target_messages = []
         if room is not None:
             for viewer in room.player_targets(character):
-                target_messages.append({"id": viewer.id, "text": WizUtil.personalize_smote(text, getattr(viewer, "name", "")) + "\r\n"})
+                target_messages.append({"id": viewer.id, "text": WizUtil.personalize_smote(text, viewer.name) + "\r\n"})
         context.finish()
         return {"to_char": f"{text}\r\n", "target_messages": target_messages}
 
@@ -696,7 +696,7 @@ class Wiz:
             victim = session.character
             if victim is None or victim.id == character.id or not CharacterApi.is_immortal(victim):
                 continue
-            if CharacterApi.is_set(getattr(victim.status_flags, "comm", 0), nowiz_bit):
+            if CharacterApi.is_set(victim.status_flags.comm, nowiz_bit):
                 continue
             room = self.room_registry.get_or_none(id=victim.room_id)
             name = (WizUtil.display_name(character) if CharacterApi.can_see(victim, character, room)
@@ -781,14 +781,14 @@ class Wiz:
             context.finish()
             return InterpApi.command_payload("target_self")
 
-        if not CharacterApi.is_npc(victim) and GenericUtil.to_int(getattr(victim, "level", 0), 0) >= CharacterApi.get_trust(character):
+        if not CharacterApi.is_npc(victim) and GenericUtil.to_int(victim.level, 0) >= CharacterApi.get_trust(character):
             context.finish()
             return InterpApi.command_payload("failed")
 
         targets = []
         if room is not None:
-            victim_id = str(getattr(victim, "id", "") or "")
-            targets = [viewer for viewer in room.player_targets(character) if str(getattr(viewer, "id", "") or "") != victim_id]
+            victim_id = str(victim.id or "")
+            targets = [viewer for viewer in room.player_targets(character) if str(viewer.id or "") != victim_id]
 
         notices = self.fight_handler.raw_kill(victim) or []
         context.finish()
@@ -831,12 +831,12 @@ class Wiz:
                 if not CharacterApi.is_npc(victim):
                     context.finish()
                     return InterpApi.command_payload("pc_invalid")
-                special = next((entry for entry in self.special_registry.all_specials() if str(getattr(entry, "name", "") or "").strip().lower() == rest.strip().lower()), None)
+                special = next((entry for entry in self.special_registry.all_specials() if str(entry.name or "").strip().lower() == rest.strip().lower()), None)
                 if special is None:
                     context.finish()
                     return InterpApi.command_payload("no_such_spec_fun")
                 victim.special_name = special.name
-                victim.special_function = list(getattr(special, "special_function", []) or [])
+                victim.special_function = list(special.special_function or [])
             else:
                 context.finish()
                 return InterpApi.command_payload("syntax")
@@ -887,7 +887,7 @@ class Wiz:
             wiznet_flag="WIZ_SWITCHES",
             wiznet_skip_flag="WIZ_SECURE",
             wiznet_min_level=CharacterApi.get_trust(character),
-            tokens={"c": getattr(character, "name", ""), "t": WizUtil.display_name(target)},
+            tokens={"c": character.name, "t": WizUtil.display_name(target)},
         )
 
     def do_clone(self, character: Character, context: Context):
@@ -1118,7 +1118,7 @@ class Wiz:
 
         victim = WizApi.protect_target(self.interp_api.build_interp_view(context))
         bit = CharacterApi.enum_bit(self.CommFlagsEnum, "COMM_SNOOP_PROOF")
-        enabled = CharacterApi.is_set(getattr(victim.status_flags, "comm", 0), bit)
+        enabled = CharacterApi.is_set(victim.status_flags.comm, bit)
         if enabled:
             CharacterApi.unset_comm_flags(victim, bit)
         else:
@@ -1230,7 +1230,7 @@ class Wiz:
         return InterpApi.command_payload("invalid_number")
 
     def _shutdown_payload(self, character: Character, context: Context, command_name: str) -> dict:
-        message = self._command_text(context, "default", channel="to_world", c=getattr(character, "name", ""))
+        message = self._command_text(context, "default", channel="to_world", c=character.name)
         context.finish()
         return {
             "broadcast_message": message,
@@ -1238,24 +1238,24 @@ class Wiz:
             "shutdown_kind": command_name,
         }
 
-    def _notes_by_type(self, note_type: int) -> list:
+    def _notes_by_type(self, note_type: int) -> list[InGameNote]:
         notes = self.note_registry.get_notes_by_type(note_type)
-        return sorted(notes, key=lambda note: GenericUtil.to_int(getattr(note, "date_stamp", 0), 0))
+        return sorted(notes, key=lambda note: GenericUtil.to_int(note.date_stamp, 0))
 
     @staticmethod
-    def _format_note(note, index: int) -> str:
+    def _format_note(note: InGameNote, index: int) -> str:
         return (
-            f"[{index + 1:3d}] {getattr(note, 'sender', '')}: {getattr(note, 'subject', '')}\r\n"
-            f"To: {getattr(note, 'to_list', '')}\r\n"
-            f"Date: {getattr(note, 'date', '')}\r\n\r\n"
-            f"{getattr(note, 'text', '')}\r\n"
+            f"[{index + 1:3d}] {note.sender}: {note.subject}\r\n"
+            f"To: {note.to_list}\r\n"
+            f"Date: {note.date}\r\n\r\n"
+            f"{note.text}\r\n"
         )
 
     @staticmethod
-    def _format_note_list(notes: list) -> str:
+    def _format_note_list(notes: list[InGameNote]) -> str:
         lines = []
         for index, note in enumerate(notes, start=1):
-            lines.append(f"[{index:3d}] {getattr(note, 'sender', '')}: {getattr(note, 'subject', '')}")
+            lines.append(f"[{index:3d}] {note.sender}: {note.subject}")
         return "\r\n".join(lines) + "\r\n"
 
     def _command_text(self, context: Context, message_key: str, *, channel: str = "to_char", fallback: str = "", **tokens) -> str:
@@ -1266,7 +1266,7 @@ class Wiz:
     def _actor_target_tokens(*, character, payload, **_kwargs) -> dict:
         victim = payload.get("victim")
         return {
-            "c": getattr(character, "name", ""),
+            "c": character.name,
             "t": WizUtil.display_name(victim),
         }
 
@@ -1280,7 +1280,7 @@ class Wiz:
             return []
         return [
             viewer for viewer in room.player_targets(character)
-            if CharacterApi.get_trust(viewer) >= GenericUtil.to_int(getattr(character.status_flags, "invis_level", 0), 0)
+            if CharacterApi.get_trust(viewer) >= GenericUtil.to_int(character.status_flags.invis_level, 0)
         ]
 
     def _unregister_live_character(self, character) -> None:
@@ -1317,10 +1317,10 @@ class Wiz:
     @staticmethod
     def _stat_character_text(target) -> str:
         return (
-            f"{WizUtil.display_name(target)} lvl {getattr(target, 'level', 0)} "
-            f"hp {getattr(target, 'hit', 0)}/{getattr(target, 'max_hit', 0)} "
-            f"mana {getattr(target, 'mana', 0)}/{getattr(target, 'max_mana', 0)} "
-            f"mv {getattr(target, 'movement', 0)}/{getattr(target, 'max_movement', 0)}\r\n"
+            f"{WizUtil.display_name(target)} lvl {target.level} "
+            f"hp {target.hit}/{target.max_hit} "
+            f"mana {target.mana}/{target.max_mana} "
+            f"mv {target.movement}/{target.max_movement}\r\n"
         )
 
     @staticmethod

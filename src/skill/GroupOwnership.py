@@ -3,7 +3,7 @@ class GroupOwnership:
 
     @staticmethod
     def names(character) -> list[str]:
-        return list(getattr(character, "groups", []) or [])
+        return list(character.groups or []) if character is not None else []
 
     @staticmethod
     def knows(character, name: str) -> bool:

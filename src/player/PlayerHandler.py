@@ -213,14 +213,14 @@ class PlayerHandler:
                 continue
 
             if any(LookupUtil.keyword_matches(wanted, entry.keyword or '')
-                   for entry in ExtraDescriptionData.entries(getattr(item, 'extra_description', None))):
+                   for entry in ExtraDescriptionData.entries(item.extra_description)):
                 return True
 
-            if LookupUtil.keyword_matches(wanted, getattr(item, "name", "") or ""):
+            if LookupUtil.keyword_matches(wanted, item.name or ""):
                 return True
 
         return any(LookupUtil.keyword_matches(wanted, entry.keyword or "")
-                   for entry in ExtraDescriptionData.entries(getattr(room, "extra_description", None)))
+                   for entry in ExtraDescriptionData.entries(room.extra_description))
 
     async def do_scroll(self, character: Character, context: Context):
         text = self.info_commands.do_scroll(character, context)
@@ -565,7 +565,7 @@ class PlayerHandler:
         if isinstance(payload, dict) and payload.get("forced_commands"):
             await self._handle_force_payload(character, context, payload)
             return
-        viewer = getattr(payload, "get", lambda *_args, **_kwargs: getattr(context, "character", character))("view_character", getattr(context, "character", character))
+        viewer = getattr(payload, "get", lambda *_args, **_kwargs: context.character)("view_character", context.character)
         await self._handle_standard_command_payload(viewer, context, payload)
 
     async def _handle_purge_payload(self, actor, context, payload):
@@ -620,7 +620,7 @@ class PlayerHandler:
             if denial is not None:
                 await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(denial.render(None)))
                 return
-            if getattr(self, 'command_audit', None) is not None:
+            if self.command_audit is not None:
                 await self.command_audit.record(character, None, raw_command)
             social = self.social_registry.get_or_none(name=InterpUtil.one_argument(raw_command)[0])
             if social is not None and context.social_handler() is not None:
@@ -633,7 +633,7 @@ class PlayerHandler:
             character=character,
             registry_service=context.registry_service,
             handler_service=context.handler_service,
-            conn=self.message_bus.connection_manager.get_connection_by_character(str(getattr(character, "id", "") or "")) or context.conn,
+            conn=self.message_bus.connection_manager.get_connection_by_character(str(character.id or "")) or context.conn,
             command=cmd,
             parameters=InterpUtil.build_arguments(cmd, parameters),
             result=parameters,
@@ -653,9 +653,9 @@ class PlayerHandler:
                 context,
                 message_key,
                 channel="to_victim",
-                c=getattr(character, "name", ""),
+                c=character.name,
                 s=command_text,
-                t=getattr(victim, "name", ""),
+                t=victim.name,
             )
             if rendered.get("to_victim"):
                 await self.message_bus.send_to_character(victim.id, self.message_bus.text_to_message(rendered["to_victim"]))
@@ -665,14 +665,14 @@ class PlayerHandler:
 
     async def _execute_nested_lambdas(self, command, context: Context):
         return await CommandExecutor.execute(command, context, authorization=CommandAccess.check,
-                                             message_bus=self.message_bus, audit=getattr(self, 'command_audit', None))
+                                             message_bus=self.message_bus, audit=self.command_audit)
 
     def _character_in_any_room(self, character: Character) -> bool:
-        character_id = str(getattr(character, "id", "") or "")
+        character_id = str(character.id or "")
         if not character_id:
             return False
         for room in self.room_registry.all_rooms():
-            if character_id in getattr(room, "characters", {}) or character_id in getattr(room, "mobiles", {}):
+            if character_id in room.characters or character_id in room.mobiles:
                 return True
         return False
 
@@ -731,7 +731,7 @@ class PlayerHandler:
                 message_key,
                 channel="to_victim",
                 s=command_text,
-                t=getattr(victim, "name", ""),
+                t=victim.name,
             )
             if order_payload.get("to_victim"):
                 await self.message_bus.send_to_character(victim.id, self.message_bus.text_to_message(order_payload["to_victim"]))
@@ -803,7 +803,7 @@ class PlayerHandler:
             room = self.room_registry.get_or_none(id=character.room_id)
         if room is None:
             return
-        area_id = getattr(room, "area_id", getattr(character, "area_id", ""))
+        area_id = room.area_id
         area = self.area_registry.get_or_none(id=area_id) if area_id else None
         if area is None:
             return
@@ -846,7 +846,8 @@ class PlayerHandler:
 
     async def check_position(self, character: Character) -> bool:
         positions = CharacterApi.get_enum('positions')
-        current_position = getattr(getattr(character, "character_attributes", None), "position", None)
+        attributes = character.character_attributes
+        current_position = attributes.position if attributes is not None else None
         if current_position is None:
             return True
 
@@ -978,7 +979,7 @@ class PlayerHandler:
         prompt_targets: dict[str, Character] = {}
         for payload in payloads:
             for target in await self._emit_standard_payload(character, payload, context=context, prompt_victims=False):
-                prompt_targets[str(getattr(target, "id", id(target)))] = target
+                prompt_targets[str(target.id)] = target
         for target in prompt_targets.values():
             await self._send_prompt(target, context, prefer_context_room=False)
 
@@ -986,7 +987,7 @@ class PlayerHandler:
         if not isinstance(payload, dict) or context is None:
             return payload
 
-        command = getattr(context, "command", None)
+        command = context.command
         message_key = str(payload.get("message_key", "") or "").strip()
         if command is None or not message_key:
             return payload
@@ -1003,7 +1004,7 @@ class PlayerHandler:
             if key not in {"message_key", "token_factory", "tokens", "channel", "fallback", "recipient_tokens"}
         }
         fallback = str(payload.get("fallback", "") or "")
-        for channel in self._payload_channels_for_message(getattr(command, "payload", None), message_key, channel=str(payload.get("channel", "") or "")):
+        for channel in self._payload_channels_for_message(command.payload, message_key, channel=str(payload.get("channel", "") or "")):
             message = self.interp_api.render_message_key(context, message_key, channel=channel, fallback=fallback, **tokens)
             recipient_tokens = payload.get("recipient_tokens")
             if recipient_tokens and channel in message:

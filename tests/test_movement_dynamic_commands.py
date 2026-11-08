@@ -320,6 +320,14 @@ class _Exit(SimpleNamespace):
 
 
 class _Room(SimpleNamespace):
+    def __init__(self, **kwargs):
+        kwargs.setdefault("contents", {})
+        kwargs.setdefault("characters", {})
+        kwargs.setdefault("mobiles", {})
+        super().__init__(**kwargs)
+
+    room_flags = 0
+    area_id = None
     def players_in_room(self):
         return list(getattr(self, "characters", {}).values())
 
@@ -423,12 +431,13 @@ class TestMovementDynamicCommands(unittest.TestCase):
         commands, room_registry = self._commands()
         room_registry.get_or_none = lambda **kwargs: None if "id" in kwargs else None
         character = SimpleNamespace(
+            master=None,
             id="char-1",
             name="Tester",
             room_id="room-1",
             movement=10,
             character_attributes=SimpleNamespace(position="POS_STANDING"),
-            status_flags=SimpleNamespace(invis_level=0),
+            status_flags=SimpleNamespace(invis_level=0, pulse_wait=0),
             effects={},
         )
         context = _Context(character=character, command=_load_command("north"), done=False, room=None,
@@ -460,12 +469,13 @@ class TestMovementDynamicCommands(unittest.TestCase):
 
         room_registry.get_or_none = _get_or_none
         character = SimpleNamespace(
+            master=None,
             id="char-1",
             name="Tester",
             room_id="room-1",
             movement=10,
             character_attributes=SimpleNamespace(position="POS_STANDING"),
-            status_flags=SimpleNamespace(invis_level=0),
+            status_flags=SimpleNamespace(invis_level=0, pulse_wait=0),
             effects={},
         )
         context = _Context(
@@ -495,12 +505,14 @@ class TestMovementDynamicCommands(unittest.TestCase):
 
         room_registry.get_or_none = _get_or_none
         character = SimpleNamespace(
+            master=None,
             id="char-1",
             name="Tester",
             room_id="room-1",
+            fighting=None,
             movement=5,
             character_attributes=SimpleNamespace(position="POS_STANDING"),
-            status_flags=SimpleNamespace(invis_level=0),
+            status_flags=SimpleNamespace(invis_level=0, pulse_wait=0),
             effects={},
             has_boat=lambda: False,
         )
@@ -538,12 +550,14 @@ class TestMovementDynamicCommands(unittest.TestCase):
 
         room_registry.get_or_none = _get_or_none
         leader = SimpleNamespace(
+            master=None,
             id="leader",
             name="Leader",
             room_id="room-1",
+            fighting=None,
             movement=5,
             character_attributes=SimpleNamespace(position="POS_STANDING"),
-            status_flags=SimpleNamespace(invis_level=0),
+            status_flags=SimpleNamespace(invis_level=0, pulse_wait=0),
             effects={},
             has_boat=lambda: False,
         )
@@ -551,10 +565,11 @@ class TestMovementDynamicCommands(unittest.TestCase):
             id="follower",
             name="Follower",
             room_id="room-1",
+            fighting=None,
             movement=5,
             master=leader,
             character_attributes=SimpleNamespace(position="POS_STANDING"),
-            status_flags=SimpleNamespace(invis_level=0),
+            status_flags=SimpleNamespace(invis_level=0, pulse_wait=0),
             effects={},
             has_boat=lambda: False,
         )
@@ -586,12 +601,14 @@ class TestMovementDynamicCommands(unittest.TestCase):
         room = _Room(id="room-1", exits={}, sector_type="field")
         room_registry.get_or_none = lambda **kwargs: room if kwargs.get("id") == "room-1" else None
         character = SimpleNamespace(
+            master=None,
             id="char-1",
             name="Tester",
             room_id="room-1",
+            fighting=None,
             movement=5,
             character_attributes=SimpleNamespace(position="POS_STANDING"),
-            status_flags=SimpleNamespace(invis_level=0),
+            status_flags=SimpleNamespace(invis_level=0, pulse_wait=0),
             effects={},
         )
         context = _Context(
@@ -623,12 +640,14 @@ class TestMovementDynamicCommands(unittest.TestCase):
 
         room_registry.get_or_none = _get_or_none
         character = SimpleNamespace(
+            master=None,
             id="char-1",
             name="Tester",
             room_id="room-1",
+            fighting=None,
             movement=5,
             character_attributes=SimpleNamespace(position="POS_STANDING"),
-            status_flags=SimpleNamespace(invis_level=0),
+            status_flags=SimpleNamespace(invis_level=0, pulse_wait=0),
             effects={},
         )
         context = _Context(
@@ -662,13 +681,15 @@ class TestMovementDynamicCommands(unittest.TestCase):
         )
         chest.short = lambda: "a wooden chest"
         character = SimpleNamespace(
+            master=None,
             id="char-1",
             name="Tester",
             room_id="room-1",
+            fighting=None,
             movement=5,
             loot=[chest],
             character_attributes=SimpleNamespace(position="POS_STANDING"),
-            status_flags=SimpleNamespace(invis_level=0),
+            status_flags=SimpleNamespace(invis_level=0, pulse_wait=0),
             effects={},
             find_inventory_item=lambda wanted: chest if wanted == "chest" else None,
         )
@@ -703,13 +724,15 @@ class TestMovementDynamicCommands(unittest.TestCase):
         )
         chest.short = lambda: "an iron chest"
         character = SimpleNamespace(
+            master=None,
             id="char-1",
             name="Tester",
             room_id="room-1",
+            fighting=None,
             movement=5,
             loot=[chest, SimpleNamespace(vnum="123")],
             character_attributes=SimpleNamespace(position="POS_STANDING"),
-            status_flags=SimpleNamespace(invis_level=0),
+            status_flags=SimpleNamespace(invis_level=0, pulse_wait=0),
             effects={},
             find_inventory_item=lambda wanted: chest if wanted == "chest" else None,
             has_key=lambda key: key == 123,
@@ -763,12 +786,14 @@ class TestMovementDynamicCommands(unittest.TestCase):
 
         room_registry.get_or_none = _get_or_none
         character = SimpleNamespace(
+            master=None,
             id="char-1",
             name="Tester",
             room_id="room-1",
+            fighting=None,
             movement=5,
             character_attributes=SimpleNamespace(position="POS_STANDING"),
-            status_flags=SimpleNamespace(invis_level=0),
+            status_flags=SimpleNamespace(invis_level=0, pulse_wait=0),
             effects={},
             is_npc=False,
             has_boat=lambda: False,
@@ -853,7 +878,7 @@ class TestMovementDynamicCommands(unittest.TestCase):
         group = SimpleNamespace(name="weapons", skills=["sword"], spells=[], rating=[2]*4)
         commands, _ = self._commands(
             group_registry=SimpleNamespace(all_groups=lambda: [group]),
-            skill_registry=SimpleNamespace(all_skills=lambda: [SimpleNamespace(name="sword")]))
+            skill_registry=SimpleNamespace(all_skills=lambda: [SimpleNamespace(name="sword", kind="skill")]))
         character = SimpleNamespace(skills=[{"name": "sword", "level": 90}], spells=[],
                                     groups=[], is_npc=False, character_class=SimpleNamespace(name="warrior"),
                                     character_attributes=SimpleNamespace(trains=2))
@@ -923,7 +948,7 @@ class TestMovementDynamicCommands(unittest.TestCase):
         commands, _ = self._commands()
         trainer = SimpleNamespace(status_flags=SimpleNamespace(act=1))
         room = _Room(id="room-1", exits={}, sector_type="field", mobiles={"trainer": trainer})
-        character = SimpleNamespace(is_npc=False)
+        character = SimpleNamespace(is_npc=False, character_attributes=None)
         context = _Context(character=character, result="li extra", parameters=[], room=room)
         self.assertIn("group", commands.do_gain(character, context)["to_char"])
 
@@ -931,7 +956,7 @@ class TestMovementDynamicCommands(unittest.TestCase):
         commands, _ = self._commands()
         trainer = SimpleNamespace(status_flags=SimpleNamespace(act=0), mobile_flags=SimpleNamespace(act=1))
         room = _Room(id="room-1", exits={}, sector_type="field", mobiles={"trainer": trainer})
-        character = SimpleNamespace(is_npc=False)
+        character = SimpleNamespace(is_npc=False, character_attributes=None)
         context = _Context(character=character, result="con", parameters=[], room=room)
         self.assertEqual("can_t_do", commands.do_gain(character, context)["message_key"])
 
@@ -957,6 +982,7 @@ class TestMovementDynamicCommands(unittest.TestCase):
         room_registry.get_or_none = lambda **kwargs: room if kwargs.get("id") == "room-1" else None
         attrs = SimpleNamespace(position="POS_STANDING", practices=10, trains=0, points=40)
         character = SimpleNamespace(
+            master=None,
             id="char-1",
             name="Tester",
             room_id="room-1",
@@ -987,6 +1013,7 @@ class TestMovementDynamicCommands(unittest.TestCase):
         room_registry.get_or_none = lambda **kwargs: room if kwargs.get("id") == "room-1" else None
         attrs = SimpleNamespace(position="POS_STANDING", practices=0, trains=2, points=40)
         character = SimpleNamespace(
+            master=None,
             id="char-1",
             name="Tester",
             room_id="room-1",
