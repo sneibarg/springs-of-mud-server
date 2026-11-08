@@ -277,12 +277,12 @@ class TestWizDynamicCommandMetadata(unittest.TestCase):
         )
         self.assertEqual(
             [
-                "lambda v: CommunicationsApi.split_missing_amount(v)",
-                "lambda v: CommunicationsApi.split_negative(v)",
-                "lambda v: CommunicationsApi.split_zero(v)",
-                "lambda v: CommunicationsApi.split_insufficient_funds(v)",
-                "lambda v: CommunicationsApi.split_too_few_members(v)",
-                "lambda v: CommunicationsApi.split_share_zero(v)",
+                "lambda v: MoneyApi.split_missing_amount(v)",
+                "lambda v: MoneyApi.split_negative(v)",
+                "lambda v: MoneyApi.split_zero(v)",
+                "lambda v: MoneyApi.split_insufficient_funds(v)",
+                "lambda v: MoneyApi.split_too_few_members(v)",
+                "lambda v: MoneyApi.split_share_zero(v)",
             ],
             [entry.get("predicate", "") for entry in commands["split"]["guards"]],
         )

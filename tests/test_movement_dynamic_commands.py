@@ -276,7 +276,7 @@ _stub_module("api.CommunicationsApi", CommunicationsApi=SimpleNamespace())
 _stub_module("api.ItemApi", ItemApi=SimpleNamespace(can_see_object=lambda *_args: True))
 _stub_module("api.WizApi", WizApi=SimpleNamespace())
 _stub_package("interp")
-_stub_module("interp.Context", Context=_Context)
+_load_module("interp.Context", "interp/Context.py")
 _stub_package("item")
 _stub_module(
     "item.Item",

@@ -9,6 +9,7 @@ from game.action import ActionGuard, ActionDefinition, ActionPlan, MessageRef
 from interp.InterpView import InterpView
 from api.AliasApi import AliasApi
 from api.CommunicationsApi import CommunicationsApi
+from api.MoneyApi import MoneyApi
 from api.MovementApi import MovementApi
 from api.ItemApi import ItemApi
 from api.WizApi import WizApi
@@ -242,6 +243,7 @@ class InterpApi:
             "FightUtil": FightUtil,
             "MovementApi": MovementApi,
             "CommunicationsApi": CommunicationsApi,
+            "MoneyApi": MoneyApi,
             "ItemApi": ItemApi,
             "Item": Item,
             "AreaApi": AreaApi,

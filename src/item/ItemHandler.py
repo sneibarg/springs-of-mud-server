@@ -4,7 +4,6 @@ from area.Room import Room
 from api.ItemApi import ItemApi
 from injector import inject
 
-from api.CharacterApi import CharacterApi
 from game.RegistryService import RegistryService
 from interp.Context import Context
 from item.Item import Item

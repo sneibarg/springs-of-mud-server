@@ -39,9 +39,6 @@ class _Context(SimpleNamespace):
         return handler_service.get_handler("ph")
 
 
-sys.modules["interp.Context"] = SimpleNamespace(Context=_Context)
-
-
 class _CharacterMacros:
     @staticmethod
     def get_enum(_name: str):

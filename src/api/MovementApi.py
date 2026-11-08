@@ -8,6 +8,7 @@ from typing import Any, TYPE_CHECKING
 from api.CharacterApi import CharacterApi
 from api.GameApi import GameApi
 from item.Item import Item
+from interp.Context import Context
 from util.GenericUtil import GenericUtil
 from util.MovementUtil import MovementUtil
 
@@ -100,7 +101,7 @@ class MovementApi(GameApi):
         character = MovementApi._character(subject)
         room = MovementApi._room(subject)
         argument, _ = InterpUtil.one_argument(MovementApi.argument_text(subject))
-        item = getattr(MovementApi._context(subject), "target_item", None)
+        item = getattr(Context.from_subject(subject), "target_item", None)
         if item is None and argument:
             item = LookupUtil.here(character, room, argument,
                                    visible=lambda obj: LookupUtil.object_visible(character, room, obj))
@@ -165,7 +166,7 @@ class MovementApi(GameApi):
         if in_room is not None and door >= 0:
             exit_obj = in_room.get_exit(door)
 
-        to_room = MovementApi._destination_room(exit_obj, MovementApi._context(subject).registry_service.room_registry)
+        to_room = MovementApi._destination_room(exit_obj, Context.from_subject(subject).registry_service.room_registry)
         exit_flags = CharacterApi.get_enum("exitFlags")
         room_flags = CharacterApi.get_enum("roomFlags")
         affected_bits = CharacterApi.get_enum("affectedBy")
@@ -559,7 +560,7 @@ class MovementApi(GameApi):
 
     @staticmethod
     def argument_text(subject) -> str:
-        context = MovementApi._context(subject)
+        context = Context.from_subject(subject)
         text = getattr(context, "result", "")
         argument = text.strip().lower() if isinstance(text, str) else ""
         parameters = list(getattr(context, "parameters", []) or [])
@@ -569,7 +570,7 @@ class MovementApi(GameApi):
 
     @staticmethod
     def target_item(subject):
-        context = MovementApi._context(subject)
+        context = Context.from_subject(subject)
         item = getattr(context, "target_item", None)
         if item is not None:
             return item
@@ -589,26 +590,22 @@ class MovementApi(GameApi):
 
     @staticmethod
     def _character(subject):
-        context = MovementApi._context(subject)
+        context = Context.from_subject(subject)
         if context is None:
             return getattr(subject, "character", None)
         return getattr(context, "character", None)
 
     @staticmethod
-    def _context(subject):
-        return getattr(subject, "context", subject)
-
-    @staticmethod
     def _direction(subject, direction: str = "") -> str:
         if direction:
             return str(direction).strip().lower()
-        context = MovementApi._context(subject)
+        context = Context.from_subject(subject)
         command = getattr(context, "command", None)
         return str(getattr(command, "name", "") or "").strip().lower()
 
     @staticmethod
     def _room(subject) -> Room | None:
-        context = MovementApi._context(subject)
+        context = Context.from_subject(subject)
         room = context.room
         if room is not None:
             return room

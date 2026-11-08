@@ -29,7 +29,6 @@ from player.CharacterService import CharacterService
 from api.CharacterApi import CharacterApi
 from util.GenericUtil import GenericUtil
 from util.InterpUtil import InterpUtil
-from util.CommunicationsUtil import CommunicationsUtil
 from util.PlayerUtil import PlayerUtil
 from skill.Ability import Ability
 from server.messaging import MessageBus

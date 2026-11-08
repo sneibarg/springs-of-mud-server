@@ -97,28 +97,14 @@ class FightApi:
     def evaluate_fight_action(view: FightView, definition: ActionDefinition[FightView]) -> ActionPlan:
         for guard in definition.guards:
             if guard.predicate(view):
-                return ActionPlan(
-                    stop=True,
-                    messages=(
-                        MessageRef(
-                            channel="to_char",
-                            key=guard.message_key,
-                            fallback=view.safe_message or guard.fallback,
-                            tokens=guard.token_factory(view),
-                        ),
-                    ),
-                )
+                message_ref = MessageRef(channel="to_char", key=guard.message_key, fallback=view.safe_message or guard.fallback, tokens=guard.token_factory(view))
+                return ActionPlan(stop=True, messages=(message_ref,))
         return definition.plan_factory(view)
 
     def execute_fight_plan(self, context, fight_commands, view: FightView, plan: ActionPlan):
         if not plan.operation:
             room = view.room
-            return self.render_plan_payload(
-                view.context.command.payload,
-                plan,
-                victim=view.victim,
-                targets=room.player_targets(context.character) if room is not None else [],
-            )
+            return self.render_plan_payload(view.context.command.payload, plan, victim=view.victim, targets=room.player_targets(context.character) if room is not None else [])
 
         if plan.operation == "multi_hit":
             victim = view.victim

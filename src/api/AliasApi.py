@@ -2,6 +2,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Any, TYPE_CHECKING
+from api.CharacterApi import CharacterApi
+from interp.Context import Context
+from util.InterpUtil import InterpUtil
 
 if TYPE_CHECKING:
     from interp.InterpView import InterpView
@@ -22,12 +25,12 @@ class AliasApi:
 
     @classmethod
     def alias_parts(cls, view: "InterpView") -> tuple[str, str]:
-        alias_name, replacement = cls._one_argument(cls._argument_text(view))
+        alias_name, replacement = InterpUtil.one_argument(InterpUtil.argument_text(view))
         return alias_name.strip().lower(), replacement.strip()
 
     @classmethod
     def aliases(cls, character) -> dict[str, str]:
-        context = cls._context(character)
+        context = Context.for_character(character)
         character_aliases = getattr(character, cls.ALIASES_KEY, None)
         raw = context.get(cls.ALIASES_KEY, character_aliases)
         if character_aliases:
@@ -79,7 +82,7 @@ class AliasApi:
     @classmethod
     def invalid_alias_substitution(cls, view: "InterpView") -> bool:
         _alias_name, replacement = cls.alias_parts(view)
-        command, _rest = cls._one_argument(replacement)
+        command, _rest = InterpUtil.one_argument(replacement)
         return bool(command) and (command.startswith("delete") or command.startswith("prefix"))
 
     @classmethod
@@ -105,7 +108,7 @@ class AliasApi:
 
     @classmethod
     def unalias_name(cls, view: "InterpView") -> str:
-        alias_name, _replacement = cls._one_argument(cls._argument_text(view))
+        alias_name, _replacement = InterpUtil.one_argument(InterpUtil.argument_text(view))
         return alias_name.strip().lower()
 
     @classmethod
@@ -127,14 +130,14 @@ class AliasApi:
         seen = set()
         while id(character) not in seen:
             seen.add(id(character))
-            controller = cls._context(character).get('controller_original')
+            controller = Context.for_character(character).get('controller_original')
             if controller is None:
                 break
             character = controller
         else:
             return AliasSubstitution(original)
-        command_name, rest = cls._one_argument(original)
-        prefix = str(cls._context(character).get('prefix', '') or '')
+        command_name, rest = InterpUtil.one_argument(original)
+        prefix = str(Context.for_character(character).get('prefix', '') or '')
         warning = ''
         if prefix and command_name not in ('prefix', 'pref', 'prefi'):
             expanded = f'{prefix} {original}'
@@ -143,9 +146,9 @@ class AliasApi:
             else:
                 original = expanded
         result = AliasSubstitution(original, warning, 'overflow' if warning else '', 'prefix')
-        if cls._is_npc(character):
+        if CharacterApi.is_npc(character):
             return result
-        command_name, rest = cls._one_argument(original)
+        command_name, rest = InterpUtil.one_argument(original)
         if not command_name or command_name in ('alias', 'prefix', 'pref', 'prefi') or command_name.startswith('una'):
             return result
 
@@ -161,43 +164,3 @@ class AliasApi:
             warning + "Alias substitution too long. Truncated.\r\n",
             "" if warning else "substitution_too_long",
         )
-
-    @staticmethod
-    def _context(character) -> dict[str, Any]:
-        current = getattr(character, "context", None)
-        if not isinstance(current, dict):
-            current = {}
-            setattr(character, "context", current)
-        return current
-
-    @staticmethod
-    def _is_npc(character) -> bool:
-        try:
-            from api.CharacterApi import CharacterApi
-
-            return CharacterApi.is_npc(character)
-        except Exception:
-            return str(getattr(character, "role", "") or "").lower() == "mobile"
-
-    @staticmethod
-    def _argument_text(view: "InterpView") -> str:
-        context = view.context
-        result = getattr(context, "result", "")
-        if isinstance(result, str) and result.strip():
-            return result.strip()
-        return " ".join(getattr(context, "parameters", []) or []).strip()
-
-    @staticmethod
-    def _one_argument(argument: str) -> tuple[str, str]:
-        text = str(argument or "").lstrip()
-        if not text:
-            return "", ""
-        if text[0] in ("'", '"'):
-            quote = text[0]
-            text = text[1:]
-            end = text.find(quote)
-            if end < 0:
-                return text.lower(), ""
-            return text[:end].lower(), text[end + 1 :].lstrip()
-        parts = text.split(maxsplit=1)
-        return parts[0].lower(), parts[1] if len(parts) > 1 else ""

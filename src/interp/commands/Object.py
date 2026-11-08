@@ -9,6 +9,7 @@ from injector import inject
 
 from api.GameApi import GameApi
 from api.CommunicationsApi import CommunicationsApi
+from api.MoneyApi import MoneyApi
 from area.Shop import Shop
 from combat.CombatHandler import FightHandler
 from game.EnumProvider import EnumProvider
@@ -556,7 +557,7 @@ class Object:
                    and (sacrifice or not CommunicationsApi.is_charmed(person))]
         if len(members) <= 1:
             return None
-        payload = CommunicationsApi.split_money(split_context, self.interp_api)
+        payload = MoneyApi.split_money(split_context, self.interp_api)
         return {"actor": character, "context": split_context, "payloads": [payload]}
 
     def _get_item_error(self, character: Character, context: Context, item, container=None) -> str:

@@ -30,6 +30,20 @@ class Context:
     room: Optional[Room] = None
     raw_command: str | None = None
 
+    @classmethod
+    def from_subject(cls, subject):
+        """Unwrap a view's context, or return an already unwrapped context."""
+        return getattr(subject, "context", subject)
+
+    @classmethod
+    def for_character(cls, character) -> dict[str, Any]:
+        """Return a character's mutable state, initializing its dictionary if needed."""
+        current = getattr(character, "context", None)
+        if not isinstance(current, dict):
+            current = {}
+            setattr(character, "context", current)
+        return current
+
     def __post_init__(self):
         if self.registry_service is None:
             raise TypeError("Context requires a registry service")

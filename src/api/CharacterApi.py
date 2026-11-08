@@ -20,6 +20,8 @@ class CharacterApi(GameApi):
     _weather_handler = None
     _logger = None
 
+    STAT_NAMES = ('strength', 'intelligence', 'wisdom', 'dexterity', 'constitution')
+
     @classmethod
     def _reset_internal_variables(cls) -> None:
         cls._registry_service = None
@@ -478,8 +480,6 @@ class CharacterApi(GameApi):
         if not cls.is_npc(character) and not holy_light and room.is_room_dark():
             return "dark"
         return ""
-
-    STAT_NAMES = ('strength', 'intelligence', 'wisdom', 'dexterity', 'constitution')
 
     @classmethod
     def race_stat_max(cls, character, stat_index):

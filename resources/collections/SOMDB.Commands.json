@@ -7598,27 +7598,27 @@
     },
     "guards": [
       {
-        "predicate": "lambda v: CommunicationsApi.split_missing_amount(v)",
+        "predicate": "lambda v: MoneyApi.split_missing_amount(v)",
         "messageKey": "splitHowMuch"
       },
       {
-        "predicate": "lambda v: CommunicationsApi.split_negative(v)",
+        "predicate": "lambda v: MoneyApi.split_negative(v)",
         "messageKey": "groupWouldnTLike"
       },
       {
-        "predicate": "lambda v: CommunicationsApi.split_zero(v)",
+        "predicate": "lambda v: MoneyApi.split_zero(v)",
         "messageKey": "handOutZeroCoins"
       },
       {
-        "predicate": "lambda v: CommunicationsApi.split_insufficient_funds(v)",
+        "predicate": "lambda v: MoneyApi.split_insufficient_funds(v)",
         "messageKey": "donTMuchSplit"
       },
       {
-        "predicate": "lambda v: CommunicationsApi.split_too_few_members(v)",
+        "predicate": "lambda v: MoneyApi.split_too_few_members(v)",
         "messageKey": "justKeepItAll"
       },
       {
-        "predicate": "lambda v: CommunicationsApi.split_share_zero(v)",
+        "predicate": "lambda v: MoneyApi.split_share_zero(v)",
         "messageKey": "donTEvenBother"
       }
     ]

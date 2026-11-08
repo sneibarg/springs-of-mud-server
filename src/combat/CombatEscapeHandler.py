@@ -84,8 +84,7 @@ class CombatEscapeHandler:
 
     async def emit(self, action):
         actor = action["actor"]
-        prompted = await self.handler_service.player_handler._emit_standard_payload(
-            actor, action, context=action["context"], prompt_victims=False)
+        prompted = await self.handler_service.player_handler._emit_standard_payload(actor, action, context=action["context"], prompt_victims=False)
         if not CharacterApi.is_npc(actor):
             prompted.append(actor)
         return prompted

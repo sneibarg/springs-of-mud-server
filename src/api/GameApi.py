@@ -377,7 +377,7 @@ class GameApi:
         return GameApi.letters_to_flags(str(raw or "0"))
 
     @staticmethod
-    def enum_bit(enum_obj, *names: str) -> int:
+    def enum_bit(enum_obj, *names: str) -> int | None:
         return EnumProvider.value(enum_obj, *names)
 
     @staticmethod

@@ -70,7 +70,7 @@ class InterpHandler:
         if text:
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
 
-    async def handle_command(self, player, character, command):
+    async def handle_command(self, character, command):
         if not InterpUtil.begin_input(character, command):
             return None
 

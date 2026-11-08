@@ -47,6 +47,20 @@ InterpUtil = _load_interp_util()
 
 
 class TestInterpUtilArgumentText(unittest.TestCase):
+    def test_one_argument_preserves_alias_parsing_behavior(self):
+        for argument, expected in (
+            (None, ("", "")),
+            (" \t", ("", "")),
+            (123, ("123", "")),
+            ("  LOOK\t Sword Case  ", ("look", "Sword Case  ")),
+            ("'Two Words'\t Say Hello", ("two words", "Say Hello")),
+            ('"Two Words" Tail', ("two words", "Tail")),
+            ("'Unclosed Words", ("unclosed words", "")),
+            ("'' Tail", ("", "Tail")),
+        ):
+            with self.subTest(argument=argument):
+                self.assertEqual(expected, InterpUtil.one_argument(argument))
+
     def test_argument_text_tolerates_non_command_context_without_result(self):
         view = SimpleNamespace(context=SimpleNamespace())
 

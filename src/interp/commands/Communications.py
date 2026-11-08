@@ -6,6 +6,7 @@ from injector import inject
 
 from api.AliasApi import AliasApi
 from api.CommunicationsApi import CommunicationsApi
+from api.MoneyApi import MoneyApi
 from game.EnumProvider import EnumProvider
 from game.RegistryService import RegistryService
 from interp.Context import Context
@@ -544,7 +545,7 @@ class Communications:
         return self._group_payload(context, "addition", victim)
 
     def do_split(self, context: Context):
-        return self.communications_api.split_money(context, self.interp_api)
+        return MoneyApi.split_money(context, self.interp_api)
 
     def _group_listing(self, context: Context) -> str:
         view = self.interp_api.build_interp_view(context)

@@ -42,11 +42,8 @@ class InterpUtil:
 
     @staticmethod
     def one_argument(argument: str) -> tuple[str, str]:
-        """Split off the first word from argument, return (first_word, remainder)."""
-        if not argument:
-            return "", ""
-
-        argument = argument.lstrip()
+        """Return the lowercased first word (possibly quoted) and case-preserved remainder."""
+        argument = str(argument or "").lstrip()
 
         if not argument:
             return "", ""

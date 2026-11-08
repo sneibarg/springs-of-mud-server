@@ -367,7 +367,7 @@ class ConnectionHandler:
                     command_idle.clear()
                     session.metadata['command_task'] = asyncio.current_task()
                     try:
-                        await self.command_handler.handle_command(player, character, command_text)
+                        await self.command_handler.handle_command(character, command_text)
                     finally:
                         session.metadata.pop('command_task', None)
                         command_idle.set()
