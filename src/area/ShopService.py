@@ -21,7 +21,7 @@ class ShopService(FetchAndRegisterMixin):
         return self._reload_collection(self.shops_endpoint, "shops", self.shop_registry)
 
     def load_shops(self):
-        self._fetch_and_register(self.shops_endpoint, "shops")
+        self._load_collection(self.shops_endpoint, "shops")
         self.logger.info(f"Loaded {len(self.shop_registry.all_shops())} shops.")
 
     def load_shop(self, shop_name: str):

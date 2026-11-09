@@ -30,7 +30,7 @@ class CharacterService(FetchAndRegisterMixin):
         return self._reload_collection(self.characters_endpoint, "characters", self.character_registry)
 
     def load_characters(self):
-        self._fetch_and_register(self.characters_endpoint, "all characters")
+        self._load_collection(self.characters_endpoint, "all characters")
         self.logger.info(f"Initialized CharacterService instance with {str(len(self.character_registry))} player characters.")
 
     def load_character(self, character_name: str):

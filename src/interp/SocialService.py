@@ -19,7 +19,7 @@ class SocialService(FetchAndRegisterMixin):
         return self._reload_collection(self.socials_endpoint, "socials", self.social_registry)
 
     def load_socials(self):
-        self._fetch_and_register(self.socials_endpoint, "all socials")
+        self._load_collection(self.socials_endpoint, "all socials")
 
     def load_social(self, social_name: str):
         url = f"{self.socials_endpoint}/name/{social_name}"

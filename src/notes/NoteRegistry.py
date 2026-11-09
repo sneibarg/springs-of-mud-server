@@ -33,6 +33,15 @@ class NoteRegistry:
         with self.lock:
             self.registry[note.id] = note
 
+    def replace_notes(self, notes: list[InGameNote]) -> None:
+        replacement = {}
+        for note in notes:
+            if not str(note.id or "").strip() or note.id in replacement:
+                raise ValueError("Note collection contains a missing or duplicate id")
+            replacement[note.id] = note
+        with self.lock:
+            self.registry = replacement
+
     def unregister_note(self, note_id: str):
         with self.lock:
             if note_id in self.registry:

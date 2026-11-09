@@ -21,7 +21,7 @@ class SpecialService(FetchAndRegisterMixin):
         return self._reload_collection(self.specials_endpoint, "specials", self.special_registry)
 
     def load_specials(self):
-        self._fetch_and_register(self.specials_endpoint, "specials")
+        self._load_collection(self.specials_endpoint, "specials")
         self.logger.info(f"Loaded {len(self.special_registry.all_specials())} specials.")
 
     def load_special(self, special_name: str):

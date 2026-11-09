@@ -15,6 +15,9 @@ from api.GameApi import GameApi
 from api.InterpApi import InterpApi
 from area.Room import Room
 from area.RoomService import RoomService
+from area.Shop import Shop
+from combat.CombatHandler import FightHandler
+from combat.CombatRegistry import CombatRegistry
 from devtools.collection_query import load_collections
 from game.AnimateEntity import RegenerationContext
 from game.EnumProvider import EnumProvider
@@ -26,7 +29,9 @@ from interp.Context import Context
 from interp.InterpHandler import InterpHandler
 from interp.commands.Communications import Communications
 from interp.commands.Info import Info
+from item.EffectHandler import EffectHandler
 from mobile.Mobile import Mobile
+from mobile.MobileFactory import MobileFactory
 from notes.InGameNote import InGameNote
 from notes.NoteHandler import NoteHandler
 from player.CharacterRegistry import CharacterRegistry
@@ -37,6 +42,7 @@ from server.handlers.ConnectionHandler import ConnectionHandler
 from server.session.SessionHandler import SessionHandler
 from server.session.AuthenticationService import AuthenticationService
 from server.session.SessionState import SessionStatus
+from util.EntityExtractor import EntityExtractor
 from util.GenericUtil import GenericUtil
 
 
@@ -105,8 +111,31 @@ class QuitPersistenceTests(RuntimeFixture, unittest.IsolatedAsyncioTestCase):
         self.sessions = SessionHandler()
         self.session = self.sessions.create_session('quit-session')
         self.session.character, self.session.status = self.actor, SessionStatus.PLAYING
+        fight = FightHandler.__new__(FightHandler)
+        fight.PositionsEnum = self.enums.get('positions')
+        fight.combat_registry = CombatRegistry()
+        fight.room_registry = self.rooms
+        fight.effect_handler = EffectHandler(self.enums)
+        self.registries.character_registry = self.registry
+        self.handler.entity_extractor = EntityExtractor(self.registries, fight, NS(current_session=lambda entity: None))
         self.handler.message_bus = Mock(text_to_message=lambda text: text,
                                         send_to_character=AsyncMock(), session_handler=self.sessions)
+
+    def add_companions(self):
+        prototype = MobileFactory.from_data(
+            dict(id='pet', name='pet', size='medium',
+                 hitDice='{"number": 1, "type": 1, "bonus": 10}',
+                 armorClass='{"pierce": 0, "slash": 0, "bash": 0, "exotic": 0}'), {})
+        pet = Shop.complete_pet_purchase(self.actor, self.room, prototype, '', 0,
+                                         self.enums.get('actBits'), self.enums.get('affectedBy'),
+                                         self.enums.get('commFlags'))
+        self.registry.register(pet)
+        follower = self.character('follower')
+        follower.master = follower.leader = self.actor
+        follower.context = {'reply_to': self.actor.id}
+        self.room.add_player_to_room(follower)
+        self.registry.register(follower)
+        return pet, follower
 
     async def test_quit_persists_final_currency_and_notes_before_disconnect(self):
         self.actor.gold = 314
@@ -130,16 +159,41 @@ class QuitPersistenceTests(RuntimeFixture, unittest.IsolatedAsyncioTestCase):
         context.conn.close.assert_awaited_once()
 
     async def test_failed_final_save_keeps_character_playing_and_renders_content_message(self):
+        pet, follower = self.add_companions()
         context = self.context('quit')
         with patch('player.CharacterService.requests.put', side_effect=requests.Timeout):
             await self.handler.do_quit(self.actor, context)
         self.assertIs(self.room.characters[self.actor.id], self.actor)
         self.assertIs(self.registry.playing[self.actor.id], self.actor)
+        self.assertIs(self.actor.pet, pet)
+        self.assertIs(self.room.mobiles[pet.id], pet)
+        for companion in (pet, follower):
+            self.assertIs(companion.master, self.actor)
+            self.assertIs(companion.leader, self.actor)
         self.assertTrue(self.session.is_playing())
         self.assertNotIn('quitting', self.session.metadata)
         context.conn.close.assert_not_awaited()
         expected = context.command.render_message('to_char', 'unsaved') + '\r\n'
         self.handler.message_bus.send_to_character.assert_awaited_once_with(self.actor.id, expected)
+
+    async def test_successful_quit_extracts_pet_and_releases_followers(self):
+        pet, follower = self.add_companions()
+        resting = self.enums.get('positions').POS_RESTING.value
+        self.actor.set_position(resting)
+        context = self.context('quit')
+        self.service.save_character_async = AsyncMock(return_value=True)
+        await self.handler.do_quit(self.actor, context)
+        self.assertIsNone(self.actor.pet)
+        self.assertNotIn(pet.id, self.room.mobiles)
+        self.assertIsNone(self.registry.get_or_none(id=pet.id))
+        self.assertIs(self.room.characters[follower.id], follower)
+        for companion in (pet, follower):
+            self.assertIsNone(companion.master)
+            self.assertIsNone(companion.leader)
+        self.assertNotIn('reply_to', follower.context)
+        self.assertIs(self.registry.get(id=self.actor.id), self.actor)
+        self.assertEqual(resting, self.actor.character_attributes.position)
+        context.conn.close.assert_awaited_once()
 
     async def test_blocked_quit_never_submits_a_save(self):
         self.actor.character_attributes.position = self.enums.get('positions').POS_FIGHTING.value
@@ -221,7 +275,8 @@ class QuitPersistenceTests(RuntimeFixture, unittest.IsolatedAsyncioTestCase):
         self.actor.room_id = destination.id
         destination.add_player_to_room(self.actor)
         self.service.save_character_async = AsyncMock(return_value=True)
-        self.handler.room_registry = NS(get_or_none=lambda **kw: destination)
+        self.rooms.get_or_none = lambda **kw: destination
+        self.rooms.all_rooms = lambda: [self.room, destination]
         await self.handler.do_quit(self.actor, context)
         self.assertFalse(destination.characters)
         context.conn.close.assert_awaited_once()

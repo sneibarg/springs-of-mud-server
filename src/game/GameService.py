@@ -4,6 +4,7 @@ import threading
 import requests
 
 from server.BackgroundIO import submit
+from server.FetchAndRegisterMixin import fetch_collection
 
 from injector import inject
 
@@ -102,13 +103,12 @@ class GameService:
             stall_until_last_time(self.last_time, self.enums['gameParameters']['PULSE_PER_SECOND'])
 
     def _fetch_game_data(self):
+        url = self.game_data_endpoint
         try:
-            url = self.game_data_endpoint
-            response = requests.get(url).json()[0]
-            return GameData.from_json(response)
+            documents = fetch_collection(url, allow_empty=False)
+            return GameData.from_json(documents[0])
         except Exception as e:
-            self.logger.error(f"Failed to load game data: {e}")
-            raise RuntimeError(f"Failed to load game data: {e}")
+            raise RuntimeError(f"Failed to load game data from {url}: {e}") from e
 
     def queue_save_deny_list(self):
         return submit(self._persist_deny_list, str(self.game_data.id or ""),

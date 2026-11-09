@@ -27,7 +27,7 @@ class ItemService(FetchAndRegisterMixin):
         return self._reload_collection(self.items_endpoint, "items", self.item_registry)
 
     def load_items(self):
-        self._fetch_and_register(self.items_endpoint, "all items")
+        self._load_collection(self.items_endpoint, "all items")
 
     def load_item(self, item_name: str):
         url = f"{self.items_endpoint}/name/{item_name}"

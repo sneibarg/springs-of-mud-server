@@ -84,6 +84,9 @@ class ConnectionHandler:
         connection, session, peer_info = None, None, None
         try:
             connection = TelnetConnection(reader, writer)
+            # An accepted socket can reach this handler after shutdown starts closing clients.
+            if self.runtime_control is not None and self.runtime_control.shutdown_kind is not None:
+                return
             session = self.session_handler.create_session(connection.session_id)
             self.connection_manager.add_connection(connection)
             peer_info = connection.get_peer_info()

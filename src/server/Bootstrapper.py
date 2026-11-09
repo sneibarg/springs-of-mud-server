@@ -199,6 +199,10 @@ class Bootstrapper:
         game_service = injector.get(GameService)
         game_data = game_service.game_data
         enum_provider = EnumProvider(game_service.enums)
+        for pulse in ("PULSE_AREA", "PULSE_MUSIC", "PULSE_MOBILE", "PULSE_VIOLENCE", "PULSE_TICK"):
+            enum_provider.get_member("gameParameters", pulse)
+        if enum_provider.get_value("gameParameters", "PULSE_PER_SECOND") <= 0:
+            raise ValueError("PULSE_PER_SECOND must be positive")
 
         injector.binder.bind(EnumProvider, to=enum_provider, scope=singleton)
         injector.binder.bind(GameData, to=game_data, scope=singleton)
@@ -216,11 +220,15 @@ class Bootstrapper:
         ItemApi.lazy_load()
 
         to_load = [GameService, PlayerService, CharacterService, ShopService, ResetService, SpecialService,
-                   RoomService, AreaService, SkillService, SpellService, ItemService, SocialService, MobileService,
-                   HelpService, InterpService, NoteService]
+                   RoomService, SkillService, SpellService, ItemService, SocialService, MobileService,
+                   AreaService, HelpService, InterpService, NoteService]
 
         for service in to_load:
             injector.get(service)
+
+        for room in registries.room_registry.all_rooms():
+            if room.area is None:
+                raise ValueError(f"Room {room.id} refers to an unknown area: {room.area_id!r}")
 
         CharacterAdvancement.configure_level_observer(injector.get(AdvancementHandler).level_gained)
         GameApi.register_runtime_reset(CharacterAdvancement.configure_level_observer)

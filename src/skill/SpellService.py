@@ -20,7 +20,7 @@ class SpellService(FetchAndRegisterMixin):
         return self._reload_collection(self.spells_endpoint, "spells", self.spell_registry)
 
     def load_spells(self):
-        self._fetch_and_register(self.spells_endpoint, "all spells")
+        self._load_collection(self.spells_endpoint, "all spells")
 
     def load_spell(self, spell_name: str):
         url = f"{self.spells_endpoint}/name/{spell_name}"

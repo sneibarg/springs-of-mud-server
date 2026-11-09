@@ -3,6 +3,7 @@ import requests
 from injector import inject
 from notes.InGameNote import InGameNote
 from notes.NoteRegistry import NoteRegistry
+from server.FetchAndRegisterMixin import fetch_collection
 from server.LoggerFactory import LoggerFactory
 from server.ServiceConfig import ServiceConfig
 
@@ -18,16 +19,11 @@ class NoteService:
 
     def load_notes(self):
         try:
-            response = requests.get(self.notes_endpoint, timeout=10)
-            response.raise_for_status()
-            notes = response.json()
-            self.note_registry.clear()
-            for note in notes:
-                self.note_registry.register_note(InGameNote.from_json(note))
-            return self.note_registry.all_notes()
-        except Exception as e:
-            self.logger.error("Failed to load note: " + str(e))
-            return self.note_registry.all_notes()
+            notes = [InGameNote.from_json(document) for document in fetch_collection(self.notes_endpoint)]
+            self.note_registry.replace_notes(notes)
+            return notes
+        except Exception as error:
+            raise RuntimeError(f"Failed to load notes from {self.notes_endpoint}: {error}") from error
 
     def get_notes_by_type(self, note_type: int):
         try:

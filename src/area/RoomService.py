@@ -28,8 +28,7 @@ class RoomService(FetchAndRegisterMixin):
         return self._reload_collection(self.rooms_endpoint, "rooms", self.room_registry)
 
     def _build_reload_item(self, raw_item):
-        # Initial loading tolerates broken exits for diagnostics; replacement
-        # must reject them rather than silently publish a truncated definition.
+        # Bulk loading must reject broken exits instead of silently dropping them.
         data = GenericUtil.camel_to_snake_case(raw_item)
         exits = data.get("exits")
         if exits is None:
@@ -51,7 +50,7 @@ class RoomService(FetchAndRegisterMixin):
             raise ValueError("Room reload into a bound world requires a restart")
 
     def load_rooms(self):
-        self._fetch_and_register(self.rooms_endpoint, "rooms")
+        self._load_collection(self.rooms_endpoint, "rooms", allow_empty=False)
 
     def load_room(self, room_name: str):
         url = f"{self.rooms_endpoint}/name/{room_name}"

@@ -10,6 +10,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'src'))
 
 from game.GameService import GameService
 from server.MudServer import MudServer
+from server.connection.ConnectionManager import ConnectionManager
+from server.connection.TelnetConnection import TelnetConnection
 from server.session.SessionHandler import SessionHandler
 from server.session.SessionState import SessionStatus
 
@@ -59,6 +61,43 @@ class RuntimeLoopOwnershipTests(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(listener.closed)
         self.assertTrue(service._stop_requested.is_set())
         control.connection_manager.close_all.assert_awaited_once()
+
+    async def test_saved_shutdown_closes_an_open_client_before_waiting_for_listener(self):
+        from server.RuntimeControl import RuntimeControl
+
+        manager = ConnectionManager()
+        game = NS(pause_updates=AsyncMock(), stop=Mock())
+        control = RuntimeControl(game, Mock(), SessionHandler(), manager)
+        accepted, finished = asyncio.Event(), asyncio.Event()
+
+        async def handle(reader, writer):
+            connection = TelnetConnection(reader, writer)
+            manager.add_connection(connection)
+            accepted.set()
+            try:
+                await reader.read()
+            finally:
+                await connection.close()
+                finished.set()
+
+        listener = await asyncio.start_server(handle, '127.0.0.1', 0)
+        control.bind_listener(listener)
+        try:
+            port = listener.sockets[0].getsockname()[1]
+            reader, writer = await asyncio.open_connection('127.0.0.1', port)
+            try:
+                await asyncio.wait_for(accepted.wait(), 2)
+                self.assertTrue(await asyncio.wait_for(control.shutdown('shutdown'), 2))
+                self.assertEqual(b'', await asyncio.wait_for(reader.read(), 2))
+                self.assertFalse(listener.is_serving())
+                self.assertEqual(0, manager.connection_count())
+            finally:
+                writer.close()
+                await writer.wait_closed()
+            await asyncio.wait_for(finished.wait(), 2)
+        finally:
+            listener.close()
+            await asyncio.wait_for(listener.wait_closed(), 2)
 
     async def test_pause_drains_current_update_then_skips_pulses_until_resumed(self):
         entered, release = asyncio.Event(), asyncio.Event()
@@ -164,6 +203,60 @@ class RuntimeLoopOwnershipTests(unittest.IsolatedAsyncioTestCase):
         with self.assertRaisesRegex(ValueError, 'failed pulse'):
             await asyncio.to_thread(lambda: asyncio.run(service._run_updates()))
         self.assertIsNone(service._pending_update)
+
+    async def test_pulse_failure_closes_listener_and_client_and_raises_from_start(self):
+        from server.RuntimeControl import RuntimeControl
+
+        entered, fail, accepted = asyncio.Event(), asyncio.Event(), asyncio.Event()
+        pulse_error = ValueError('failed pulse')
+
+        async def update():
+            entered.set()
+            await fail.wait()
+            raise pulse_error
+
+        manager = ConnectionManager()
+        service = scheduler(update)
+        saves = Mock()
+        sessions = SessionHandler()
+        control = RuntimeControl(service, saves, sessions, manager)
+
+        async def handle(reader, writer):
+            connection = TelnetConnection(reader, writer)
+            manager.add_connection(connection)
+            session = sessions.create_session(connection.session_id)
+            session.character, session.status = NS(id='player'), SessionStatus.PLAYING
+            accepted.set()
+            await reader.read()
+
+        server = MudServer.__new__(MudServer)
+        server.logger = Mock()
+        server.injector = Mock(get=lambda cls: service if cls is GameService else control)
+        server.connection_handler = NS(handle_new_connection=handle)
+        server.host, server.port = '127.0.0.1', 0
+        task = asyncio.create_task(server.start())
+        writer = None
+        try:
+            await asyncio.wait_for(entered.wait(), 2)
+            listener = control._listener
+            port = listener.sockets[0].getsockname()[1]
+            reader, writer = await asyncio.open_connection('127.0.0.1', port)
+            await asyncio.wait_for(accepted.wait(), 2)
+            fail.set()
+            with self.assertRaisesRegex(RuntimeError, 'Game scheduler failed') as raised:
+                await asyncio.wait_for(asyncio.shield(task), 2)
+            self.assertIs(raised.exception.__cause__, pulse_error)
+            self.assertEqual(b'', await asyncio.wait_for(reader.read(), 2))
+            self.assertFalse(listener.is_serving())
+            self.assertEqual(0, manager.connection_count())
+            self.assertTrue(service._stop_requested.is_set())
+            saves.queue_save_character.assert_not_called()
+        finally:
+            if writer is not None:
+                writer.close()
+                await writer.wait_closed()
+            task.cancel()
+            await asyncio.gather(task, return_exceptions=True)
 
     async def test_standalone_service_uses_current_loop(self):
         observed = []

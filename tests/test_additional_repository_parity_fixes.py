@@ -249,7 +249,9 @@ class AdditionalParityTests(unittest.IsolatedAsyncioTestCase):
         f = self.f
         player = f.interpreter.handler_service.get_handler('ph')
         player.info_commands = NS(do_quit=lambda ctx: {'to_char': 'Bye', 'to_room': 'Left'})
-        player.character_registry = NS(remove_playing=Mock(), set_playing=Mock())
+        player.character_registry = NS(remove_playing=Mock(), set_playing=Mock(), all_characters=lambda: [])
+        registries = NS(room_registry=f.rooms, character_registry=player.character_registry)
+        player.entity_extractor = EntityExtractor(registries, Mock(), NS(current_session=lambda entity: None))
         player.interp_api = f.api
         player.character_service = NS(save_character_async=AsyncMock(return_value=False))
         for saved in (False, True):

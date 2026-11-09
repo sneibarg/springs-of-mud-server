@@ -58,7 +58,7 @@ class SkillService(FetchAndRegisterMixin):
         self.group_registry.reset()
 
     def load_skills(self):
-        self._fetch_and_register(self.skills_endpoint, "all skills")
+        self._load_collection(self.skills_endpoint, "all skills")
 
     def load_skill(self, skill_name: str):
         url = f"{self.skills_endpoint}/name/{skill_name}"

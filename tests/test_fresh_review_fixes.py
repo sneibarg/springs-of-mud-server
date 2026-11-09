@@ -27,6 +27,7 @@ from server.session.SessionHandler import SessionHandler
 from server.session.SessionState import SessionStatus
 from skill.Spell import Spell
 from util.EffectUtil import EffectUtil
+from util.EntityExtractor import EntityExtractor
 from item.ItemFactory import ItemFactory
 from util.WizUtil import WizUtil
 
@@ -275,7 +276,9 @@ class RetirementTests(RuntimeFixture, unittest.IsolatedAsyncioTestCase):
         handler.command_audit = None
         handler.info_commands = NS(do_quit=lambda ctx: {'to_char': 'Bye', 'to_room': 'Left'})
         handler.room_registry = self.rooms
-        handler.character_registry = NS(remove_playing=Mock(), set_playing=Mock())
+        handler.character_registry = NS(remove_playing=Mock(), set_playing=Mock(), all_characters=lambda: [])
+        registries = NS(room_registry=self.rooms, character_registry=handler.character_registry)
+        handler.entity_extractor = EntityExtractor(registries, Mock(), NS(current_session=lambda entity: None))
         handler.character_service = NS(save_character_async=save)
         sessions = SessionHandler()
         session = sessions.create_session('session')

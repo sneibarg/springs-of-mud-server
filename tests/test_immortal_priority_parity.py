@@ -219,9 +219,12 @@ class SavedShutdownTests(fixtures.RuntimeFixture, unittest.IsolatedAsyncioTestCa
             self.events.append('announce')
         async def close_all():
             self.events.append('clients')
+        async def wait_closed():
+            self.events.append('wait_closed')
         self.manager.close_all.side_effect = close_all
+        self.listener.wait_closed.side_effect = wait_closed
         self.assertTrue(await self.control.shutdown('reboot', broadcast))
-        self.assertEqual(self.events, ['pause', 'save:' + self.actor.id, 'announce', 'listener', 'clients'])
+        self.assertEqual(self.events, ['pause', 'save:' + self.actor.id, 'announce', 'listener', 'clients', 'wait_closed'])
         self.saves.queue_save_character.assert_called_once_with(self.actor)
         self.game.stop.assert_called_once()
         self.assertTrue(self.control._stopped.is_set())
@@ -270,6 +273,24 @@ class SavedShutdownTests(fixtures.RuntimeFixture, unittest.IsolatedAsyncioTestCa
         self.assertFalse(self.control.shutting_down)
         self.game.resume_updates.assert_called_once()
         self.assertNotIn('shutdown_pending', self.sessions.get_session('player').metadata)
+
+    async def test_scheduler_failure_supersedes_an_uncommitted_saved_shutdown(self):
+        future = Future()
+        self.saves.queue_save_character.side_effect = lambda value: future
+        broadcast = AsyncMock()
+        task = asyncio.create_task(self.control.shutdown('reboot', broadcast))
+        await asyncio.sleep(0)
+        self.saves.queue_save_character.assert_called_once()
+
+        await self.control.stop_after_scheduler_failure()
+        future.set_result(True)
+        self.assertFalse(await task)
+        self.assertEqual('scheduler_failure', self.control.shutdown_kind)
+        self.assertTrue(self.control.shutting_down)
+        self.assertTrue(self.sessions.get_session('player').metadata['shutdown_pending'])
+        broadcast.assert_not_awaited()
+        self.game.resume_updates.assert_not_called()
+        self.manager.close_all.assert_awaited_once()
 
     async def test_teardown_error_does_not_resume_a_closed_server(self):
         self.control.logger = Mock()

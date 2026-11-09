@@ -29,7 +29,7 @@ class PlayerService(FetchAndRegisterMixin):
         return self._reload_collection(self.players_endpoint, "players", self.player_registry)
 
     def load_players(self):
-        self._fetch_and_register(self.players_endpoint, "all players")
+        self._load_collection(self.players_endpoint, "all players")
         self.logger.info(f"Initialized PlayerService instance with {str(len(self.player_registry))} player accounts.")
 
     def load_player(self, player_name: str):

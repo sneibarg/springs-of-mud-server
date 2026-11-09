@@ -27,6 +27,7 @@ from notes.NoteHandler import NoteHandler
 from player.Character import Character
 from player.CharacterService import CharacterService
 from api.CharacterApi import CharacterApi
+from util.EntityExtractor import EntityExtractor
 from util.GenericUtil import GenericUtil
 from util.InterpUtil import InterpUtil
 from util.PlayerUtil import PlayerUtil
@@ -66,6 +67,7 @@ class PlayerHandler:
         self.social_registry = registry_service.social_registry
         self.fight_handler = fight_handler
         self.wiz_handler = wiz_handler
+        self.entity_extractor = EntityExtractor(registry_service, fight_handler, wiz_handler)
         self.communications_commands = communications_commands
         self.fight_commands = fight_commands
         self.info_commands = info_commands
@@ -121,7 +123,10 @@ class PlayerHandler:
                                                            fallback="Your character could not be saved. Please try quitting again.\r\n")
                 await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(failed["to_char"]))
                 return
-            character.stop_playtime()
+            # Combat cleanup can reset position. Keep the position just saved for the next login.
+            position = character.character_attributes.position
+            self.entity_extractor.extract(character)
+            character.character_attributes.position = position
             if context.conn is not None and context.conn.is_closed():
                 return
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(payload["to_char"]))

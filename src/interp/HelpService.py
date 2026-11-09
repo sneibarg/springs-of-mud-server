@@ -19,7 +19,7 @@ class HelpService(FetchAndRegisterMixin):
         return self._reload_collection(self.helps_endpoint, "helps", self.help_registry)
 
     def load_helps(self):
-        self._fetch_and_register(self.helps_endpoint, "helps")
+        self._load_collection(self.helps_endpoint, "helps")
 
     def _build_fetch_item(self, help_data) -> HelpEntry:
         return HelpEntry.from_json(help_data)

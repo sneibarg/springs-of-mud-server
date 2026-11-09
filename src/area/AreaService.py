@@ -34,7 +34,7 @@ class AreaService(FetchAndRegisterMixin):
             self._lazy_load(area)
 
     def load_areas(self):
-        self._fetch_and_register(self.areas_endpoint, "all areas")
+        self._load_collection(self.areas_endpoint, "all areas", allow_empty=False)
 
     def load_area(self, area_name: str):
         url = f"{self.areas_endpoint}/name/{area_name}"

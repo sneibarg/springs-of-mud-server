@@ -29,7 +29,7 @@ class InterpService(FetchAndRegisterMixin):
         return (self._build_summary_command(),)
 
     def load_commands(self):
-        return self.reload_commands()
+        return self._reload_collection(self.commands_endpoint, "commands", self.interp_registry, startup=True)
 
     def load_command(self, command_name: str):
         url = f"{self.commands_endpoint}/name/{command_name}"

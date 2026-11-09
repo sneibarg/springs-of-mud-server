@@ -1,4 +1,4 @@
-"""Coordinate a saved shutdown on the socket event loop."""
+"""Coordinate server shutdown on the socket event loop."""
 
 import asyncio
 
@@ -32,6 +32,16 @@ class RuntimeControl:
     async def wait_stopped(self):
         await self._stopped.wait()
 
+    async def stop_after_scheduler_failure(self) -> None:
+        if self.shutdown_kind is not None:
+            await self.wait_stopped()
+            return
+        self.shutting_down = True
+        self.shutdown_kind = "scheduler_failure"
+        for session in self.session_handler.get_active_sessions():
+            session.metadata['shutdown_pending'] = True
+        await self._close_listener_and_clients()
+
     async def shutdown(self, kind: str, before_close=None) -> bool:
         if self.shutting_down or self._listener is None:
             return False
@@ -48,6 +58,8 @@ class RuntimeControl:
                                 and session.metadata['command_task'] is not current]
             if pending_commands:
                 await asyncio.gather(*pending_commands)
+            if self.shutdown_kind is not None:
+                return False
             characters = {}
             for session in sessions:
                 character = session.metadata.get('switched_original') or session.character
@@ -56,28 +68,34 @@ class RuntimeControl:
             # Every snapshot is captured on the owner loop before waiting for I/O.
             futures = [self.character_service.queue_save_character(character) for character in characters.values()]
             results = await asyncio.gather(*(asyncio.wrap_future(future) for future in futures), return_exceptions=True)
-            if any(result is not True for result in results):
+            if self.shutdown_kind is not None or any(result is not True for result in results):
                 return False
             if before_close is not None:
                 await before_close()
+            if self.shutdown_kind is not None:
+                return False
             self.shutdown_kind = kind
             committed = True
-            try:
-                self._listener.close()
-                await self._listener.wait_closed()
-            finally:
-                self.game_service.stop()
-                try:
-                    await self.connection_manager.close_all()
-                finally:
-                    self._stopped.set()
+            await self._close_listener_and_clients()
             return True
         except Exception:
             self.logger.exception("Saved shutdown failed")
             return committed
         finally:
-            if not committed:
+            if not committed and self.shutdown_kind is None:
                 self.shutting_down = False
                 self.game_service.resume_updates()
                 for session in sessions:
                     session.metadata.pop('shutdown_pending', None)
+
+    async def _close_listener_and_clients(self) -> None:
+        try:
+            self._listener.close()
+        finally:
+            self.game_service.stop()
+            try:
+                await self.connection_manager.close_all()
+                # The listener waits for its accepted transports to close.
+                await self._listener.wait_closed()
+            finally:
+                self._stopped.set()

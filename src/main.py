@@ -19,11 +19,8 @@ async def main():
     mud_server = MudServer(server_config, logger_factory)
     logger.info("MudServer services started successfully.")
     logger.info("Starting main loop.")
-    try:
-        await mud_server.start()
-        logger.info("Exiting...")
-    except Exception as e:
-        logger.info("An unhandled exception occurred: %s", e)
+    await mud_server.start()
+    logger.info("Exiting...")
 
 
 if __name__ == '__main__':

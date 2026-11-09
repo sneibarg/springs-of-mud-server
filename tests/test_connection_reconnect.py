@@ -143,6 +143,16 @@ class ReconnectTests(unittest.IsolatedAsyncioTestCase):
         self.handler._game_loop.assert_awaited_once()
         self.assertIs(self.room.characters[self.character.id], self.character)
 
+    async def test_late_connection_closes_without_registering_after_shutdown_commit(self):
+        self.handler.runtime_control = SimpleNamespace(shutdown_kind='shutdown')
+        connection = Mock(close=AsyncMock())
+        with patch('server.handlers.ConnectionHandler.TelnetConnection', return_value=connection), \
+                patch.object(self.sessions, 'create_session') as create_session:
+            await self.handler.handle_new_connection(Mock(), Mock())
+        connection.close.assert_awaited_once()
+        create_session.assert_not_called()
+        self.assertEqual(0, self.manager.connection_count())
+
     async def test_banned_account_cannot_replace_live_connection(self):
         old, _ = self.connection('old', True)
         new, session = self.connection('new')

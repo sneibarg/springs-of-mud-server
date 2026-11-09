@@ -30,7 +30,7 @@ class MobileService(FetchAndRegisterMixin):
         return self._reload_collection(self.mobiles_endpoint, "mobiles", self.mobile_registry)
 
     def load_mobiles(self):
-        self._fetch_and_register(self.mobiles_endpoint, "all mobiles")
+        self._load_collection(self.mobiles_endpoint, "all mobiles")
 
     def load_mobile(self, mobile_name: str):
         url = f"{self.mobiles_endpoint}/name/{mobile_name}"

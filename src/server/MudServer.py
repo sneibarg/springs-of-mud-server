@@ -1,5 +1,6 @@
 import asyncio
 import threading
+from concurrent.futures import Future
 
 from server.ServiceConfig import ServiceConfig
 from server.handlers import ConnectionHandler
@@ -26,18 +27,32 @@ class MudServer:
         from server.RuntimeControl import RuntimeControl
 
         game_service = self.injector.get(GameService)
+        runtime_control = self.injector.get(RuntimeControl)
         game_service.set_runtime_loop(asyncio.get_running_loop())
         server = await asyncio.start_server(self.handle_client, self.host, self.port)
-        runtime_control = self.injector.get(RuntimeControl)
         runtime_control.bind_listener(server)
-        game_thread = threading.Thread(target=self._run_game_loop, args=(game_service,),
+        scheduler_failure = Future()
+        failed = asyncio.wrap_future(scheduler_failure)
+        game_thread = threading.Thread(target=self._run_game_loop, args=(game_service, scheduler_failure),
                                        daemon=True, name="GameLoop")
         try:
             async with server:
                 game_thread.start()
                 self.logger.info("Game scheduler started; world updates run on the socket loop")
                 self.logger.info(f"MudServer started on {self.host}:{self.port}")
-                await runtime_control.wait_stopped()
+                stopped = asyncio.create_task(runtime_control.wait_stopped())
+                try:
+                    await asyncio.wait((stopped, failed), return_when=asyncio.FIRST_COMPLETED)
+                    if failed.done():
+                        try:
+                            await runtime_control.stop_after_scheduler_failure()
+                        except Exception:
+                            self.logger.exception("Failed to close the server after a scheduler error")
+                        raise RuntimeError("Game scheduler failed") from failed.result()
+                    await stopped
+                finally:
+                    stopped.cancel()
+                    await asyncio.gather(stopped, return_exceptions=True)
         finally:
             game_service.stop()
             if game_thread.ident is not None:
@@ -45,15 +60,12 @@ class MudServer:
                 if game_thread.is_alive():
                     self.logger.warning("Game scheduler did not stop within two seconds")
 
-    def _run_game_loop(self, game_service):
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
+    def _run_game_loop(self, game_service, scheduler_failure):
         try:
-            loop.run_until_complete(game_service.start())
-        except Exception as e:
-            self.logger.error(f"Game loop error: {e}", exc_info=True)
-        finally:
-            loop.close()
+            asyncio.run(game_service.start())
+        except BaseException as error:
+            # Transfer the cause to the socket loop without touching live state here.
+            scheduler_failure.set_result(error)
 
     async def handle_client(self, reader, writer):
         try:

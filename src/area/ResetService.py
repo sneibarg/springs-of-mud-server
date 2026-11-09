@@ -21,7 +21,7 @@ class ResetService(FetchAndRegisterMixin):
         return self._reload_collection(self.resets_endpoint, "resets", self.reset_registry)
 
     def load_resets(self):
-        self._fetch_and_register(self.resets_endpoint, "resets")
+        self._load_collection(self.resets_endpoint, "resets")
         self.logger.info(f"Loaded {len(self.reset_registry.all_resets())} resets.")
 
     def load_reset(self, reset_name: str):
