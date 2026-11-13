@@ -16,6 +16,18 @@ if TYPE_CHECKING:
 
 
 AuthorizationPolicy = Callable[[Any, Command], CommandDenial | None]
+_SCRIPT_FILENAME = "<command script>"
+
+
+class CommandScriptError(Exception):
+    """An authored command step failed without an exception escaping a runtime helper."""
+
+
+def _raised_in_script(error: Exception) -> bool:
+    traceback = error.__traceback__
+    while traceback.tb_next is not None:
+        traceback = traceback.tb_next
+    return traceback.tb_frame.f_code.co_filename == _SCRIPT_FILENAME
 
 
 class CommandExecutor:
@@ -44,22 +56,35 @@ class CommandExecutor:
             await message_bus.send_to_character(context.character.id, message_bus.text_to_message("Huh?\r\n"))
             return None
 
+        steps = {}
+        for index, source in enumerate(lambdas):
+            if not isinstance(source, str) or not source.strip():
+                continue
+            try:
+                steps[index] = compile(source.strip(), _SCRIPT_FILENAME, "eval")
+            except SyntaxError as error:
+                raise CommandScriptError(f"Invalid syntax in command {command.name!r} at step {index + 1}") from error
+
         index = 0
         while index < len(lambdas):
-            source = lambdas[index]
-            if not isinstance(source, str) or not source.strip():
+            code = steps.get(index)
+            if code is None:
                 index += 1
                 continue
             try:
-                func = eval(source)
+                func = eval(code)
                 if not callable(func):
                     index += 1
                     continue
                 result = func(context)
                 context.result = await result if inspect.isawaitable(result) else result
-            except Exception:
+            except CommandScriptError:
+                raise
+            except Exception as error:
+                if _raised_in_script(error):
+                    raise CommandScriptError(f"Command {command.name!r} failed at step {index + 1}") from error
                 LoggerFactory.get_logger(__name__).exception(
-                    "Command %s lambda failed at index %s: %s", command.name, index, source)
+                    "Command %s lambda failed at index %s: %s", command.name, index, lambdas[index])
                 raise
 
             if command.pipeline:

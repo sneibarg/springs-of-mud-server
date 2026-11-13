@@ -13,6 +13,7 @@ from tests.test_update_handler_active_players import Character, build_character_
 from api.CharacterApi import CharacterApi
 from api.GameApi import GameApi
 from api.InterpApi import InterpApi
+from area.Area import Area
 from area.Room import Room
 from area.RoomService import RoomService
 from area.Shop import Shop
@@ -160,10 +161,23 @@ class QuitPersistenceTests(RuntimeFixture, unittest.IsolatedAsyncioTestCase):
 
     async def test_failed_final_save_keeps_character_playing_and_renders_content_message(self):
         pet, follower = self.add_companions()
+        furniture = NS(id='chair')
+        self.room.add_item_to_room(furniture)
+        self.actor.on = furniture
+        area = Area(author='ROM', name='Test', id=self.room.area_id)
+        self.room.bind_area(area)
+        self.room.light = 1
+        entry = Mock()
         context = self.context('quit')
-        with patch('player.CharacterService.requests.put', side_effect=requests.Timeout):
+        with patch('player.CharacterService.requests.put', side_effect=requests.Timeout), \
+                patch('game.Equipped.Equipped.light_contribution', return_value=1), \
+                patch.object(Room, '_entry_handler', entry):
             await self.handler.do_quit(self.actor, context)
         self.assertIs(self.room.characters[self.actor.id], self.actor)
+        self.assertIs(self.actor.on, furniture)
+        self.assertEqual(2, area.number_of_players)
+        self.assertEqual(1, self.room.light)
+        entry.assert_not_called()
         self.assertIs(self.registry.playing[self.actor.id], self.actor)
         self.assertIs(self.actor.pet, pet)
         self.assertIs(self.room.mobiles[pet.id], pet)
@@ -175,6 +189,21 @@ class QuitPersistenceTests(RuntimeFixture, unittest.IsolatedAsyncioTestCase):
         context.conn.close.assert_not_awaited()
         expected = context.command.render_message('to_char', 'unsaved') + '\r\n'
         self.handler.message_bus.send_to_character.assert_awaited_once_with(self.actor.id, expected)
+
+    async def test_failed_quit_does_not_restore_furniture_removed_during_save(self):
+        furniture = NS(id='chair')
+        self.room.add_item_to_room(furniture)
+        self.actor.on = furniture
+
+        async def save(character):
+            self.room.remove_item_from_room(furniture)
+            self.room.add_item_to_room(NS(id=furniture.id))
+            return False
+
+        self.service.save_character_async = save
+        await self.handler.do_quit(self.actor, self.context('quit'))
+        self.assertIs(self.room.characters[self.actor.id], self.actor)
+        self.assertIsNone(self.actor.on)
 
     async def test_successful_quit_extracts_pet_and_releases_followers(self):
         pet, follower = self.add_companions()

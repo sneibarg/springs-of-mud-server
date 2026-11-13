@@ -7,6 +7,7 @@ from unittest.mock import AsyncMock, Mock, patch
 from tests.test_movement_rules_parity import MovementFixture
 from api.CharacterApi import CharacterApi
 from api.MobileApi import MobileApi
+from area.Area import Area
 from area.Room import Room
 from item.Effect import Effect
 from item.EffectUpdateHandler import EffectUpdateHandler
@@ -65,6 +66,43 @@ class PlagueEntryTests(MovementFixture, unittest.IsolatedAsyncioTestCase):
         self.attempt('north')
         self.assertIsNone(self.victim.find_effect('spell.plague'))
         self.ticks.rng.number_bits.assert_not_called()
+
+    async def test_failed_entry_effect_leaves_walk_committed_in_destination(self):
+        source_area = Area(author='ROM', name='Source', id=self.room.area_id)
+        destination_area = Area(author='ROM', name='Destination', id='destination-area')
+        self.destination.area_id = destination_area.id
+        self.room.bind_area(source_area)
+        self.destination.bind_area(destination_area)
+        self.plague()
+        with patch('game.Equipped.Equipped.light_contribution',
+                   side_effect=lambda entity: int(entity is self.actor)):
+            self.room.adjust_light(1)
+            with patch.object(self.ticks, '_spread_plague', side_effect=ValueError('entry effect failed')):
+                with self.assertRaisesRegex(ValueError, 'entry effect failed'):
+                    self.attempt('north')
+        self.assertNotIn(self.actor.id, self.room.characters)
+        self.assertIs(self.destination.characters[self.actor.id], self.actor)
+        self.assertEqual(self.destination.id, self.actor.room_id)
+        self.assertEqual(destination_area.id, self.actor.area_id)
+        self.assertIs(self.destination, self.actor._equipment_room)
+        self.assertEqual((0, 2), (source_area.number_of_players, destination_area.number_of_players))
+        self.assertEqual((0, 1), (self.room.light, self.destination.light))
+
+    async def test_mobile_entry_hook_sees_committed_location_before_it_raises(self):
+        mobile = self.npc()
+        self.destination.area_id = 'destination-area'
+        self.room.add_mobile_to_room(mobile)
+
+        def fail(entrant, room):
+            self.assertIs(room.mobiles[entrant.id], entrant)
+            self.assertEqual((room.id, room.area_id), (entrant.room_id, entrant.area_id))
+            raise ValueError('entry effect failed')
+
+        with patch.object(Room, '_entry_handler', fail):
+            with self.assertRaisesRegex(ValueError, 'entry effect failed'):
+                WizUtil.move_entity(self.rooms, mobile, self.destination)
+        self.assertNotIn(mobile.id, self.room.mobiles)
+        self.assertIs(self.destination, mobile._equipment_room)
 
     async def test_nonzero_six_bit_roll_prevents_entry_infection(self):
         self.plague()

@@ -284,11 +284,67 @@ class MobileHandler:
     async def _flush_context_payloads(self, context: MobileContext):
         while context.payloads:
             payload = context.payloads.pop(0)
+            problem = self._payload_problem(payload)
+            if problem is not None:
+                self.logger.error("Invalid payload from mobile special %r for %s: %s",
+                                  context.special_name, self._actor_label(context.actor), problem)
+                continue
             self.logger.debug(
                 f"_flush_context_payloads delivering payload for {self._actor_label(context.actor)} "
-                f"in {self._room_label(context.room)} with keys={sorted(payload.keys())}"
+                f"in {self._room_label(context.room)}"
             )
             await self._handle_payload(payload)
+
+    @staticmethod
+    def _payload_problem(payload, *, standard=False, seen=frozenset()):
+        if not isinstance(payload, dict):
+            return "expected a payload dictionary"
+        if id(payload) in seen:
+            return "cyclic nested payload"
+        if payload.get("context") is not None and not isinstance(payload["context"], Context):
+            return "context must be a command context"
+        if "actor" in payload or ("context" in payload and not standard):
+            if not getattr(payload.get("actor"), "id", None):
+                return "actor must have an id"
+        if "context" in payload:
+            standard = True
+
+        if standard and payload.get("payloads"):
+            entries = payload["payloads"]
+            if not isinstance(entries, (list, tuple)):
+                return "payloads must be a list or tuple"
+            for entry in entries:
+                problem = MobileHandler._payload_problem(entry, standard=True, seen=seen | {id(payload)})
+                if problem is not None:
+                    return problem
+            return None
+
+        victim = payload.get("victim")
+        if victim is not None and (standard or payload.get("to_victim")) and not getattr(victim, "id", None):
+            return "victim must have an id"
+        routes = [("to_room", "targets"), ("room_message", "room_targets"), ("global_message", "global_targets")]
+        if standard:
+            routes.extend((("from_room_message", "from_room_targets"), ("to_room_message", "to_room_targets")))
+        for message_key, target_key in routes:
+            if not payload.get(message_key) and not (standard and payload.get("message_key")):
+                continue
+            targets = payload.get(target_key, [])
+            if not isinstance(targets, (list, tuple)):
+                return f"{target_key} must be a list or tuple"
+            if standard and target_key == "global_targets" and targets and isinstance(targets[0], str):
+                if not all(isinstance(target, str) for target in targets):
+                    return "global_targets must contain only character ids or only entities"
+            elif any(not getattr(target, "id", None) for target in targets):
+                return f"{target_key} entries must have an id"
+
+        excluded = payload.get("exclude_character_ids")
+        if payload.get("broadcast_message") and excluded is not None and not isinstance(excluded, (list, tuple, set, frozenset)):
+            return "exclude_character_ids must be a collection of character ids"
+        if standard:
+            messages = payload.get("target_messages", [])
+            if not isinstance(messages, (list, tuple)) or any(not isinstance(message, dict) for message in messages):
+                return "target_messages must be a list or tuple of dictionaries"
+        return None
 
     async def _execute_generic_special(self, mob: Mobile, room, special_name: str) -> bool:
         context = MobileContext(actor=mob, room=room, handler=self, special_name=str(special_name or ""))

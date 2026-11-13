@@ -148,16 +148,28 @@ class Room:
 
     def add_player_to_room(self, character: Character):
         with self.lock:
-            entered = character.id not in self.characters
-            from game.Equipped import Equipped
-            if entered:
-                self.adjust_light(Equipped.light_contribution(character))
-            if character.id not in self.characters and self.area is not None:
-                self.area.player_entered()
-            self.characters[character.id] = character
-            character._equipment_room = self
+            entered = self._attach_player(character)
         if entered and Room._entry_handler is not None:
             Room._entry_handler(character, self)
+
+    def restore_player_to_room(self, character: Character, furniture: Item | None) -> None:
+        """Restore occupancy after a failed quit without triggering entry effects."""
+        with self.lock:
+            self._attach_player(character)
+            if furniture is not None and any(item is furniture for item in self.contents.values()):
+                character.on = furniture
+
+    def _attach_player(self, character: Character) -> bool:
+        from game.Equipped import Equipped
+
+        entered = character.id not in self.characters
+        if entered:
+            self.adjust_light(Equipped.light_contribution(character))
+            if self.area is not None:
+                self.area.player_entered()
+        self.characters[character.id] = character
+        self._set_occupant_location(character)
+        return entered
 
     def remove_player_from_room(self, character: Character):
         with self.lock:
@@ -189,9 +201,16 @@ class Room:
             if entered:
                 self.adjust_light(Equipped.light_contribution(mobile))
             self.mobiles[mobile.id] = mobile
-            mobile._equipment_room = self
+            self._set_occupant_location(mobile)
         if entered and Room._entry_handler is not None:
             Room._entry_handler(mobile, self)
+
+    def _set_occupant_location(self, entity) -> None:
+        # Entry effects must see the same location as the room's occupant map.
+        entity.room_id = self.id
+        if self.area_id is not None:
+            entity.area_id = self.area_id
+        entity._equipment_room = self
 
     def remove_mobile_from_room(self, mobile: Mobile):
         with self.lock:

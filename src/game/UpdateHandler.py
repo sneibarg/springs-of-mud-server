@@ -1,3 +1,5 @@
+from concurrent.futures import Future
+
 from injector import inject
 from area.AreaHandler import AreaHandler
 from combat.CombatHandler import FightHandler
@@ -10,8 +12,12 @@ from mobile.MobileHandler import MobileHandler
 from player.Character import Character
 from player.CharacterService import CharacterService
 from player.AdvancementHandler import AdvancementHandler
+from server.LoggerFactory import LoggerFactory
 from server.session.SessionHandler import SessionHandler
 from server.messaging.MessageBus import MessageBus
+
+
+logger = LoggerFactory.get_logger(__name__)
 
 
 class UpdateHandler:
@@ -49,6 +55,7 @@ class UpdateHandler:
         self.pulse_music = 0  # maybe we skip migrating music
         self.save_cycle = 30
         self.save_number = 0
+        self._pending_autosaves: dict[str, tuple[Future[bool] | None, bool]] = {}
         self.GameParametersEnum = enum_provider.get("gameParameters")
 
     async def handle_updates(self):
@@ -94,15 +101,41 @@ class UpdateHandler:
         await self.item_update_handler.update()
 
     async def _autosave_due_characters(self) -> None:
-        due = [
-            character for character in self._live_player_characters()
-            if self._autosave_bucket(character.id) == self.save_number
-        ]
-        if not due:
-            return
+        live = {str(character.id): character for character in self._live_player_characters()
+                if not character.world_retired}
+        for character_id in self._pending_autosaves.keys() - live.keys():
+            del self._pending_autosaves[character_id]
 
-        for character in due:
-            self.character_service.queue_save_character(character)
+        for character_id, character in live.items():
+            retry = False
+            if character_id in self._pending_autosaves:
+                future, was_retry = self._pending_autosaves[character_id]
+                if future is not None and not future.done():
+                    continue
+                del self._pending_autosaves[character_id]
+                succeeded = False
+                if future is not None:
+                    try:
+                        succeeded = future.result() is True
+                    except Exception:
+                        logger.exception("Autosave write raised for character %s", character_id)
+                        succeeded = False
+                    else:
+                        if not succeeded:
+                            logger.warning("Autosave write failed for character %s", character_id)
+                retry = not succeeded and not was_retry
+            if not retry and self._autosave_bucket(character.id) != self.save_number:
+                continue
+
+            # Queue a fresh snapshot on the owner loop, including on retry.
+            try:
+                future = self.character_service.queue_save_character(character)
+            except Exception:
+                logger.exception("Could not queue autosave for character %s", character_id)
+                if not retry:
+                    self._pending_autosaves[character_id] = (None, False)
+            else:
+                self._pending_autosaves[character_id] = (future, retry)
 
     def _advance_input_timers(self) -> None:
         characters = []

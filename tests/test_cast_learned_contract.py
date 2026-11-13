@@ -113,6 +113,38 @@ class TestCastLearnedContract(unittest.TestCase):
         self.assertEqual(100, self.character.mana)
         self.assertEqual([], self.character.effects)
 
+    def test_script_failure_keeps_applied_effect_and_cost_but_skips_learning_and_retaliation(self):
+        self.spell.lambdas = ['lambda ctx: ctx.resource_expr("movement", "current - 1")', 'lambda ctx: 1 / 0',
+                              'lambda ctx: setattr(ctx.actor, "mana", 0)']
+        initial_movement = self.character.movement
+        cost = FightUtil.cast_mana_cost(self.character, self.spell)
+        with patch("api.SpellApi.random.randint", return_value=1), \
+                patch.object(self.spell_api.logger, "error") as log, \
+                patch.object(Ability, "check_improve") as improve, \
+                patch.object(self.spell_api, "start_offensive_combat") as retaliate:
+            payload = self.commands.do_cast(self.character, self.context)
+
+        self.assertTrue(self.context.done)
+        self.assertEqual(100 - cost, self.character.mana)
+        self.assertEqual(self.spell.beats, self.character.status_flags.pulse_wait)
+        self.assertEqual(initial_movement - 1, self.character.movement)
+        self.assertIn({"to_char": "Your spell fizzles and dies.\r\n"}, payload["payloads"])
+        log.assert_called_once()
+        improve.assert_not_called()
+        retaliate.assert_not_called()
+
+    def test_proficiency_miss_still_charges_half_mana_and_runs_attempt_followup(self):
+        cost = FightUtil.cast_mana_cost(self.character, self.spell)
+        with patch("api.SpellApi.random.randint", return_value=100), \
+                patch.object(self.spell_api, "execute_lambdas") as execute, \
+                patch.object(Ability, "check_improve") as improve, \
+                patch.object(self.spell_api, "start_offensive_combat") as retaliate:
+            self.commands.do_cast(self.character, self.context)
+        self.assertEqual(100 - cost // 2, self.character.mana)
+        execute.assert_not_called()
+        improve.assert_called_once_with(self.character, self.spell.id, False, 1)
+        retaliate.assert_called_once()
+
     def test_below_class_level_is_rejected_before_casting(self):
         self.character.level = 9
         self.assertEqual(0, self.spell_api.casting_proficiency(self.character, self.spell))

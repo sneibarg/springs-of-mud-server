@@ -147,7 +147,8 @@ class Fight:
                 return {"payloads": [*spell_context.payloads, payload]}
             return payload
         self.spell_api.cast(spell_context, mana_cost)
-        self.spell_api.start_offensive_combat(spell_context)
+        if not spell_context.script_failed:
+            self.spell_api.start_offensive_combat(spell_context)
         context.finish()
         return {"payloads": spell_context.payloads}
 

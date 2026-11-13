@@ -388,7 +388,7 @@ class TestSpellAffectPayloadMessages(unittest.TestCase):
                                         character_class=SimpleNamespace(mana_gain=mana_gain),
                                         status_flags=SimpleNamespace(pulse_wait=0))
                 spell = SimpleNamespace(id="spell-id", beats=12)
-                ctx = SimpleNamespace(actor=actor, spell=spell, cast_level=None, performed=False,
+                ctx = SimpleNamespace(actor=actor, spell=spell, cast_level=None, performed=False, script_failed=False,
                                       command_context=object(), queue_payload=lambda p: events.append(p))
                 api = SpellApi(Mock(), Mock())
                 api.interp_api.render_message_key.return_value = {"to_char": "concentration failure"}
@@ -422,7 +422,8 @@ class TestSpellAffectPayloadMessages(unittest.TestCase):
 
     def test_cast_preserves_longer_wait_and_explicit_cast_level(self):
         actor = SimpleNamespace(mana=100, status_flags=SimpleNamespace(pulse_wait=24))
-        ctx = SimpleNamespace(actor=actor, spell=SimpleNamespace(id="spell-id", beats=12), cast_level=7)
+        ctx = SimpleNamespace(actor=actor, spell=SimpleNamespace(id="spell-id", beats=12), cast_level=7,
+                              script_failed=False)
         api = SpellApi(Mock(), Mock())
         api.queue_cast_announcement = Mock()
         api.execute_lambdas = Mock()

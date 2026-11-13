@@ -106,6 +106,7 @@ class PlayerHandler:
 
         session = self.message_bus.session_handler.get_session_by_character(character.id)
         previous_status = session.status if session is not None else None
+        furniture = getattr(character, "on", None)
         if session is not None:
             session.metadata['quitting'] = True
             session.status = SessionStatus.DISCONNECTING
@@ -137,7 +138,7 @@ class PlayerHandler:
             if not saved:
                 character.world_retired = False
                 if room is not None:
-                    room.add_player_to_room(character)
+                    room.restore_player_to_room(character, furniture)
                 self.character_registry.set_playing(character)
                 if session is not None and not session.metadata.get('connection_cleaned', False):
                     session.status = previous_status

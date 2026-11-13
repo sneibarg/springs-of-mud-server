@@ -7,10 +7,13 @@ from unittest.mock import AsyncMock, Mock, patch
 from tests import test_command_authorization as authorization_fixtures
 from api.CharacterApi import CharacterApi
 from interp.CommandAccess import CommandDenial
-from interp.CommandExecutor import CommandExecutor
+from interp.CommandExecutor import CommandExecutor, CommandScriptError
 from interp.Context import Context
 from interp.InterpHandler import InterpHandler
 from player.PlayerHandler import PlayerHandler
+from server.handlers.ConnectionHandler import ConnectionHandler
+from server.protocol.Message import Message, MessageType
+from server.session.SessionState import SessionState, SessionStatus
 
 
 class CommandExecutorTests(unittest.IsolatedAsyncioTestCase):
@@ -130,6 +133,67 @@ class CommandExecutorTests(unittest.IsolatedAsyncioTestCase):
                         await self.run_path(path)
                 self.services.fail.assert_awaited_once()
                 self.services.after.assert_not_called()
+
+    async def test_bad_syntax_is_detected_before_any_step_runs(self):
+        self.services.before = Mock()
+        self.command.lambdas = ['lambda ctx: ctx.handler_service.before()', 'lambda ctx: (']
+        with self.assertRaisesRegex(CommandScriptError, "Invalid syntax.*step 2"):
+            await self.run_path('normal')
+        self.services.before.assert_not_called()
+
+    async def test_failed_forced_command_reports_to_issuing_player(self):
+        self.command.lambdas = ['lambda ctx: missing_helper(ctx)']
+        issuer = SimpleNamespace(**vars(self.actor))
+        issuer.id, issuer.name, issuer.context = 'issuer', 'Issuer', {}
+        outer = SimpleNamespace(**vars(self.command))
+        outer.name = 'force'
+        outer.lambdas = ['lambda ctx: ctx.handler_service.force(ctx)']
+
+        async def force(context):
+            await self.nested._handle_force_payload(issuer, context, {
+                'forced_commands': [{'victim': self.actor, 'command': 'probe'}]})
+
+        self.services.force = force
+        self.normal.interp_registry = SimpleNamespace(
+            get_or_none=lambda name: outer if name == 'force' else None, all_commands=lambda: [outer])
+        self.registries.interp_registry = self.normal.interp_registry
+        self.normal.logger = Mock()
+        await self.normal.handle_command(issuer, 'force')
+        self.bus.send_to_character.assert_awaited_once_with(issuer.id, 'That command could not be completed.\r\n')
+
+    async def test_session_accepts_another_command_after_script_failure(self):
+        self.command.lambdas = ['lambda ctx: ctx.handler_service.missing()',
+                                'lambda ctx: ctx.handler_service.after()']
+        self.services.after = Mock()
+        healthy = SimpleNamespace(**vars(self.command))
+        healthy.name = 'healthy'
+        healthy.lambdas = ['lambda ctx: ctx.handler_service.after()']
+        commands = {command.name: command for command in (self.command, healthy)}
+        self.normal.interp_registry = SimpleNamespace(
+            get_or_none=lambda name: commands.get(name), all_commands=lambda: list(commands.values()))
+        self.registries.interp_registry = self.normal.interp_registry
+        self.normal.logger = Mock()
+        self.bus.send_prompt = AsyncMock()
+        session = SessionState(session_id='session', status=SessionStatus.PLAYING, character=self.actor)
+        handler = ConnectionHandler.__new__(ConnectionHandler)
+        handler.session_handler = SimpleNamespace(is_session_idle=lambda session: False, max_idle_time=1)
+        handler.command_handler = self.normal
+        handler.message_bus = self.bus
+        handler._get_area_and_room = Mock(return_value=(None, self.room))
+        handler.logger = Mock()
+        connection = SimpleNamespace(is_closed=lambda: False, receive_message=AsyncMock(side_effect=[
+            Message(MessageType.GAME, {'text': 'probe'}),
+            Message(MessageType.GAME, {'text': 'healthy'}),
+            None,
+        ]))
+
+        await handler._game_loop(connection, session, None, self.actor)
+
+        self.services.after.assert_called_once()
+        self.bus.send_to_character.assert_awaited_once_with(self.actor.id, 'That command could not be completed.\r\n')
+        self.assertEqual(2, self.bus.send_prompt.await_count)
+        self.assertTrue(session.metadata['command_idle'].is_set())
+        handler.logger.error.assert_not_called()
 
     async def test_cancellation_propagates_without_running_later_steps(self):
         for path in ('normal', 'nested'):

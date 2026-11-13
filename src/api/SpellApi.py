@@ -76,6 +76,9 @@ class SpellApi:
             full_level = CharacterApi.is_npc(ctx.actor) or ctx.actor.character_class.mana_gain
             ctx.cast_level = int(ctx.actor.level) if full_level else 3 * int(ctx.actor.level) // 4
         self.execute_lambdas(ctx)
+        if ctx.script_failed:
+            # Earlier steps may already have applied effects. Keep their mana cost and wait.
+            return False
         Ability.check_improve(ctx.actor, ctx.spell.id, True, 1)
         return True
 
@@ -97,10 +100,11 @@ class SpellApi:
                     f"Spell lambda failed for {ctx.spell.name}: {lambda_str} | {exc}",
                     exc_info=True,
                 )
+                ctx.script_failed = True
                 return ctx.fail("Your spell fizzles and dies.\r\n")
             if ctx.done:
                 break
-        return bool(ctx.performed)
+        return ctx.performed and not ctx.script_failed
 
     def default_spell(self, ctx: SpellContext):
         if ctx.target is not None:
@@ -450,8 +454,11 @@ class SpellApi:
         if spell is None:
             raise ValueError(f"Unknown spell: {name}")
         child = replace(ctx, spell=spell, cast_level=int(level), aliases={},
-                        done=False, performed=False, failed=False)
+                        done=False, performed=False, failed=False, script_failed=False)
         result = self.execute_lambdas(child)
+        if child.script_failed:
+            ctx.script_failed = True
+            return ctx.fail()
         if child.performed:
             ctx.mark_performed()
         return result
@@ -625,6 +632,9 @@ class SpellApi:
             if safe and self._fight_handler(ctx).is_safe_spell(ctx.actor, victim, area=True):
                 continue
             operation(scoped)
+            if scoped.script_failed:
+                ctx.script_failed = True
+                return ctx.fail()
             if scoped.performed:
                 ctx.mark_performed()
             if stop_on_block and scoped.done:

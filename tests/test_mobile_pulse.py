@@ -59,6 +59,49 @@ class MobilePulseTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual((10, 1000), (actor.gold, actor.silver))
         handler._execute_generic_special.assert_not_awaited()
 
+    async def test_malformed_bound_special_output_does_not_stop_later_mobiles(self):
+        handler, room, actor = self.handler()
+        del handler.execute_special_function
+        actor.special_name = 'spec_broken'
+        actor.special_function = ["lambda ctx: ctx.queue_payload({'to_room': 'broken', 'targets': None})"]
+        second = SimpleNamespace(**vars(actor))
+        second.id, second.special_name = 'second', 'spec_working'
+        second.special_function = [
+            "lambda ctx: ctx.queue_payload({'to_room': 'working', 'targets': [ctx.actor]})",
+            "lambda ctx: ctx.mark_performed()",
+        ]
+        room.mobiles[second.id] = second
+        with patch.object(MobileApi, 'mobile_is_charmed', return_value=False), patch.object(
+                MobileApi, 'mobile_is_standing', return_value=False):
+            await handler.mobile_update()
+        handler.message_bus.send_to_room.assert_awaited_once_with('working', [second])
+        error = handler.logger.error.call_args.args
+        self.assertIn('spec_broken', error)
+        self.assertTrue(any('id=mob' in arg for arg in error))
+        self.assertTrue(any('targets' in arg for arg in error[1:]))
+
+    async def test_generic_special_discards_invalid_nested_output_and_delivers_valid_output(self):
+        handler, room, actor = self.handler()
+        del handler._execute_generic_special
+        handler._special_library_cache = {'spec_generic': [
+            "lambda ctx: ctx.queue_payload({'actor': ctx.actor, 'context': None, "
+            "'payloads': [{'room_message': 'broken', 'room_targets': None}]})",
+            "lambda ctx: ctx.queue_payload({'room_message': 'working', 'room_targets': [ctx.actor]})",
+        ]}
+        handler.player_handler = Mock(_emit_standard_payload=AsyncMock())
+        await handler._execute_generic_special(actor, room, 'spec_generic')
+        handler.player_handler._emit_standard_payload.assert_not_awaited()
+        handler.message_bus.send_to_room.assert_awaited_once_with('working', [actor])
+        handler.logger.error.assert_called_once()
+
+    async def test_unexpected_delivery_error_still_propagates(self):
+        handler, room, actor = self.handler()
+        del handler.execute_special_function
+        actor.special_function = ["lambda ctx: ctx.queue_payload({'to_room': 'valid', 'targets': [ctx.actor]})"]
+        handler.message_bus.send_to_room.side_effect = RuntimeError('delivery invariant failed')
+        with self.assertRaisesRegex(RuntimeError, 'delivery invariant failed'):
+            await handler.execute_special_function(actor, room)
+
     async def test_collection_scavenge_skips_owned_item_and_announces_best_allowed_item(self):
         handler, room, actor = self.handler()
         viewer = SimpleNamespace(id='viewer', name='Owner', character_attributes=None, status_flags=None)

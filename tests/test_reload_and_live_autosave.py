@@ -1,5 +1,6 @@
 import unittest
 import importlib
+from concurrent.futures import Future
 from dataclasses import dataclass
 
 from registries import Registry
@@ -235,9 +236,73 @@ class LiveAutosaveTests(unittest.IsolatedAsyncioTestCase):
         handler.session_handler = NS(get_playing_sessions=lambda: sessions)
         handler.entity_update_handler = NS(room_registry=NS(all_rooms=lambda: rooms))
         handler.character_service = Mock()
+        handler.character_service.queue_save_character.side_effect = lambda _: self.completed_save(True)
         handler.save_cycle = 30
         handler.save_number = 0
+        handler._pending_autosaves = {}
         return handler
+
+    @staticmethod
+    def completed_save(result):
+        future = Future()
+        future.set_result(result)
+        return future
+
+    async def test_snapshot_failure_does_not_skip_other_players_and_retries_once(self):
+        broken = Character.from_json(build_character_data('broken'))
+        healthy = Character.from_json(build_character_data('healthy'))
+        room = Room(characters={player.id: player for player in (broken, healthy)})
+        handler = self.handler([], [room])
+        handler._autosave_bucket = lambda _: 0
+        queue = handler.character_service.queue_save_character
+        queue.side_effect = [ValueError('bad snapshot'), self.completed_save(True), ValueError('still broken')]
+        with self.assertLogs('game.UpdateHandler', level='ERROR') as logs:
+            await handler._autosave_due_characters()
+            handler.save_number = 1
+            await handler._autosave_due_characters()
+            handler.save_number = 2
+            await handler._autosave_due_characters()
+        self.assertEqual([broken, healthy, broken], [call.args[0] for call in queue.call_args_list])
+        self.assertEqual(2, len(logs.records))
+        self.assertTrue(all(broken.id in record.getMessage() for record in logs.records))
+
+    async def test_failed_write_retries_with_current_state_and_skips_pending_duplicates(self):
+        player = Character.from_json(build_character_data('player'))
+        handler = self.handler([], [Room(characters={player.id: player})])
+        handler._autosave_bucket = lambda _: 0
+        pending = Future()
+        snapshots = []
+
+        def queue(character):
+            snapshots.append(character.hit)
+            return pending if len(snapshots) == 1 else self.completed_save(True)
+
+        handler.character_service.queue_save_character.side_effect = queue
+        initial_hit = player.hit
+        await handler._autosave_due_characters()
+        await handler._autosave_due_characters()
+        self.assertEqual([initial_hit], snapshots)
+        pending.set_result(False)
+        player.hit -= 1
+        handler.save_number = 1
+        with self.assertLogs('game.UpdateHandler', level='WARNING'):
+            await handler._autosave_due_characters()
+        await handler._autosave_due_characters()
+        self.assertEqual([initial_hit, player.hit], snapshots)
+
+    async def test_exceptional_write_is_not_retried_after_retirement(self):
+        player = Character.from_json(build_character_data('player'))
+        handler = self.handler([], [Room(characters={player.id: player})])
+        handler._autosave_bucket = lambda _: 0
+        pending = Future()
+        queue = handler.character_service.queue_save_character
+        queue.side_effect = None
+        queue.return_value = pending
+        await handler._autosave_due_characters()
+        pending.set_exception(RuntimeError('failed write'))
+        player.world_retired = True
+        await handler._autosave_due_characters()
+        queue.assert_called_once_with(player)
 
     async def test_disconnect_retains_save_bucket_eligibility_without_saving_offline_records(self):
         player = Character.from_json(build_character_data('link-dead'))
@@ -264,7 +329,10 @@ class LiveAutosaveTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual([], active)
             player.hit = 29
         handler.entity_update_handler.update = AsyncMock(side_effect=tick)
-        handler.character_service.queue_save_character.side_effect = lambda character: self.assertEqual(29, character.hit)
+        def queue(character):
+            self.assertEqual(29, character.hit)
+            return self.completed_save(True)
+        handler.character_service.queue_save_character.side_effect = queue
         await handler.char_update()
         handler.character_service.queue_save_character.assert_called_once_with(player)
 

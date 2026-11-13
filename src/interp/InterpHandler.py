@@ -6,7 +6,7 @@ from game.HandlerService import HandlerService
 from game.RegistryService import RegistryService
 from interp.Command import Command
 from interp.CommandAccess import CommandAccess
-from interp.CommandExecutor import CommandExecutor
+from interp.CommandExecutor import CommandExecutor, CommandScriptError
 from interp.CommandAudit import CommandAudit
 from interp.Context import Context
 from util.InterpUtil import InterpUtil
@@ -94,4 +94,9 @@ class InterpHandler:
             return None
 
         self.logger.debug("CMD: %s", cmd.name)
-        return await self._call_lambda(character, cmd.name, self.interp_registry.all_commands(), parameters, raw_command=command)
+        try:
+            return await self._call_lambda(character, cmd.name, self.interp_registry.all_commands(), parameters, raw_command=command)
+        except CommandScriptError as error:
+            self.logger.exception("Command failed for character %s: %s", character.id, error)
+            await self.message_bus.send_to_character(
+                character.id, self.message_bus.text_to_message("That command could not be completed.\r\n"))

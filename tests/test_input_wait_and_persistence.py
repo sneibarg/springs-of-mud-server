@@ -234,6 +234,8 @@ class TestPersistenceBoundary(unittest.IsolatedAsyncioTestCase):
         update.character_service = service
         update._autosave_bucket = lambda _: 0
         update.save_number = 0
+        update._pending_autosaves = {}
+        character.world_retired = False
         advancement = AdvancementHandler(service, Mock(), Mock())
 
         def put(*args, **kwargs):

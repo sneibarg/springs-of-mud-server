@@ -258,7 +258,7 @@ _stub_module("item.Effect", Effect=SimpleNamespace)
 _stub_module("player.CharacterAdvancement", CharacterAdvancement=SimpleNamespace(gain_experience=lambda *_args, **_kwargs: None))
 Skill = _load_module("skill.Skill", "skill/Skill.py").Skill
 sys.modules["skill"].Skill = Skill
-_stub_module("skill.SpellContext", SpellContext=lambda **kwargs: SimpleNamespace(payloads=[], performed=False, **kwargs))
+_stub_module("skill.SpellContext", SpellContext=lambda **kwargs: SimpleNamespace(payloads=[], performed=False, script_failed=False, **kwargs))
 _stub_module("api.SpellApi", SpellApi=lambda **_kwargs: SimpleNamespace(execute_lambdas=lambda *_args, **_kwargs: None, queue_cast_announcement=lambda *_args, **_kwargs: None, start_offensive_combat=lambda *_args, **_kwargs: None))
 Fight = _load_module("interp.commands.Fight", "interp/commands/Fight.py").Fight
 _stub_module_if_missing("interp.commands.Info", Info=object)
