@@ -191,7 +191,8 @@ class TravelIntegrationTests(MovementFixture, unittest.TestCase):
         self.mob = self.npc()
         self.room.add_mobile_to_room(self.mob)
         self.mobile_handler = NS(room_registry=self.rooms, exit_flags=self.enums.get('exitFlags'),
-            room_flags=self.enums.get('roomFlags'), act_bits=self.enums.get('actBits'), movement_commands=self.movement)
+            room_flags=self.enums.get('roomFlags'), act_bits=self.enums.get('actBits'), movement_commands=self.movement,
+            rng=NS(number_bits=lambda _: 0))
         self.commands = Fight.__new__(Fight)
         self.commands.registry_service = self.registries
         self.commands.room_registry, self.commands.interp_api = self.rooms, self.api
@@ -202,7 +203,7 @@ class TravelIntegrationTests(MovementFixture, unittest.TestCase):
 
     def wander(self):
         ctx = MobileContext(self.mob, self.room, self.mobile_handler)
-        return MobileApi._move_mobile_direction(ctx, 0), ctx
+        return MobileApi.wander(ctx), ctx
 
     def flee(self):
         with patch('interp.commands.Fight.random.randint', return_value=0):
@@ -330,7 +331,6 @@ class MobileWanderPulseTests(MovementFixture, unittest.IsolatedAsyncioTestCase):
         handler.movement_commands = self.movement
         handler.rng = Mock(number_bits=Mock(return_value=0))
         handler._handle_payload = AsyncMock()
-        handler._special_library_cache = None
         handler.special_registry = SpecialRegistry()
         collections = load_collections(ROOT / 'resources/collections', ['specials'])
         for document in collections['specials'].documents:

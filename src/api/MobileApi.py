@@ -8,6 +8,7 @@ from typing import Any, Optional
 from api.GameApi import GameApi
 from api.ItemApi import ItemApi
 from game.AnimateEntity import AnimateEntity
+from item.Item import Item
 from mobile.Mobile import Mobile
 from util.DisplayUtil import DisplayUtil, RecipientText
 from util.GenericUtil import GenericUtil
@@ -107,6 +108,13 @@ class MobileApi(GameApi):
         return ctx.handler.execute_special_by_name(ctx.actor, chosen, ctx.room, ctx)
 
     @staticmethod
+    def dispatch_special_by_bits(ctx: MobileContext, bits: int, choices: list[str]):
+        index = ctx.handler.rng.number_bits(bits)
+        if index >= len(choices) or not choices[index]:
+            return False
+        return ctx.handler.execute_special_by_name(ctx.actor, choices[index], ctx.room, ctx)
+
+    @staticmethod
     def when_fighting_delegate(ctx: MobileContext, special_name: str):
         if ctx.actor.fighting is None:
             return False
@@ -115,16 +123,18 @@ class MobileApi(GameApi):
     @staticmethod
     def select_visible_room_player(ctx: MobileContext, alias: str, exclude_self: bool = True, max_level: Optional[int] = None, chance_bits: int = 0):
         target = None
-        for player in ctx.room.players_in_room():
-            if exclude_self and player is ctx.actor:
+        for candidate in ctx.room.people_newest_first():
+            if exclude_self and candidate is ctx.actor:
                 continue
-            if max_level is not None and GenericUtil.to_int(player.level, 0) > GenericUtil.to_int(max_level, 0):
-                continue
-            if not CharacterApi.can_see(ctx.actor, player, ctx.room):
+            if not CharacterApi.can_see(ctx.actor, candidate, ctx.room):
                 continue
             if chance_bits > 0 and ctx.handler.rng.number_bits(GenericUtil.to_int(chance_bits, 0)) != 0:
                 continue
-            target = player
+            if CharacterApi.is_npc(candidate):
+                continue
+            if max_level is not None and GenericUtil.to_int(candidate.level, 0) > GenericUtil.to_int(max_level, 0):
+                continue
+            target = candidate
             break
         ctx.set_alias(alias, target)
         return target
@@ -132,7 +142,7 @@ class MobileApi(GameApi):
     @staticmethod
     def select_room_combat_victim(ctx: MobileContext, alias: str, chance_bits: int = 0):
         target = None
-        for entity in ctx.room.people():
+        for entity in ctx.room.people_newest_first():
             if entity.fighting is ctx.actor:
                 if chance_bits > 0 and ctx.handler.rng.number_bits(GenericUtil.to_int(chance_bits, 0)) != 0:
                     continue
@@ -143,14 +153,18 @@ class MobileApi(GameApi):
 
     @classmethod
     def cast_dragon_breath(cls, ctx: MobileContext, spell_name: str):
-        target = ctx.actor.fighting
-        if target is None:
-            ctx.finish()
-            return False
-        return cls.cast_spell(ctx, spell_name, target=target)
+        cls.select_room_combat_victim(ctx, "victim", chance_bits=3)
+        return cls.cast_spell(ctx, spell_name, target="victim")
 
     @classmethod
-    def cast_spell(cls, ctx: MobileContext, spell_name: str, target: Any = "victim"):
+    def cast_spell(cls, ctx: MobileContext, spell_name: str, target: Any = "victim", *,
+                   direct: bool = False, claim_pulse: bool = True):
+        """Resolve a mobile spell and return whether it claims the pulse."""
+        target_value = target if target == "room" else ctx.resolve(target)
+        area = target_value == "room"
+        if target_value is None or (not area and isinstance(target_value, str)):
+            return False
+
         spell_key = str(spell_name or "").strip().lower()
         spell = FightUtil.find_spell(ctx.handler.spell_registry, spell_key)
         skill = FightUtil.find_spell_skill(ctx.handler.skill_registry, ctx.actor, spell_key)
@@ -158,46 +172,40 @@ class MobileApi(GameApi):
         if meta is None:
             return False
 
-        target_value = ctx.resolve(target)
-        if target_value == "room":
-            spell_context = SpellContext(
-                actor=ctx.actor,
-                spell=meta,
-                handler=ctx.handler,
-                room=ctx.room,
-                target=None,
-                target_name="room",
-                target_kind="room",
-                source="mobile",
-            )
-            ctx.handler.spell_api.execute_lambdas(spell_context)
-            if not spell_context.performed:
-                return False
-            cls._queue_spell_payload(ctx, meta, None, area=True)
-            for payload in spell_context.payloads:
-                ctx.queue_payload(payload)
-            return ctx.mark_performed()
-
-        victim = target_value
-        if victim is None:
-            return False
+        victim = None if area else target_value
+        object_target = hasattr(victim, "item_type")
         spell_context = SpellContext(
             actor=ctx.actor,
             spell=meta,
             handler=ctx.handler,
             room=ctx.room,
             target=victim,
-            target_name=str(victim.name or ""),
-            target_kind="obj" if hasattr(victim, "item_type") else "char",
+            target_name="room" if area else str(victim.name or ""),
+            target_kind="room" if area else "obj" if object_target else "char",
             source="mobile",
         )
         ctx.handler.spell_api.execute_lambdas(spell_context)
-        if not spell_context.performed:
+        if spell_context.script_failed:
             return False
-        cls._queue_spell_payload(ctx, meta, victim if not hasattr(victim, "item_type") else None, area=False)
+        # A save can end the spell without an effect and still produce notices.
+        if not direct and spell_context.performed:
+            cls._queue_spell_payload(ctx, meta, None if object_target else victim, area=area)
         for payload in spell_context.payloads:
             ctx.queue_payload(payload)
-        return ctx.mark_performed()
+        return claim_pulse and ctx.mark_performed()
+
+    @classmethod
+    def cast_support_spell_by_bits(cls, ctx: MobileContext, target_alias: str, bits: int,
+                                   choices: list[tuple[str, str, bool]]):
+        target = ctx.resolve(target_alias)
+        if target is None:
+            return False
+        index = ctx.handler.rng.number_bits(bits)
+        if index >= len(choices):
+            return False
+        spell, message, claim_pulse = choices[index]
+        cls._queue_room_message(ctx, message)
+        return cls.cast_spell(ctx, spell, target=target, direct=True, claim_pulse=claim_pulse)
 
     @classmethod
     def cast_weighted_support_spell(cls, ctx: MobileContext, target_alias: str, weighted_spells: list[tuple[str, int, str]], miss_weight: int = 0):
@@ -237,7 +245,7 @@ class MobileApi(GameApi):
         player_bits = CharacterApi.get_enum("playerActBits")
         victim = None
         crime = ""
-        for player in ctx.room.players_in_room():
+        for player in reversed(ctx.room.players_in_room()):
             if visible_only and not CharacterApi.can_see(ctx.actor, player, ctx.room):
                 continue
             act_flags = player.status_flags.act
@@ -260,22 +268,19 @@ class MobileApi(GameApi):
         if victim is None and "{victim" in str(text):
             return False
         formatted = str(text or "").format(victim=victim, crime=crime)
+        if allow_noshout_override:
+            return ctx.handler.run_special_yell(ctx, formatted) and ctx.mark_performed()
         ctx.queue_payload({"area_message": f"{formatted}\r\n", "area_id": ctx.actor.area_id})
         return ctx.mark_performed()
 
     @staticmethod
-    def multi_hit(ctx: MobileContext, victim_alias: str):
+    def multi_hit(ctx: MobileContext, victim_alias: str, *, check_safe: bool = True):
         victim = ctx.resolve(victim_alias)
         if victim is None or ctx.room is None:
             return False
         fight = ctx.handler.fight_handler
-        safe, _ = fight.is_safe(ctx.actor, victim, room=ctx.room)
-        if safe:
+        if check_safe and ctx.is_safe(victim):
             return False
-        if ctx.actor.fighting is None:
-            fight.set_fighting(ctx.actor, victim, ctx.room.id)
-        if victim.fighting is None:
-            fight.set_fighting(victim, ctx.actor, ctx.room.id)
         result = fight.multi_hit(ctx.actor, victim, dt="TYPE_UNDEFINED")
         round_payload = fight.build_round_payload(ctx.actor, victim, ctx.room, result)
         ctx.queue_payload({"actor": ctx.actor, "combat_round": round_payload})
@@ -296,7 +301,7 @@ class MobileApi(GameApi):
             threshold = abs(threshold)
         best = None
         max_evil = threshold
-        for entity in ctx.room.people():
+        for entity in ctx.room.people_newest_first():
             if exclude_target == "self" and entity is ctx.actor:
                 continue
             if entity.fighting is None or entity.fighting is ctx.actor:
@@ -309,29 +314,28 @@ class MobileApi(GameApi):
         return best
 
     @classmethod
-    def when_selected_attack(cls, ctx: MobileContext, alias: str, room_message: str = ""):
+    def when_selected_attack(cls, ctx: MobileContext, alias: str, room_message: str = "", *, check_safe: bool = True):
         victim = ctx.resolve(alias)
         if victim is None:
             return False
         if room_message:
             cls._queue_room_message(ctx, room_message, target=victim)
-        return cls.multi_hit(ctx, alias)
+        return cls.multi_hit(ctx, alias, check_safe=check_safe)
 
     @staticmethod
     def select_room_npc_by_group(ctx: MobileContext, alias: str, group_vnum: str, exclude_vnum: str = "", where: str = "", randomize: bool = False):
         excluded = str(exclude_vnum or "").strip().upper()
         if excluded == "MOB_VNUM_PATROLMAN":
-            for mob in ctx.room.mobiles.values():
-                if str(mob.vnum) == "2106":
-                    ctx.set_alias(alias, None)
-                    return None
+            excluded = "2106"
 
         wanted_group = MobileApi.group_vnum(group_vnum)
         selected = None
         count = 0
-        for mob in ctx.room.mobiles.values():
+        for mob in reversed(ctx.room.mobiles_in_room()):
             if mob is ctx.actor:
                 continue
+            if str(mob.vnum) == excluded:
+                return ctx.set_alias(alias, None)
             if str(mob.group or "") != wanted_group:
                 continue
             if where and not ctx.eval_bool(where, candidate=mob):
@@ -351,21 +355,24 @@ class MobileApi(GameApi):
         if not messages:
             return False
         target_value = ctx.resolve(target)
-        selected = random.choice(messages)
         if allow_none and ctx.handler.rng.number_range(0, len(messages)) == 0:
             return False
+        selected = messages[ctx.handler.rng.number_range(0, len(messages) - 1)] if len(messages) > 1 else messages[0]
         cls._queue_room_message(ctx, selected, target=target_value)
         return ctx.mark_performed()
 
     @staticmethod
     def select_room_item(ctx: MobileContext, alias: str, where: str = ""):
         chosen = None
-        for obj in ctx.room.contents.values():
+        owners = None
+        for obj in ctx.room.items_newest_first():
+            if obj.owner and owners is None:
+                owners = list(MobileApi._live_loot_owners(ctx))
             proxy = SimpleNamespace(
                 obj=obj,
                 can_take=ItemApi.item_takeable(obj, ctx.handler.wear_flags),
-                can_loot=True,
-                item_type=str(obj.item_type),
+                can_loot=ItemApi.can_loot(ctx.actor, obj, owners or ()),
+                item_type=Item.enum_type_name(obj),
                 cost=GenericUtil.to_int(obj.cost, 0),
             )
             if where and not ctx.eval_bool(where, candidate=proxy):
@@ -391,7 +398,7 @@ class MobileApi(GameApi):
         actor_label = cls._actor_label(ctx.actor)
         room_label = cls._room_label(ctx.room)
         cls._logger_obj().debug(f"{actor_label}: checking for npc corpse to devour in {room_label}")
-        for corpse in ctx.room.contents.values():
+        for corpse in ctx.room.items_newest_first():
             item_type = str(corpse.item_type).strip().lower()
             if item_type not in {"npc_corpse", "item_corpse_npc", "corpse_npc"}:
                 continue
@@ -414,8 +421,7 @@ class MobileApi(GameApi):
         return False
 
     @classmethod
-    def follow_time_script(cls, ctx: MobileContext, open_hour: int, close_hour: int, open_path: str,
-                           close_path: str, combat_special: str = ""):
+    def follow_time_script(cls, ctx: MobileContext, open_hour: int, close_hour: int, open_path: str, close_path: str, combat_special: str = ""):
         weather = ctx.handler.weather_handler.time_info
         hour = GenericUtil.to_int((weather.hour if weather is not None else -1), -1)
         state = getattr(ctx.actor, "_special_state", None)
@@ -446,7 +452,7 @@ class MobileApi(GameApi):
         step = path[pos]
         performed = ctx.performed
         if step in "012345":
-            cls._move_mobile_direction(ctx, int(step))
+            cls._travel_mobile_direction(ctx, int(step))
         elif step == "W":
             CharacterApi.set_position(ctx.actor, "POS_STANDING")
             cls._queue_room_message(ctx, "$n awakens and groans loudly.")
@@ -501,20 +507,22 @@ class MobileApi(GameApi):
         game_parameters = CharacterApi.get_enum("gameParameters")
         imm_name = str(immortal_level or "").strip().upper()
         imm_value = int(game_parameters[imm_name].value)
-        for victim in ctx.room.players_in_room():
+        thief_level = max(0, GenericUtil.to_int(ctx.actor.level, 0))
+        percentage_cap = thief_level // 2
+        for victim in reversed(ctx.room.players_in_room()):
             if GenericUtil.to_int(victim.level, 0) >= imm_value:
                 continue
             if ctx.handler.rng.number_bits(GenericUtil.to_int(discovery_bits, 0)) != 0:
                 continue
             if require_visibility and not CharacterApi.can_see(ctx.actor, victim, ctx.room):
                 continue
-            if awake_discovery_check and CharacterApi.is_awake(victim) and ctx.handler.rng.number_range(0, max(0, GenericUtil.to_int(ctx.actor.level, 0))) == 0:
+            if awake_discovery_check and CharacterApi.is_awake(victim) and ctx.handler.rng.number_range(0, thief_level) == 0:
                 ctx.queue_payload({"victim": victim, "to_victim": f"You discover {MobileApi.render_mobile_name(ctx.actor)}'s hands in your wallet!\r\n"})
                 cls._queue_room_message(ctx, "$N discovers $n's hands in $N's wallet!",
                                         target=victim, exclude_ids={str(victim.id)})
                 return ctx.mark_performed()
 
-            gold_roll = min(ctx.handler.rng.number_range(1, 20), max(1, GenericUtil.to_int(ctx.actor.level, 0) // 2))
+            gold_roll = min(ctx.handler.rng.number_range(1, 20), percentage_cap)
             gold = GenericUtil.to_int(victim.gold, 0) * gold_roll // 100
             if gold_cap:
                 try:
@@ -524,7 +532,7 @@ class MobileApi(GameApi):
             victim.gold = max(0, GenericUtil.to_int(victim.gold, 0) - gold)
             ctx.actor.gold = GenericUtil.to_int(ctx.actor.gold, 0) + gold
 
-            silver_roll = min(ctx.handler.rng.number_range(1, 20), max(1, GenericUtil.to_int(ctx.actor.level, 0) // 2))
+            silver_roll = min(ctx.handler.rng.number_range(1, 20), percentage_cap)
             silver = GenericUtil.to_int(victim.silver, 0) * silver_roll // 100
             if silver_cap:
                 try:
@@ -541,7 +549,7 @@ class MobileApi(GameApi):
         if CharacterApi.position_value(ctx.actor) == CharacterApi.pos_value("POS_FIGHTING"):
             return False
         minimum, maximum = level_window
-        for victim in ctx.room.players_in_room():
+        for victim in reversed(ctx.room.players_in_room()):
             delta = GenericUtil.to_int(victim.level, 0) - GenericUtil.to_int(ctx.actor.level, 0)
             if delta < GenericUtil.to_int(minimum, 0) or delta > GenericUtil.to_int(maximum, 0):
                 continue
@@ -557,7 +565,7 @@ class MobileApi(GameApi):
     @classmethod
     def nasty_combat_turn(cls, ctx: MobileContext, coin_purse_fraction: float = 0.10, flee_weight: int = 1, purse_weight: int = 1, idle_weight: int = 0):
         victim = ctx.actor.fighting
-        if victim is None:
+        if victim is None or CharacterApi.position_value(ctx.actor) != CharacterApi.pos_value("POS_FIGHTING"):
             return False
         action = MobileApi.choose_weighted([("purse", purse_weight), ("flee", flee_weight), ("idle", idle_weight)])
         if action == "purse":
@@ -578,7 +586,7 @@ class MobileApi(GameApi):
     def select_room_fight_intervention_target(ctx: MobileContext, alias: str, exclude_self: bool = True, choose: str = "", randomize: bool = False):
         victim = None
         count = 0
-        for entity in ctx.room.people():
+        for entity in ctx.room.people_newest_first():
             if exclude_self and entity is ctx.actor:
                 continue
             defender = entity.fighting
@@ -605,28 +613,34 @@ class MobileApi(GameApi):
         return False
 
     @classmethod
-    def blow_patrol_whistle(cls, ctx: MobileContext, item_vnum: str, slots: list[str]):
+    def blow_patrol_whistle(cls, ctx: MobileContext, item_vnum: str, slots: list[str],
+                           to_char: str, to_room: str, to_area: str):
         if ctx.actor.equipped is None:
             return False
         found = None
         for slot in slots:
             attr = str(slot or "").strip().lower()
             item = getattr(ctx.actor.equipped, attr, None)
-            if item is not None and str(item.vnum) == "2116":
+            if item is not None and str(item.vnum) == str(item_vnum):
                 found = item
                 break
         if found is None:
             return False
-        cls._queue_room_message(ctx, "$n blows on $p, ***WHEEEEEEEEEEEET***", item=found)
+        if (getattr(ctx.actor, "context", None) or {}).get("controller_original") is not None:
+            item_name = found.short_description or found.name
+            ctx.queue_payload({"to_victim": to_char.replace("$p", item_name) + "\r\n", "victim": ctx.actor})
+        cls._queue_room_message(ctx, to_room, item=found)
         targets = []
         for room in ctx.handler.room_registry.all_rooms():
             if room is None or room is ctx.room:
                 continue
             if room.area_id != ctx.room.area_id:
                 continue
-            targets.extend(list(room.characters.values()))
+            targets.extend(room.players_in_room())
+            targets.extend(mob for mob in room.mobiles_in_room()
+                           if (getattr(mob, "context", None) or {}).get("controller_original") is not None)
         if targets:
-            ctx.queue_payload({"global_message": "You hear a shrill whistling sound.\n\r", "global_targets": targets})
+            ctx.queue_payload({"global_message": to_area + "\r\n", "global_targets": targets})
         return ctx.mark_performed()
 
     @classmethod
@@ -647,7 +661,7 @@ class MobileApi(GameApi):
         obj_best = None
         max_cost = 1
         owners = list(cls._live_loot_owners(ctx))
-        for obj in list(ctx.room.contents.values()):
+        for obj in ctx.room.items_newest_first():
             if not ItemApi.item_takeable(obj, ctx.handler.wear_flags):
                 continue
             if not ItemApi.can_loot(ctx.actor, obj, owners):
@@ -692,10 +706,10 @@ class MobileApi(GameApi):
             cls._logger_obj().debug(f"{actor_label}: wander skipped in {room_label} because chosen door {door} is invalid")
             return False
         cls._logger_obj().debug(f"{actor_label}: wander selected door {door} from {room_label}")
-        return cls._move_mobile_direction(ctx, door)
+        return cls._wander_mobile_direction(ctx, door)
 
     @classmethod
-    def _move_mobile_direction(cls, ctx: MobileContext, door: int):
+    def _wander_mobile_direction(cls, ctx: MobileContext, door: int):
         actor_label = cls._actor_label(ctx.actor)
         room_label = cls._room_label(ctx.room)
         pexit = None
@@ -735,14 +749,22 @@ class MobileApi(GameApi):
             cls._logger_obj().debug(f"{actor_label}: move blocked from {room_label} to {cls._room_label(to_room)} because ACT_INDOORS forbids outdoor rooms")
             return False
 
+        return cls._travel_mobile_direction(ctx, door)
+
+    @classmethod
+    def _travel_mobile_direction(cls, ctx: MobileContext, door: int):
         from util.MovementUtil import MovementUtil
-        payload = ctx.handler.movement_commands.travel(ctx.actor, MovementUtil.DIR_NAME[door], ctx.room)
-        if ctx.actor.room_id == ctx.room.id:
+
+        from_room = ctx.room
+        payload = ctx.handler.movement_commands.travel(ctx.actor, MovementUtil.DIR_NAME[door], from_room)
+        if ctx.actor.room_id == from_room.id:
             return False
+        to_room = cls.resolve_room(ctx.handler.room_registry, ctx.actor)
         ctx.queue_payload(payload)
         ctx.room = to_room
         ctx.set_alias("room", to_room)
-        cls._logger_obj().debug(f"{actor_label}: moved from {room_label} to {cls._room_label(to_room)} via door {door}")
+        cls._logger_obj().debug("%s: moved from %s to %s via door %s", cls._actor_label(ctx.actor),
+                               cls._room_label(from_room), cls._room_label(to_room), door)
         return ctx.mark_performed()
 
     @staticmethod

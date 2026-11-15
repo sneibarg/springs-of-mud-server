@@ -59,6 +59,7 @@ class Room:
         self.combat_events = []
         self.populace = {}
         self.lock = threading.Lock()
+        self._occupant_order = dict.fromkeys((*self.characters, *self.mobiles))
 
     def __hash__(self):
         return hash(self.id)
@@ -164,6 +165,7 @@ class Room:
 
         entered = character.id not in self.characters
         if entered:
+            self._occupant_order[character.id] = None
             self.adjust_light(Equipped.light_contribution(character))
             if self.area is not None:
                 self.area.player_entered()
@@ -179,6 +181,7 @@ class Room:
                 character._equipment_room = None
                 character.on = None
                 del self.characters[character.id]
+                self._occupant_order.pop(character.id, None)
                 if self.area is not None:
                     self.area.player_left()
 
@@ -199,6 +202,7 @@ class Room:
             entered = mobile.id not in self.mobiles
             from game.Equipped import Equipped
             if entered:
+                self._occupant_order[mobile.id] = None
                 self.adjust_light(Equipped.light_contribution(mobile))
             self.mobiles[mobile.id] = mobile
             self._set_occupant_location(mobile)
@@ -220,6 +224,7 @@ class Room:
                 mobile._equipment_room = None
                 mobile.on = None
                 del self.mobiles[mobile.id]
+                self._occupant_order.pop(mobile.id, None)
 
     def add_item_to_room(self, item: Item):
         with self.lock:
@@ -244,6 +249,17 @@ class Room:
     def people(self) -> List[Any]:
         with self.lock:
             return list(self.characters.values()) + list(self.mobiles.values())
+
+    def people_newest_first(self) -> List[Any]:
+        """Return occupants in reverse entry order across players and mobiles."""
+        with self.lock:
+            remaining = self.characters | self.mobiles
+            ordered = [remaining.pop(key) for key in reversed(self._occupant_order) if key in remaining]
+            return [*reversed(remaining.values()), *ordered]
+
+    def items_newest_first(self) -> List[Item]:
+        with self.lock:
+            return list(reversed(self.contents.values()))
 
     def player_targets(self, character: Character) -> List[Character]:
         with self.lock:

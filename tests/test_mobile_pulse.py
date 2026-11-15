@@ -9,6 +9,7 @@ from api.CharacterApi import CharacterApi
 from api.MobileApi import MobileApi
 from mobile.MobileHandler import MobileHandler
 from area.Special import Special
+from area.SpecialRegistry import SpecialRegistry
 from enum import IntEnum
 from util.FightUtil import FightUtil
 
@@ -58,7 +59,21 @@ class MobilePulseTests(unittest.IsolatedAsyncioTestCase):
             await handler.mobile_update()
         self.assertEqual(['special', 'money roll', 'money roll'], events)
         self.assertEqual((10, 1000), (actor.gold, actor.silver))
+        top_up_logs = [entry for entry in handler.logger.debug.call_args_list if 'topped up shopkeeper money' in entry.args[0]]
+        self.assertEqual(1, len(top_up_logs))
         handler._execute_generic_special.assert_not_awaited()
+
+    async def test_shop_refill_rounding_to_zero_does_not_log_a_top_up(self):
+        handler, _, actor = self.handler()
+        actor.wealth, actor.silver = 150, 76
+        handler.rng.number_range.return_value = 20
+        with patch.object(MobileApi, 'mobile_is_charmed', return_value=False), patch.object(
+                MobileApi, 'mobile_is_standing', return_value=False):
+            await handler.mobile_update()
+            await handler.mobile_update()
+        self.assertEqual((0, 76), (actor.gold, actor.silver))
+        self.assertEqual([call(1, 20)] * 4, handler.rng.number_range.call_args_list)
+        self.assertFalse(any('topped up shopkeeper money' in entry.args[0] for entry in handler.logger.debug.call_args_list))
 
     async def test_generic_actions_follow_live_posture_across_combat(self):
         handler, room, actor = self.handler()
@@ -104,11 +119,12 @@ class MobilePulseTests(unittest.IsolatedAsyncioTestCase):
     async def test_generic_special_discards_invalid_nested_output_and_delivers_valid_output(self):
         handler, room, actor = self.handler()
         del handler._execute_generic_special
-        handler._special_library_cache = {'spec_generic': [
+        handler.special_registry = SpecialRegistry()
+        handler.special_registry.register(Special(id='generic', name='spec_generic', special_function=[
             "lambda ctx: ctx.queue_payload({'actor': ctx.actor, 'context': None, "
             "'payloads': [{'room_message': 'broken', 'room_targets': None}]})",
             "lambda ctx: ctx.queue_payload({'room_message': 'working', 'room_targets': [ctx.actor]})",
-        ]}
+        ]))
         handler.player_handler = Mock(_emit_standard_payload=AsyncMock())
         await handler._execute_generic_special(actor, room, 'spec_generic')
         handler.player_handler._emit_standard_payload.assert_not_awaited()
@@ -131,11 +147,13 @@ class MobilePulseTests(unittest.IsolatedAsyncioTestCase):
                                     short_description='a protected gem')
         allowed = SimpleNamespace(id='allowed', owner='', cost=10, wear_flags=1, item_type='money',
                                   short_description='a coin')
-        room.contents = {obj.id: obj for obj in [protected, allowed]}
+        older = SimpleNamespace(id='older', owner='', cost=10, wear_flags=1, item_type='money',
+                                short_description='an older coin')
+        room.contents = {obj.id: obj for obj in [older, allowed, protected]}
         documents = json.loads((Path(__file__).resolve().parents[1] / 'resources/collections/SOMDB.Specials.json').read_text())
         special = Special.from_json(next(doc for doc in documents if doc.get('name') == 'spec_scavenge'))
-        handler.special_registry = SimpleNamespace(all_specials=lambda: [special])
-        handler._special_library_cache = None
+        handler.special_registry = SpecialRegistry()
+        handler.special_registry.register(special)
         # Exercise the real generic dispatcher and payload delivery.
         del handler._execute_generic_special
         with patch.object(MobileApi, 'mobile_is_charmed', return_value=False), patch.object(
@@ -149,7 +167,7 @@ class MobilePulseTests(unittest.IsolatedAsyncioTestCase):
                 'util.LookupUtil.LookupUtil.object_visible', return_value=True):
             await handler.mobile_update()
         self.assertEqual([allowed], actor.inventory)
-        self.assertEqual({'protected': protected}, room.contents)
+        self.assertEqual({'older': older, 'protected': protected}, room.contents)
         handler.message_bus.send_to_room.assert_awaited_once()
         message, targets = handler.message_bus.send_to_room.await_args.args
         self.assertEqual([viewer], targets)

@@ -31,12 +31,14 @@ class RuntimeFactoryTests(unittest.TestCase):
         service.game_data = SimpleNamespace(races={'human': {}})
         special = SimpleNamespace(name='guard', special_function=['lambda ctx: ctx.finish()'])
         service.special_registry = SimpleNamespace(for_mobile=Mock(return_value=special))
-        prototype = SimpleNamespace(id='prototype', area_id='area', vnum='100')
-        document = {'id': 'prototype'}
+        document = {'id': 'prototype', 'areaId': 'area', 'vnum': '100',
+                    'armorClass': '{"pierce": 70, "slash": 60, "bash": 50, "exotic": 40}'}
+        prototype = MobileFactory.from_data(document, service.game_data.races)
         with patch.object(MobileFactory, 'from_data', return_value=prototype) as build:
             result = service._build_fetch_item(document)
         build.assert_called_once_with(document, service.game_data.races)
         service.special_registry.for_mobile.assert_called_once_with('area', '100')
+        self.assertEqual('area', result.special_assignment_area_id)
         self.assertEqual('guard', result.special_name)
         self.assertEqual(special.special_function, result.special_function)
         self.assertIsNot(special.special_function, result.special_function)

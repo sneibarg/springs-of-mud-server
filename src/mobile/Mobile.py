@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Optional
 
+from area.Special import Special
 from game.AnimateEntity import AnimateEntity
 from mobile.Dice import Dice
 from mobile.MobileFlags import MobileFlags
@@ -39,6 +40,8 @@ class Mobile(AnimateEntity):
     extra_flags: Optional[MobileFlags] = None
     special_name: Optional[str] = None
     special_function: list[str] = field(default_factory=list)
+    special_assignment_area_id: str | None = field(default=None, kw_only=True)
+    special_override_id: str | None = field(default=None, kw_only=True)
 
     def __post_init__(self):
         self.instance_id = GenericUtil.generate_mongo_id()
@@ -47,6 +50,10 @@ class Mobile(AnimateEntity):
 
     def __hash__(self):
         return hash(self.id)
+
+    def bind_special(self, special: Special | None) -> None:
+        self.special_name = special.name if special is not None else None
+        self.special_function = list(special.special_function or ()) if special is not None else []
 
     def credit_expired_stock(self, item) -> int:
         """Recover ROM's silver value when a shopkeeper's carried stock expires."""

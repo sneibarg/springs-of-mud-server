@@ -137,7 +137,7 @@
   "specialFunction": [
     "lambda ctx: ctx.require_position('fighting')",
     "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
-    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 2), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
+    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 1), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -181,7 +181,7 @@
   "specialFunction": [
     "lambda ctx: ctx.require_position('fighting')",
     "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
-    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 2), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
+    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 1), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -196,7 +196,7 @@
   "specialFunction": [
     "lambda ctx: ctx.require_position('fighting')",
     "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
-    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 2), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
+    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 1), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -226,7 +226,7 @@
   "specialFunction": [
     "lambda ctx: ctx.require_position('fighting')",
     "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
-    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 2), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
+    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 1), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -269,7 +269,7 @@
   "specialFunction": [
     "lambda ctx: ctx.require_position('fighting')",
     "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
-    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 2), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
+    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 1), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -299,7 +299,7 @@
   "specialFunction": [
     "lambda ctx: ctx.require_position('fighting')",
     "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
-    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 2), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
+    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 1), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -438,7 +438,11 @@
   "mobVnum": "8003",
   "name": "spec_cast_judge",
   "comment": "a Citi-Def Militiaman",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_position('fighting')",
+    "lambda ctx: ctx.select_room_combat_victim('victim', chance_bits=2)",
+    "lambda ctx: ctx.cast_spell('high explosive', direct=True)"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -478,7 +482,10 @@
   "mobVnum": "5109",
   "name": "spec_breath_any",
   "comment": "the yochlol",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_position('fighting')",
+    "lambda ctx: ctx.dispatch_special_by_bits(3, ['spec_breath_fire', 'spec_breath_lightning', 'spec_breath_lightning', 'spec_breath_gas', 'spec_breath_acid', 'spec_breath_frost', 'spec_breath_frost', 'spec_breath_frost'])"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -489,7 +496,11 @@
   "mobVnum": "8006",
   "name": "spec_cast_judge",
   "comment": "a rookie judge",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_position('fighting')",
+    "lambda ctx: ctx.select_room_combat_victim('victim', chance_bits=2)",
+    "lambda ctx: ctx.cast_spell('high explosive', direct=True)"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -500,7 +511,11 @@
   "mobVnum": "8010",
   "name": "spec_cast_judge",
   "comment": "Judge Eckersely",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_position('fighting')",
+    "lambda ctx: ctx.select_room_combat_victim('victim', chance_bits=2)",
+    "lambda ctx: ctx.cast_spell('high explosive', direct=True)"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -511,7 +526,11 @@
   "mobVnum": "8011",
   "name": "spec_cast_judge",
   "comment": "Judge Beddows",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_position('fighting')",
+    "lambda ctx: ctx.select_room_combat_victim('victim', chance_bits=2)",
+    "lambda ctx: ctx.cast_spell('high explosive', direct=True)"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -538,7 +557,7 @@
   "specialFunction": [
     "lambda ctx: ctx.require_position('fighting')",
     "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
-    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 2), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
+    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 1), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -553,7 +572,7 @@
   "specialFunction": [
     "lambda ctx: ctx.require_position('fighting')",
     "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
-    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 2), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
+    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 1), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -583,7 +602,7 @@
   "specialFunction": [
     "lambda ctx: ctx.require_position('fighting')",
     "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
-    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 2), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
+    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 1), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -598,7 +617,7 @@
   "specialFunction": [
     "lambda ctx: ctx.require_position('fighting')",
     "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
-    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 2), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
+    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 1), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -610,7 +629,10 @@
   "mobVnum": "2016",
   "name": "spec_breath_any",
   "comment": "the prism dragon",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_position('fighting')",
+    "lambda ctx: ctx.dispatch_special_by_bits(3, ['spec_breath_fire', 'spec_breath_lightning', 'spec_breath_lightning', 'spec_breath_gas', 'spec_breath_acid', 'spec_breath_frost', 'spec_breath_frost', 'spec_breath_frost'])"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -637,7 +659,7 @@
   "specialFunction": [
     "lambda ctx: ctx.require_position('fighting')",
     "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
-    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 2), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
+    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 1), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -652,7 +674,7 @@
   "specialFunction": [
     "lambda ctx: ctx.require_position('fighting')",
     "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
-    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 2), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
+    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 1), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -664,7 +686,10 @@
   "mobVnum": "2200",
   "name": "spec_breath_any",
   "comment": "the dragon hatchling",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_position('fighting')",
+    "lambda ctx: ctx.dispatch_special_by_bits(3, ['spec_breath_fire', 'spec_breath_lightning', 'spec_breath_lightning', 'spec_breath_gas', 'spec_breath_acid', 'spec_breath_frost', 'spec_breath_frost', 'spec_breath_frost'])"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -678,7 +703,7 @@
   "specialFunction": [
     "lambda ctx: ctx.require_position('fighting')",
     "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
-    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 2), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
+    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 1), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -690,7 +715,10 @@
   "mobVnum": "5005",
   "name": "spec_breath_any",
   "comment": "the brass dragon",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_position('fighting')",
+    "lambda ctx: ctx.dispatch_special_by_bits(3, ['spec_breath_fire', 'spec_breath_lightning', 'spec_breath_lightning', 'spec_breath_gas', 'spec_breath_acid', 'spec_breath_frost', 'spec_breath_frost', 'spec_breath_frost'])"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -719,7 +747,7 @@
   "specialFunction": [
     "lambda ctx: ctx.require_position('fighting')",
     "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
-    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 2), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
+    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 1), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -778,7 +806,7 @@
   "specialFunction": [
     "lambda ctx: ctx.require_position('fighting')",
     "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
-    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 2), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
+    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 1), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -793,7 +821,7 @@
   "specialFunction": [
     "lambda ctx: ctx.require_position('fighting')",
     "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
-    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 2), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
+    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 1), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -805,7 +833,10 @@
   "mobVnum": "2205",
   "name": "spec_breath_any",
   "comment": "the Draconian King",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_position('fighting')",
+    "lambda ctx: ctx.dispatch_special_by_bits(3, ['spec_breath_fire', 'spec_breath_lightning', 'spec_breath_lightning', 'spec_breath_gas', 'spec_breath_acid', 'spec_breath_frost', 'spec_breath_frost', 'spec_breath_frost'])"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -831,7 +862,10 @@
   "mobVnum": "2220",
   "name": "spec_breath_any",
   "comment": "Tiamat",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_position('fighting')",
+    "lambda ctx: ctx.dispatch_special_by_bits(3, ['spec_breath_fire', 'spec_breath_lightning', 'spec_breath_lightning', 'spec_breath_gas', 'spec_breath_acid', 'spec_breath_frost', 'spec_breath_frost', 'spec_breath_frost'])"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -845,7 +879,7 @@
   "specialFunction": [
     "lambda ctx: ctx.require_position('fighting')",
     "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
-    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 2), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
+    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 1), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -874,7 +908,7 @@
   "specialFunction": [
     "lambda ctx: ctx.require_position('fighting')",
     "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
-    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 2), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
+    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 1), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -886,7 +920,10 @@
   "mobVnum": "2222",
   "name": "spec_breath_acid",
   "comment": "the Great Black Dragon",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_position('fighting')",
+    "lambda ctx: ctx.cast_dragon_breath('acid breath')"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -900,7 +937,7 @@
   "specialFunction": [
     "lambda ctx: ctx.require_position('fighting')",
     "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
-    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 2), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
+    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 1), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -929,7 +966,7 @@
   "specialFunction": [
     "lambda ctx: ctx.require_position('fighting')",
     "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
-    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 2), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
+    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 1), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -1030,7 +1067,7 @@
   "specialFunction": [
     "lambda ctx: ctx.require_position('fighting')",
     "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
-    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 2), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
+    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 1), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -1045,7 +1082,7 @@
   "specialFunction": [
     "lambda ctx: ctx.require_position('fighting')",
     "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
-    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 2), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
+    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 1), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -1074,7 +1111,7 @@
   "specialFunction": [
     "lambda ctx: ctx.require_position('fighting')",
     "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
-    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 2), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
+    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 1), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -1100,7 +1137,16 @@
   "mobVnum": "2101",
   "name": "spec_troll_member",
   "comment": "a troll gang member",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_awake()",
+    "lambda ctx: ctx.require_not_affected('AFF_CALM')",
+    "lambda ctx: ctx.require_not_affected('AFF_CHARM')",
+    "lambda ctx: ctx.require_not_fighting()",
+    "lambda ctx: ctx.select_room_npc_by_group('victim', '2101', exclude_vnum='2106', where='actor.level > candidate.level - 2 and not ctx.is_safe(candidate)', randomize=True)",
+    "lambda ctx: ctx.reject_if('victim is None')",
+    "lambda ctx: ctx.say_random([\"$n yells 'I've been looking for you, punk!'\", 'With a scream of rage, $n attacks $N.', \"$n says 'What's slimy Ogre trash like you doing around here?'\", \"$n cracks his knuckles and says 'Do ya feel lucky?'\", \"$n says 'There's no cops to save you this time!'\", \"$n says 'Time to join your brother, spud.'\", \"$n says 'Let's rock.'\"], target='victim')",
+    "lambda ctx: ctx.multi_hit('victim', check_safe=False)"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -1126,7 +1172,10 @@
   "mobVnum": "2243",
   "name": "spec_breath_any",
   "comment": "the Draconian Queen",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_position('fighting')",
+    "lambda ctx: ctx.dispatch_special_by_bits(3, ['spec_breath_fire', 'spec_breath_lightning', 'spec_breath_lightning', 'spec_breath_gas', 'spec_breath_acid', 'spec_breath_frost', 'spec_breath_frost', 'spec_breath_frost'])"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -1137,7 +1186,16 @@
   "mobVnum": "2102",
   "name": "spec_ogre_member",
   "comment": "an ogre gang member",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_awake()",
+    "lambda ctx: ctx.require_not_affected('AFF_CALM')",
+    "lambda ctx: ctx.require_not_affected('AFF_CHARM')",
+    "lambda ctx: ctx.require_not_fighting()",
+    "lambda ctx: ctx.select_room_npc_by_group('victim', '2100', exclude_vnum='2106', where='actor.level > candidate.level - 2 and not ctx.is_safe(candidate)', randomize=True)",
+    "lambda ctx: ctx.reject_if('victim is None')",
+    "lambda ctx: ctx.say_random([\"$n yells 'I've been looking for you, punk!'\", \"With a scream of rage, $n attacks $N.'\", \"$n says 'What's Troll filth like you doing around here?'\", \"$n cracks his knuckles and says 'Do ya feel lucky?'\", \"$n says 'There's no cops to save you this time!'\", \"$n says 'Time to join your brother, spud.'\", \"$n says 'Let's rock.'\"], target='victim')",
+    "lambda ctx: ctx.multi_hit('victim', check_safe=False)"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -1162,7 +1220,16 @@
   "mobVnum": "2103",
   "name": "spec_troll_member",
   "comment": "the Troll gang leader",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_awake()",
+    "lambda ctx: ctx.require_not_affected('AFF_CALM')",
+    "lambda ctx: ctx.require_not_affected('AFF_CHARM')",
+    "lambda ctx: ctx.require_not_fighting()",
+    "lambda ctx: ctx.select_room_npc_by_group('victim', '2101', exclude_vnum='2106', where='actor.level > candidate.level - 2 and not ctx.is_safe(candidate)', randomize=True)",
+    "lambda ctx: ctx.reject_if('victim is None')",
+    "lambda ctx: ctx.say_random([\"$n yells 'I've been looking for you, punk!'\", 'With a scream of rage, $n attacks $N.', \"$n says 'What's slimy Ogre trash like you doing around here?'\", \"$n cracks his knuckles and says 'Do ya feel lucky?'\", \"$n says 'There's no cops to save you this time!'\", \"$n says 'Time to join your brother, spud.'\", \"$n says 'Let's rock.'\"], target='victim')",
+    "lambda ctx: ctx.multi_hit('victim', check_safe=False)"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -1188,7 +1255,16 @@
   "mobVnum": "2104",
   "name": "spec_troll_member",
   "comment": "a bruiser",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_awake()",
+    "lambda ctx: ctx.require_not_affected('AFF_CALM')",
+    "lambda ctx: ctx.require_not_affected('AFF_CHARM')",
+    "lambda ctx: ctx.require_not_fighting()",
+    "lambda ctx: ctx.select_room_npc_by_group('victim', '2101', exclude_vnum='2106', where='actor.level > candidate.level - 2 and not ctx.is_safe(candidate)', randomize=True)",
+    "lambda ctx: ctx.reject_if('victim is None')",
+    "lambda ctx: ctx.say_random([\"$n yells 'I've been looking for you, punk!'\", 'With a scream of rage, $n attacks $N.', \"$n says 'What's slimy Ogre trash like you doing around here?'\", \"$n cracks his knuckles and says 'Do ya feel lucky?'\", \"$n says 'There's no cops to save you this time!'\", \"$n says 'Time to join your brother, spud.'\", \"$n says 'Let's rock.'\"], target='victim')",
+    "lambda ctx: ctx.multi_hit('victim', check_safe=False)"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -1243,7 +1319,17 @@
   "mobVnum": "2106",
   "name": "spec_patrolman",
   "comment": "a patrolman",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_awake()",
+    "lambda ctx: ctx.require_not_affected('AFF_CALM')",
+    "lambda ctx: ctx.require_not_affected('AFF_CHARM')",
+    "lambda ctx: ctx.require_not_fighting()",
+    "lambda ctx: ctx.select_room_fight_intervention_target('victim', choose='higher_level_combatant', randomize=True)",
+    "lambda ctx: ctx.reject_if(\"victim is None or (ctx.is_npc(victim) and ctx.same_special(victim))\")",
+    "lambda ctx: ctx.blow_patrol_whistle('2116', ['neck1', 'neck2'], 'You blow down hard on $p.', '$n blows on $p, ***WHEEEEEEEEEEEET***', 'You hear a shrill whistling sound.')",
+    "lambda ctx: ctx.say_random([\"$n yells 'All roit! All roit! break it up!'\", \"$n says 'Society's to blame, but what's a bloke to do?'\", \"$n mumbles 'bloody kids will be the death of us all.'\", \"$n shouts 'Stop that! Stop that!' and attacks.\", '$n pulls out his billy and goes to work.', '$n sighs in resignation and proceeds to break up the fight.', \"$n says 'Settle down, you hooligans!'\"])",
+    "lambda ctx: ctx.multi_hit('victim', check_safe=False)"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -1269,7 +1355,10 @@
   "mobVnum": "9204",
   "name": "spec_breath_any",
   "comment": "the elemental guardian",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_position('fighting')",
+    "lambda ctx: ctx.dispatch_special_by_bits(3, ['spec_breath_fire', 'spec_breath_lightning', 'spec_breath_lightning', 'spec_breath_gas', 'spec_breath_acid', 'spec_breath_frost', 'spec_breath_frost', 'spec_breath_frost'])"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -1295,7 +1384,16 @@
   "mobVnum": "2107",
   "name": "spec_ogre_member",
   "comment": "a vandal",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_awake()",
+    "lambda ctx: ctx.require_not_affected('AFF_CALM')",
+    "lambda ctx: ctx.require_not_affected('AFF_CHARM')",
+    "lambda ctx: ctx.require_not_fighting()",
+    "lambda ctx: ctx.select_room_npc_by_group('victim', '2100', exclude_vnum='2106', where='actor.level > candidate.level - 2 and not ctx.is_safe(candidate)', randomize=True)",
+    "lambda ctx: ctx.reject_if('victim is None')",
+    "lambda ctx: ctx.say_random([\"$n yells 'I've been looking for you, punk!'\", \"With a scream of rage, $n attacks $N.'\", \"$n says 'What's Troll filth like you doing around here?'\", \"$n cracks his knuckles and says 'Do ya feel lucky?'\", \"$n says 'There's no cops to save you this time!'\", \"$n says 'Time to join your brother, spud.'\", \"$n says 'Let's rock.'\"], target='victim')",
+    "lambda ctx: ctx.multi_hit('victim', check_safe=False)"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -1309,7 +1407,7 @@
   "specialFunction": [
     "lambda ctx: ctx.require_position('fighting')",
     "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
-    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 2), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
+    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 1), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -1321,7 +1419,10 @@
   "mobVnum": "9207",
   "name": "spec_breath_any",
   "comment": "a large elemental",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_position('fighting')",
+    "lambda ctx: ctx.dispatch_special_by_bits(3, ['spec_breath_fire', 'spec_breath_lightning', 'spec_breath_lightning', 'spec_breath_gas', 'spec_breath_acid', 'spec_breath_frost', 'spec_breath_frost', 'spec_breath_frost'])"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -1332,7 +1433,16 @@
   "mobVnum": "2109",
   "name": "spec_troll_member",
   "comment": "a punk",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_awake()",
+    "lambda ctx: ctx.require_not_affected('AFF_CALM')",
+    "lambda ctx: ctx.require_not_affected('AFF_CHARM')",
+    "lambda ctx: ctx.require_not_fighting()",
+    "lambda ctx: ctx.select_room_npc_by_group('victim', '2101', exclude_vnum='2106', where='actor.level > candidate.level - 2 and not ctx.is_safe(candidate)', randomize=True)",
+    "lambda ctx: ctx.reject_if('victim is None')",
+    "lambda ctx: ctx.say_random([\"$n yells 'I've been looking for you, punk!'\", 'With a scream of rage, $n attacks $N.', \"$n says 'What's slimy Ogre trash like you doing around here?'\", \"$n cracks his knuckles and says 'Do ya feel lucky?'\", \"$n says 'There's no cops to save you this time!'\", \"$n says 'Time to join your brother, spud.'\", \"$n says 'Let's rock.'\"], target='victim')",
+    "lambda ctx: ctx.multi_hit('victim', check_safe=False)"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -1346,7 +1456,7 @@
   "specialFunction": [
     "lambda ctx: ctx.require_position('fighting')",
     "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
-    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 2), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
+    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 1), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -1373,7 +1483,16 @@
   "mobVnum": "2110",
   "name": "spec_ogre_member",
   "comment": "the Ogre gang leader",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_awake()",
+    "lambda ctx: ctx.require_not_affected('AFF_CALM')",
+    "lambda ctx: ctx.require_not_affected('AFF_CHARM')",
+    "lambda ctx: ctx.require_not_fighting()",
+    "lambda ctx: ctx.select_room_npc_by_group('victim', '2100', exclude_vnum='2106', where='actor.level > candidate.level - 2 and not ctx.is_safe(candidate)', randomize=True)",
+    "lambda ctx: ctx.reject_if('victim is None')",
+    "lambda ctx: ctx.say_random([\"$n yells 'I've been looking for you, punk!'\", \"With a scream of rage, $n attacks $N.'\", \"$n says 'What's Troll filth like you doing around here?'\", \"$n cracks his knuckles and says 'Do ya feel lucky?'\", \"$n says 'There's no cops to save you this time!'\", \"$n says 'Time to join your brother, spud.'\", \"$n says 'Let's rock.'\"], target='victim')",
+    "lambda ctx: ctx.multi_hit('victim', check_safe=False)"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -1387,7 +1506,7 @@
   "specialFunction": [
     "lambda ctx: ctx.require_position('fighting')",
     "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
-    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 2), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
+    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 1), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -1413,7 +1532,16 @@
   "mobVnum": "2111",
   "name": "spec_ogre_member",
   "comment": "a thug",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_awake()",
+    "lambda ctx: ctx.require_not_affected('AFF_CALM')",
+    "lambda ctx: ctx.require_not_affected('AFF_CHARM')",
+    "lambda ctx: ctx.require_not_fighting()",
+    "lambda ctx: ctx.select_room_npc_by_group('victim', '2100', exclude_vnum='2106', where='actor.level > candidate.level - 2 and not ctx.is_safe(candidate)', randomize=True)",
+    "lambda ctx: ctx.reject_if('victim is None')",
+    "lambda ctx: ctx.say_random([\"$n yells 'I've been looking for you, punk!'\", \"With a scream of rage, $n attacks $N.'\", \"$n says 'What's Troll filth like you doing around here?'\", \"$n cracks his knuckles and says 'Do ya feel lucky?'\", \"$n says 'There's no cops to save you this time!'\", \"$n says 'Time to join your brother, spud.'\", \"$n says 'Let's rock.'\"], target='victim')",
+    "lambda ctx: ctx.multi_hit('victim', check_safe=False)"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -1496,7 +1624,10 @@
   "mobVnum": "9212",
   "name": "spec_breath_acid",
   "comment": "The Water Ruler",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_position('fighting')",
+    "lambda ctx: ctx.cast_dragon_breath('acid breath')"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -1507,7 +1638,10 @@
   "mobVnum": "9219",
   "name": "spec_breath_acid",
   "comment": "a small blob of acid",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_position('fighting')",
+    "lambda ctx: ctx.cast_dragon_breath('acid breath')"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -1837,7 +1971,10 @@
   "mobVnum": "9235",
   "name": "spec_breath_any",
   "comment": "a baby rainbow dragon",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_position('fighting')",
+    "lambda ctx: ctx.dispatch_special_by_bits(3, ['spec_breath_fire', 'spec_breath_lightning', 'spec_breath_lightning', 'spec_breath_gas', 'spec_breath_acid', 'spec_breath_frost', 'spec_breath_frost', 'spec_breath_frost'])"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -1863,7 +2000,10 @@
   "mobVnum": "9237",
   "name": "spec_breath_any",
   "comment": "a HUGE elemental",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_position('fighting')",
+    "lambda ctx: ctx.dispatch_special_by_bits(3, ['spec_breath_fire', 'spec_breath_lightning', 'spec_breath_lightning', 'spec_breath_gas', 'spec_breath_acid', 'spec_breath_frost', 'spec_breath_frost', 'spec_breath_frost'])"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -2024,7 +2164,10 @@
   "mobVnum": "9332",
   "name": "spec_breath_acid",
   "comment": "Polaris, the polar star",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_position('fighting')",
+    "lambda ctx: ctx.cast_dragon_breath('acid breath')"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -2104,7 +2247,10 @@
   "mobVnum": "1513",
   "name": "spec_breath_acid",
   "comment": "a black bat",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_position('fighting')",
+    "lambda ctx: ctx.cast_dragon_breath('acid breath')"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -2118,7 +2264,7 @@
   "specialFunction": [
     "lambda ctx: ctx.require_position('fighting')",
     "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
-    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 2), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
+    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 1), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -2217,7 +2363,11 @@
   "mobVnum": "905",
   "name": "spec_cast_adept",
   "comment": "Apollo",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_awake()",
+    "lambda ctx: ctx.select_visible_room_player('victim', max_level=10, chance_bits=1)",
+    "lambda ctx: ctx.cast_support_spell_by_bits('victim', 4, [('armor', \"$n utters the word 'abrazak'.\", True), ('bless', \"$n utters the word 'fido'.\", True), ('cure blindness', \"$n utters the words 'judicandus noselacri'.\", True), ('cure light', \"$n utters the words 'judicandus dies'.\", True), ('cure poison', \"$n utters the words 'judicandus sausabru'.\", True), ('refresh', \"$n utters the word 'candusima'.\", True), ('cure disease', \"$n utters the words 'judicandus eugzagz'.\", False)])"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -2228,7 +2378,11 @@
   "mobVnum": "907",
   "name": "spec_cast_adept",
   "comment": "Athena",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_awake()",
+    "lambda ctx: ctx.select_visible_room_player('victim', max_level=10, chance_bits=1)",
+    "lambda ctx: ctx.cast_support_spell_by_bits('victim', 4, [('armor', \"$n utters the word 'abrazak'.\", True), ('bless', \"$n utters the word 'fido'.\", True), ('cure blindness', \"$n utters the words 'judicandus noselacri'.\", True), ('cure light', \"$n utters the words 'judicandus dies'.\", True), ('cure poison', \"$n utters the words 'judicandus sausabru'.\", True), ('refresh', \"$n utters the word 'candusima'.\", True), ('cure disease', \"$n utters the words 'judicandus eugzagz'.\", False)])"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -2257,9 +2411,9 @@
     "lambda ctx: ctx.require_awake()",
     "lambda ctx: ctx.require_not_fighting()",
     "lambda ctx: ctx.select_room_criminal(alias='victim', crime_alias='crime', priorities=['PLR_KILLER', 'PLR_THIEF'], visible_only=True)",
-    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim')\")",
+    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim', check_safe=False)\", \"ctx.finish()\")",
     "lambda ctx: ctx.select_most_evil_fighter(alias='victim', minimum_alignment=-300, exclude_target='self')",
-    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\")"
+    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\", check_safe=False)"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -2271,7 +2425,10 @@
   "mobVnum": "914",
   "name": "spec_breath_any",
   "comment": "Odin",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_position('fighting')",
+    "lambda ctx: ctx.dispatch_special_by_bits(3, ['spec_breath_fire', 'spec_breath_lightning', 'spec_breath_lightning', 'spec_breath_gas', 'spec_breath_acid', 'spec_breath_frost', 'spec_breath_frost', 'spec_breath_frost'])"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -2282,7 +2439,10 @@
   "mobVnum": "919",
   "name": "spec_breath_any",
   "comment": "Ra the Sun God",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_position('fighting')",
+    "lambda ctx: ctx.dispatch_special_by_bits(3, ['spec_breath_fire', 'spec_breath_lightning', 'spec_breath_lightning', 'spec_breath_gas', 'spec_breath_acid', 'spec_breath_frost', 'spec_breath_frost', 'spec_breath_frost'])"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -2411,9 +2571,9 @@
     "lambda ctx: ctx.require_awake()",
     "lambda ctx: ctx.require_not_fighting()",
     "lambda ctx: ctx.select_room_criminal(alias='victim', crime_alias='crime', priorities=['PLR_KILLER', 'PLR_THIEF'], visible_only=True)",
-    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim')\")",
+    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim', check_safe=False)\", \"ctx.finish()\")",
     "lambda ctx: ctx.select_most_evil_fighter(alias='victim', minimum_alignment=-300, exclude_target='self')",
-    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\")"
+    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\", check_safe=False)"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -2443,9 +2603,9 @@
     "lambda ctx: ctx.require_awake()",
     "lambda ctx: ctx.require_not_fighting()",
     "lambda ctx: ctx.select_room_criminal(alias='victim', crime_alias='crime', priorities=['PLR_KILLER', 'PLR_THIEF'], visible_only=True)",
-    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim')\")",
+    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim', check_safe=False)\", \"ctx.finish()\")",
     "lambda ctx: ctx.select_most_evil_fighter(alias='victim', minimum_alignment=-300, exclude_target='self')",
-    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\")"
+    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\", check_safe=False)"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -2562,9 +2722,9 @@
     "lambda ctx: ctx.require_awake()",
     "lambda ctx: ctx.require_not_fighting()",
     "lambda ctx: ctx.select_room_criminal(alias='victim', crime_alias='crime', priorities=['PLR_KILLER', 'PLR_THIEF'], visible_only=True)",
-    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim')\")",
+    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim', check_safe=False)\", \"ctx.finish()\")",
     "lambda ctx: ctx.select_most_evil_fighter(alias='victim', minimum_alignment=-300, exclude_target='self')",
-    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\")"
+    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\", check_safe=False)"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -2594,9 +2754,9 @@
     "lambda ctx: ctx.require_awake()",
     "lambda ctx: ctx.require_not_fighting()",
     "lambda ctx: ctx.select_room_criminal(alias='victim', crime_alias='crime', priorities=['PLR_KILLER', 'PLR_THIEF'], visible_only=True)",
-    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim')\")",
+    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim', check_safe=False)\", \"ctx.finish()\")",
     "lambda ctx: ctx.select_most_evil_fighter(alias='victim', minimum_alignment=-300, exclude_target='self')",
-    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\")"
+    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\", check_safe=False)"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -2686,9 +2846,9 @@
     "lambda ctx: ctx.require_awake()",
     "lambda ctx: ctx.require_not_fighting()",
     "lambda ctx: ctx.select_room_criminal(alias='victim', crime_alias='crime', priorities=['PLR_KILLER', 'PLR_THIEF'], visible_only=True)",
-    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim')\")",
+    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim', check_safe=False)\", \"ctx.finish()\")",
     "lambda ctx: ctx.select_most_evil_fighter(alias='victim', minimum_alignment=-300, exclude_target='self')",
-    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\")"
+    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\", check_safe=False)"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -2772,9 +2932,9 @@
     "lambda ctx: ctx.require_awake()",
     "lambda ctx: ctx.require_not_fighting()",
     "lambda ctx: ctx.select_room_criminal(alias='victim', crime_alias='crime', priorities=['PLR_KILLER', 'PLR_THIEF'], visible_only=True)",
-    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim')\")",
+    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim', check_safe=False)\", \"ctx.finish()\")",
     "lambda ctx: ctx.select_most_evil_fighter(alias='victim', minimum_alignment=-300, exclude_target='self')",
-    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\")"
+    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\", check_safe=False)"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -2888,7 +3048,10 @@
   "mobVnum": "8716",
   "name": "spec_breath_any",
   "comment": "The great sphinx",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_position('fighting')",
+    "lambda ctx: ctx.dispatch_special_by_bits(3, ['spec_breath_fire', 'spec_breath_lightning', 'spec_breath_lightning', 'spec_breath_gas', 'spec_breath_acid', 'spec_breath_frost', 'spec_breath_frost', 'spec_breath_frost'])"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -2914,7 +3077,11 @@
   "mobVnum": "3707",
   "name": "spec_cast_adept",
   "comment": "the adept of Satin",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_awake()",
+    "lambda ctx: ctx.select_visible_room_player('victim', max_level=10, chance_bits=1)",
+    "lambda ctx: ctx.cast_support_spell_by_bits('victim', 4, [('armor', \"$n utters the word 'abrazak'.\", True), ('bless', \"$n utters the word 'fido'.\", True), ('cure blindness', \"$n utters the words 'judicandus noselacri'.\", True), ('cure light', \"$n utters the words 'judicandus dies'.\", True), ('cure poison', \"$n utters the words 'judicandus sausabru'.\", True), ('refresh', \"$n utters the word 'candusima'.\", True), ('cure disease', \"$n utters the words 'judicandus eugzagz'.\", False)])"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -2925,7 +3092,11 @@
   "mobVnum": "3708",
   "name": "spec_cast_adept",
   "comment": "the adept of Alander",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_awake()",
+    "lambda ctx: ctx.select_visible_room_player('victim', max_level=10, chance_bits=1)",
+    "lambda ctx: ctx.cast_support_spell_by_bits('victim', 4, [('armor', \"$n utters the word 'abrazak'.\", True), ('bless', \"$n utters the word 'fido'.\", True), ('cure blindness', \"$n utters the words 'judicandus noselacri'.\", True), ('cure light', \"$n utters the words 'judicandus dies'.\", True), ('cure poison', \"$n utters the words 'judicandus sausabru'.\", True), ('refresh', \"$n utters the word 'candusima'.\", True), ('cure disease', \"$n utters the words 'judicandus eugzagz'.\", False)])"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -3073,7 +3244,10 @@
   "mobVnum": "4154",
   "name": "spec_breath_acid",
   "comment": "the black bat",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_position('fighting')",
+    "lambda ctx: ctx.cast_dragon_breath('acid breath')"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -3159,9 +3333,9 @@
     "lambda ctx: ctx.require_awake()",
     "lambda ctx: ctx.require_not_fighting()",
     "lambda ctx: ctx.select_room_criminal(alias='victim', crime_alias='crime', priorities=['PLR_KILLER', 'PLR_THIEF'], visible_only=True)",
-    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim')\")",
+    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim', check_safe=False)\", \"ctx.finish()\")",
     "lambda ctx: ctx.select_most_evil_fighter(alias='victim', minimum_alignment=-300, exclude_target='self')",
-    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\")"
+    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\", check_safe=False)"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -3177,9 +3351,9 @@
     "lambda ctx: ctx.require_awake()",
     "lambda ctx: ctx.require_not_fighting()",
     "lambda ctx: ctx.select_room_criminal(alias='victim', crime_alias='crime', priorities=['PLR_KILLER', 'PLR_THIEF'], visible_only=True)",
-    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim')\")",
+    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim', check_safe=False)\", \"ctx.finish()\")",
     "lambda ctx: ctx.select_most_evil_fighter(alias='victim', minimum_alignment=-300, exclude_target='self')",
-    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\")"
+    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\", check_safe=False)"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -3195,9 +3369,9 @@
     "lambda ctx: ctx.require_awake()",
     "lambda ctx: ctx.require_not_fighting()",
     "lambda ctx: ctx.select_room_criminal(alias='victim', crime_alias='crime', priorities=['PLR_KILLER', 'PLR_THIEF'], visible_only=True)",
-    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim')\")",
+    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim', check_safe=False)\", \"ctx.finish()\")",
     "lambda ctx: ctx.select_most_evil_fighter(alias='victim', minimum_alignment=-300, exclude_target='self')",
-    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\")"
+    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\", check_safe=False)"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -3243,9 +3417,9 @@
     "lambda ctx: ctx.require_awake()",
     "lambda ctx: ctx.require_not_fighting()",
     "lambda ctx: ctx.select_room_criminal(alias='victim', crime_alias='crime', priorities=['PLR_KILLER', 'PLR_THIEF'], visible_only=True)",
-    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim')\")",
+    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim', check_safe=False)\", \"ctx.finish()\")",
     "lambda ctx: ctx.select_most_evil_fighter(alias='victim', minimum_alignment=-300, exclude_target='self')",
-    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\")"
+    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\", check_safe=False)"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -3275,9 +3449,9 @@
     "lambda ctx: ctx.require_awake()",
     "lambda ctx: ctx.require_not_fighting()",
     "lambda ctx: ctx.select_room_criminal(alias='victim', crime_alias='crime', priorities=['PLR_KILLER', 'PLR_THIEF'], visible_only=True)",
-    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim')\")",
+    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim', check_safe=False)\", \"ctx.finish()\")",
     "lambda ctx: ctx.select_most_evil_fighter(alias='victim', minimum_alignment=-300, exclude_target='self')",
-    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\")"
+    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\", check_safe=False)"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -3292,7 +3466,7 @@
   "specialFunction": [
     "lambda ctx: ctx.require_position('fighting')",
     "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
-    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 2), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
+    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 1), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -3304,7 +3478,10 @@
   "mobVnum": "2302",
   "name": "spec_breath_acid",
   "comment": "the Cave Dweller",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_position('fighting')",
+    "lambda ctx: ctx.cast_dragon_breath('acid breath')"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -3357,7 +3534,10 @@
   "mobVnum": "2314",
   "name": "spec_breath_acid",
   "comment": "the Ice Worm",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_position('fighting')",
+    "lambda ctx: ctx.cast_dragon_breath('acid breath')"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -3386,7 +3566,7 @@
   "specialFunction": [
     "lambda ctx: ctx.require_position('fighting')",
     "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
-    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 2), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
+    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 1), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -3417,9 +3597,9 @@
     "lambda ctx: ctx.require_awake()",
     "lambda ctx: ctx.require_not_fighting()",
     "lambda ctx: ctx.select_room_criminal(alias='victim', crime_alias='crime', priorities=['PLR_KILLER', 'PLR_THIEF'], visible_only=True)",
-    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim')\")",
+    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim', check_safe=False)\", \"ctx.finish()\")",
     "lambda ctx: ctx.select_most_evil_fighter(alias='victim', minimum_alignment=-300, exclude_target='self')",
-    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\")"
+    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\", check_safe=False)"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -3569,7 +3749,7 @@
   "specialFunction": [
     "lambda ctx: ctx.require_position('fighting')",
     "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
-    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 2), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
+    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 1), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -3585,9 +3765,9 @@
     "lambda ctx: ctx.require_awake()",
     "lambda ctx: ctx.require_not_fighting()",
     "lambda ctx: ctx.select_room_criminal(alias='victim', crime_alias='crime', priorities=['PLR_KILLER', 'PLR_THIEF'], visible_only=True)",
-    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim')\")",
+    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim', check_safe=False)\", \"ctx.finish()\")",
     "lambda ctx: ctx.select_most_evil_fighter(alias='victim', minimum_alignment=-300, exclude_target='self')",
-    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\")"
+    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\", check_safe=False)"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -3599,7 +3779,10 @@
   "mobVnum": "1614",
   "name": "spec_breath_acid",
   "comment": "the black pudding",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_position('fighting')",
+    "lambda ctx: ctx.cast_dragon_breath('acid breath')"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -3610,7 +3793,11 @@
   "mobVnum": "628",
   "name": "spec_cast_adept",
   "comment": "the Priestess of Ofcol",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_awake()",
+    "lambda ctx: ctx.select_visible_room_player('victim', max_level=10, chance_bits=1)",
+    "lambda ctx: ctx.cast_support_spell_by_bits('victim', 4, [('armor', \"$n utters the word 'abrazak'.\", True), ('bless', \"$n utters the word 'fido'.\", True), ('cure blindness', \"$n utters the words 'judicandus noselacri'.\", True), ('cure light', \"$n utters the words 'judicandus dies'.\", True), ('cure poison', \"$n utters the words 'judicandus sausabru'.\", True), ('refresh', \"$n utters the word 'candusima'.\", True), ('cure disease', \"$n utters the words 'judicandus eugzagz'.\", False)])"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -3621,7 +3808,10 @@
   "mobVnum": "1616",
   "name": "spec_breath_any",
   "comment": "the ancient wyvern",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_position('fighting')",
+    "lambda ctx: ctx.dispatch_special_by_bits(3, ['spec_breath_fire', 'spec_breath_lightning', 'spec_breath_lightning', 'spec_breath_gas', 'spec_breath_acid', 'spec_breath_frost', 'spec_breath_frost', 'spec_breath_frost'])"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -3636,9 +3826,9 @@
     "lambda ctx: ctx.require_awake()",
     "lambda ctx: ctx.require_not_fighting()",
     "lambda ctx: ctx.select_room_criminal(alias='victim', crime_alias='crime', priorities=['PLR_KILLER', 'PLR_THIEF'], visible_only=True)",
-    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim')\")",
+    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim', check_safe=False)\", \"ctx.finish()\")",
     "lambda ctx: ctx.select_most_evil_fighter(alias='victim', minimum_alignment=-300, exclude_target='self')",
-    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\")"
+    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\", check_safe=False)"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -3653,7 +3843,7 @@
   "specialFunction": [
     "lambda ctx: ctx.require_position('fighting')",
     "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
-    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 2), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
+    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 1), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -3665,7 +3855,10 @@
   "mobVnum": "630",
   "name": "spec_breath_any",
   "comment": "a Dragonlord",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_position('fighting')",
+    "lambda ctx: ctx.dispatch_special_by_bits(3, ['spec_breath_fire', 'spec_breath_lightning', 'spec_breath_lightning', 'spec_breath_gas', 'spec_breath_acid', 'spec_breath_frost', 'spec_breath_frost', 'spec_breath_frost'])"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -3679,7 +3872,7 @@
   "specialFunction": [
     "lambda ctx: ctx.require_position('fighting')",
     "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
-    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 2), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
+    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 1), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -3691,7 +3884,10 @@
   "mobVnum": "631",
   "name": "spec_breath_any",
   "comment": "The Ancient Gold Dragon",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_position('fighting')",
+    "lambda ctx: ctx.dispatch_special_by_bits(3, ['spec_breath_fire', 'spec_breath_lightning', 'spec_breath_lightning', 'spec_breath_gas', 'spec_breath_acid', 'spec_breath_frost', 'spec_breath_frost', 'spec_breath_frost'])"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -3717,7 +3913,10 @@
   "mobVnum": "633",
   "name": "spec_breath_any",
   "comment": "a Dragonknight",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_position('fighting')",
+    "lambda ctx: ctx.dispatch_special_by_bits(3, ['spec_breath_fire', 'spec_breath_lightning', 'spec_breath_lightning', 'spec_breath_gas', 'spec_breath_acid', 'spec_breath_frost', 'spec_breath_frost', 'spec_breath_frost'])"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -3732,9 +3931,9 @@
     "lambda ctx: ctx.require_awake()",
     "lambda ctx: ctx.require_not_fighting()",
     "lambda ctx: ctx.select_room_criminal(alias='victim', crime_alias='crime', priorities=['PLR_KILLER', 'PLR_THIEF'], visible_only=True)",
-    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim')\")",
+    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim', check_safe=False)\", \"ctx.finish()\")",
     "lambda ctx: ctx.select_most_evil_fighter(alias='victim', minimum_alignment=-300, exclude_target='self')",
-    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\")"
+    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\", check_safe=False)"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -3835,7 +4034,7 @@
   "specialFunction": [
     "lambda ctx: ctx.require_position('fighting')",
     "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
-    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 2), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
+    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 1), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -3862,7 +4061,10 @@
   "mobVnum": "7043",
   "name": "spec_breath_any",
   "comment": "the scaled basilisk",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_position('fighting')",
+    "lambda ctx: ctx.dispatch_special_by_bits(3, ['spec_breath_fire', 'spec_breath_lightning', 'spec_breath_lightning', 'spec_breath_gas', 'spec_breath_acid', 'spec_breath_frost', 'spec_breath_frost', 'spec_breath_frost'])"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -3921,7 +4123,7 @@
   "specialFunction": [
     "lambda ctx: ctx.require_position('fighting')",
     "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
-    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 2), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
+    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 1), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -4081,7 +4283,7 @@
   "specialFunction": [
     "lambda ctx: ctx.require_position('fighting')",
     "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
-    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 2), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
+    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 1), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -4096,7 +4298,7 @@
   "specialFunction": [
     "lambda ctx: ctx.require_position('fighting')",
     "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
-    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 2), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
+    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 1), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -4516,7 +4718,7 @@
   "specialFunction": [
     "lambda ctx: ctx.require_position('fighting')",
     "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
-    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 2), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
+    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 1), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -4531,7 +4733,7 @@
   "specialFunction": [
     "lambda ctx: ctx.require_position('fighting')",
     "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
-    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 2), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
+    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 1), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -4558,7 +4760,11 @@
   "mobVnum": "10401",
   "name": "spec_cast_judge",
   "comment": "the Guardian of Hell",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_position('fighting')",
+    "lambda ctx: ctx.select_room_combat_victim('victim', chance_bits=2)",
+    "lambda ctx: ctx.cast_spell('high explosive', direct=True)"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -4684,7 +4890,11 @@
   "mobVnum": "10407",
   "name": "spec_cast_judge",
   "comment": "pie",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_position('fighting')",
+    "lambda ctx: ctx.select_room_combat_victim('victim', chance_bits=2)",
+    "lambda ctx: ctx.cast_spell('high explosive', direct=True)"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -4803,7 +5013,7 @@
   "specialFunction": [
     "lambda ctx: ctx.require_position('fighting')",
     "lambda ctx: ctx.select_room_combat_victim(alias='victim', chance_bits=2)",
-    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 2), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
+    "lambda ctx: ctx.cast_weighted_combat_spell('victim', [('curse', 0, 1), ('weaken', 3, 1), ('chill touch', 6, 1), ('blindness', 9, 1), ('poison', 12, 1), ('energy drain', 15, 1), ('harm', 18, 1), ('teleport', 21, 1), ('plague', 20, 1), ('harm', 18, 7)])"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -4830,7 +5040,10 @@
   "mobVnum": "10412",
   "name": "spec_breath_acid",
   "comment": "the living wall",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_position('fighting')",
+    "lambda ctx: ctx.cast_dragon_breath('acid breath')"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -4929,7 +5142,12 @@
   "mobVnum": "3011",
   "name": "spec_executioner",
   "comment": "Hassan",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_awake()",
+    "lambda ctx: ctx.require_not_fighting()",
+    "lambda ctx: ctx.select_room_criminal('victim', 'crime', ['PLR_KILLER', 'PLR_THIEF'])",
+    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!  MORE BLOOOOD!!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim', check_safe=False)\")"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -4969,7 +5187,11 @@
   "mobVnum": "3012",
   "name": "spec_cast_adept",
   "comment": "the healer",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_awake()",
+    "lambda ctx: ctx.select_visible_room_player('victim', max_level=10, chance_bits=1)",
+    "lambda ctx: ctx.cast_support_spell_by_bits('victim', 4, [('armor', \"$n utters the word 'abrazak'.\", True), ('bless', \"$n utters the word 'fido'.\", True), ('cure blindness', \"$n utters the words 'judicandus noselacri'.\", True), ('cure light', \"$n utters the words 'judicandus dies'.\", True), ('cure poison', \"$n utters the words 'judicandus sausabru'.\", True), ('refresh', \"$n utters the word 'candusima'.\", True), ('cure disease', \"$n utters the words 'judicandus eugzagz'.\", False)])"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -5157,9 +5379,9 @@
     "lambda ctx: ctx.require_awake()",
     "lambda ctx: ctx.require_not_fighting()",
     "lambda ctx: ctx.select_room_criminal(alias='victim', crime_alias='crime', priorities=['PLR_KILLER', 'PLR_THIEF'], visible_only=True)",
-    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim')\")",
+    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim', check_safe=False)\", \"ctx.finish()\")",
     "lambda ctx: ctx.select_most_evil_fighter(alias='victim', minimum_alignment=-300, exclude_target='self')",
-    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\")"
+    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\", check_safe=False)"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -5247,9 +5469,9 @@
     "lambda ctx: ctx.require_awake()",
     "lambda ctx: ctx.require_not_fighting()",
     "lambda ctx: ctx.select_room_criminal(alias='victim', crime_alias='crime', priorities=['PLR_KILLER', 'PLR_THIEF'], visible_only=True)",
-    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim')\")",
+    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim', check_safe=False)\", \"ctx.finish()\")",
     "lambda ctx: ctx.select_most_evil_fighter(alias='victim', minimum_alignment=-300, exclude_target='self')",
-    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\")"
+    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\", check_safe=False)"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -5279,9 +5501,9 @@
     "lambda ctx: ctx.require_awake()",
     "lambda ctx: ctx.require_not_fighting()",
     "lambda ctx: ctx.select_room_criminal(alias='victim', crime_alias='crime', priorities=['PLR_KILLER', 'PLR_THIEF'], visible_only=True)",
-    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim')\")",
+    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim', check_safe=False)\", \"ctx.finish()\")",
     "lambda ctx: ctx.select_most_evil_fighter(alias='victim', minimum_alignment=-300, exclude_target='self')",
-    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\")"
+    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\", check_safe=False)"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -5311,9 +5533,9 @@
     "lambda ctx: ctx.require_awake()",
     "lambda ctx: ctx.require_not_fighting()",
     "lambda ctx: ctx.select_room_criminal(alias='victim', crime_alias='crime', priorities=['PLR_KILLER', 'PLR_THIEF'], visible_only=True)",
-    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim')\")",
+    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim', check_safe=False)\", \"ctx.finish()\")",
     "lambda ctx: ctx.select_most_evil_fighter(alias='victim', minimum_alignment=-300, exclude_target='self')",
-    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\")"
+    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\", check_safe=False)"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -5384,7 +5606,11 @@
   "mobVnum": "10448",
   "name": "spec_cast_judge",
   "comment": "Judge Whopper",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_position('fighting')",
+    "lambda ctx: ctx.select_room_combat_victim('victim', chance_bits=2)",
+    "lambda ctx: ctx.cast_spell('high explosive', direct=True)"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -5408,7 +5634,10 @@
   "mobVnum": "10456",
   "name": "spec_breath_acid",
   "comment": "stomach dragon",
-  "specialFunction": [],
+  "specialFunction": [
+    "lambda ctx: ctx.require_position('fighting')",
+    "lambda ctx: ctx.cast_dragon_breath('acid breath')"
+  ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
 {
@@ -5761,9 +5990,9 @@
     "lambda ctx: ctx.require_awake()",
     "lambda ctx: ctx.require_not_fighting()",
     "lambda ctx: ctx.select_room_criminal(alias='victim', crime_alias='crime', priorities=['PLR_KILLER', 'PLR_THIEF'], visible_only=True)",
-    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim')\")",
+    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim', check_safe=False)\", \"ctx.finish()\")",
     "lambda ctx: ctx.select_most_evil_fighter(alias='victim', minimum_alignment=-300, exclude_target='self')",
-    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\")"
+    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\", check_safe=False)"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -5779,9 +6008,9 @@
     "lambda ctx: ctx.require_awake()",
     "lambda ctx: ctx.require_not_fighting()",
     "lambda ctx: ctx.select_room_criminal(alias='victim', crime_alias='crime', priorities=['PLR_KILLER', 'PLR_THIEF'], visible_only=True)",
-    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim')\")",
+    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim', check_safe=False)\", \"ctx.finish()\")",
     "lambda ctx: ctx.select_most_evil_fighter(alias='victim', minimum_alignment=-300, exclude_target='self')",
-    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\")"
+    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\", check_safe=False)"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -5852,9 +6081,9 @@
     "lambda ctx: ctx.require_awake()",
     "lambda ctx: ctx.require_not_fighting()",
     "lambda ctx: ctx.select_room_criminal(alias='victim', crime_alias='crime', priorities=['PLR_KILLER', 'PLR_THIEF'], visible_only=True)",
-    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim')\")",
+    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim', check_safe=False)\", \"ctx.finish()\")",
     "lambda ctx: ctx.select_most_evil_fighter(alias='victim', minimum_alignment=-300, exclude_target='self')",
-    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\")"
+    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\", check_safe=False)"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },
@@ -5870,9 +6099,9 @@
     "lambda ctx: ctx.require_awake()",
     "lambda ctx: ctx.require_not_fighting()",
     "lambda ctx: ctx.select_room_criminal(alias='victim', crime_alias='crime', priorities=['PLR_KILLER', 'PLR_THIEF'], visible_only=True)",
-    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim')\")",
+    "lambda ctx: ctx.when_selected('victim', \"ctx.yell('{victim.name} is a {crime}!  PROTECT THE INNOCENT!!  BANZAI!!', allow_noshout_override=True)\", \"ctx.multi_hit('victim', check_safe=False)\", \"ctx.finish()\")",
     "lambda ctx: ctx.select_most_evil_fighter(alias='victim', minimum_alignment=-300, exclude_target='self')",
-    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\")"
+    "lambda ctx: ctx.when_selected_attack('victim', room_message=\"$n screams 'PROTECT THE INNOCENT!!  BANZAI!!'\", check_safe=False)"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },

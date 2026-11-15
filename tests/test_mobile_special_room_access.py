@@ -53,8 +53,8 @@ class MobileSpecialRoomAccessTests(unittest.IsolatedAsyncioTestCase):
             self.assertIsNone(self.ctx.get_alias('victim'))
 
     async def test_visible_player_and_context_room_recipients(self):
-        self.assertIs(MobileApi.select_visible_room_player(self.ctx, 'victim'), self.player)
-        self.can_see.assert_called_with(self.actor, self.player, self.room)
+        self.assertIs(MobileApi.select_visible_room_player(self.ctx, 'victim'), self.observer)
+        self.can_see.assert_called_with(self.actor, self.observer, self.room)
         self.assertEqual(self.ctx.room_players(exclude_ids={'player'}), [self.observer])
 
     async def test_multi_hit_dispatches_the_full_combat_round(self):
@@ -89,7 +89,7 @@ class MobileSpecialRoomAccessTests(unittest.IsolatedAsyncioTestCase):
                 patch('api.MobileApi.CharacterApi.pos_value', return_value=7), \
                 patch.object(MobileApi, 'multi_hit', return_value=True):
             self.assertTrue(MobileApi.nasty_opening_attack(self.ctx, (-2, 2), []))
-        self.assertIs(self.ctx.get_alias('victim'), self.player)
+        self.assertIs(self.ctx.get_alias('victim'), self.observer)
         self.player.fighting = self.actor
         self.assertIs(MobileApi.select_room_fight_intervention_target(self.ctx, 'victim'), self.player)
 
@@ -100,6 +100,17 @@ class MobileSpecialRoomAccessTests(unittest.IsolatedAsyncioTestCase):
         self.assertIs(MobileApi.select_room_combat_victim(self.ctx, 'victim'), opponent)
         opponent.fighting = self.player
         self.assertIs(MobileApi.select_most_evil_fighter(self.ctx, 'victim'), opponent)
+
+    async def test_combat_selection_uses_mixed_entry_order_and_reentry(self):
+        npc = SimpleNamespace(equipped=None, id='npc', fighting=self.actor)
+        self.player.fighting = self.actor
+        self.room.add_mobile_to_room(npc)
+        self.assertIs(MobileApi.select_room_combat_victim(self.ctx, 'victim'), npc)
+
+        self.room.remove_player_from_room(self.player)
+        self.room.add_player_to_room(self.player)
+        self.assertIs(MobileApi.select_room_combat_victim(self.ctx, 'victim'), self.player)
+        self.assertEqual([self.player, npc, self.observer], self.room.people_newest_first())
 
 
 if __name__ == '__main__':

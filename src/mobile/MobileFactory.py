@@ -139,6 +139,8 @@ class MobileFactory:
             "status_flags": prototype.status_flags,
             "special_name": prototype.special_name,
             "special_function": list(prototype.special_function),
+            "special_assignment_area_id": prototype.special_assignment_area_id,
+            "special_override_id": prototype.special_override_id,
             "character_attributes": CharacterAttributes.default()
         })
 

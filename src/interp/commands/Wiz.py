@@ -831,12 +831,12 @@ class Wiz:
                 if not CharacterApi.is_npc(victim):
                     context.finish()
                     return InterpApi.command_payload("pc_invalid")
-                special = next((entry for entry in self.special_registry.all_specials() if str(entry.name or "").strip().lower() == rest.strip().lower()), None)
+                special = self.special_registry.by_name(rest)
                 if special is None:
                     context.finish()
                     return InterpApi.command_payload("no_such_spec_fun")
-                victim.special_name = special.name
-                victim.special_function = list(special.special_function or [])
+                victim.special_override_id = special.id
+                victim.bind_special(special)
             else:
                 context.finish()
                 return InterpApi.command_payload("syntax")

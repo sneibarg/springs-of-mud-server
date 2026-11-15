@@ -11,6 +11,29 @@ class SpecialRegistry(Registry[Special]):
 
         self.__name__ = "SpecialRegistry"
         self.logger = LoggerFactory.get_logger(self.__name__)
+        self._indexed_items = None
+        self._by_name: dict[str, Special] = {}
+
+    def on_item_registered(self, item: Special) -> None:
+        self._indexed_items = None
+
+    def on_item_unregistered(self, item: Special) -> None:
+        self._indexed_items = None
+
+    def by_name(self, name: str) -> Special | None:
+        """Resolve a named delegate from the current set of definitions."""
+        self.populate()
+        with self._lock:
+            if self._indexed_items is not self._items:
+                named = {}
+                for special in sorted(self._items, key=lambda entry: (
+                        not entry.special_function, bool(entry.mob_vnum), entry.id)):
+                    name_key = str(special.name or "").strip().lower()
+                    if name_key:
+                        named.setdefault(name_key, special)
+                self._by_name = named
+                self._indexed_items = self._items
+            return self._by_name.get(str(name or "").strip().lower())
 
     def all_specials(self) -> set[Special]:
         return self._items

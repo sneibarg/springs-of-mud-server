@@ -2,6 +2,7 @@ import inspect
 
 from injector import inject
 from area.AreaRegistry import AreaRegistry
+from area.Room import Room
 from area.RoomRegistry import RoomRegistry
 from area.ShopRegistry import ShopRegistry
 from game.EnumProvider import EnumProvider
@@ -14,14 +15,15 @@ from item.EffectHandler import EffectHandler
 from mobile.Mobile import Mobile
 from mobile.KillTable import KillTable
 from api.MobileApi import MobileApi, MobileContext
-from player.Character import Character
 from api.CharacterApi import CharacterApi
+from player.Character import Character
 from server.LoggerFactory import LoggerFactory
 from server.messaging import MessageBus
 from api.SpellApi import SpellApi
 from interp.commands.Movement import Movement
 from interp.commands.Fight import Fight
 from interp.Context import Context
+from util.CommunicationsUtil import CommunicationsUtil
 
 
 class MobileHandler:
@@ -64,7 +66,6 @@ class MobileHandler:
         self.room_flags = enum_provider.get("roomFlags")
         self.exit_flags = enum_provider.get("exitFlags")
         self.wear_flags = enum_provider.get("wearFlags")
-        self._special_library_cache = None
         self.kill_table: dict[int, KillTable] = {}
         self.rebuild_kill_table()
 
@@ -95,6 +96,18 @@ class MobileHandler:
         payload = action(ctx.actor, context)
         ctx.queue_payload({'actor': ctx.actor, 'context': context, 'payloads': [payload]})
         return bool(payload.get("lock_succeeded"))
+
+    def run_special_yell(self, ctx: MobileContext, text: str) -> bool:
+        command = self.registry_service.interp_registry.get_or_none(name="yell")
+        if command is None:
+            return False
+        CommunicationsUtil.set_comm(ctx.actor, CharacterApi.get_enum("commFlags"), "COMM_NOSHOUT", False)
+        context = Context(character=ctx.actor, command=command, room=ctx.room,
+                          registry_service=self.registry_service, result=text, parameters=[],
+                          handler_service=self.handler_service)
+        payload = self.player_handler.communications_commands.do_yell(context)
+        ctx.queue_payload({"actor": ctx.actor, "context": context, "payloads": [payload]})
+        return not payload.get("blocked")
 
     def rebuild_kill_table(self) -> None:
         kill_table: dict[int, KillTable] = {}
@@ -188,38 +201,36 @@ class MobileHandler:
             return
         gold = GenericUtil.to_int(mob.gold, 0)
         silver = GenericUtil.to_int(mob.silver, 0)
-        if (gold * 100 + silver) >= wealth:
+        current = gold * 100 + silver
+        if current >= wealth:
             return
-        self.logger.info(
-            f"mobile_update topping up shopkeeper money for {self._actor_label(mob)}: "
-            f"wealth={wealth}, current={gold * 100 + silver}"
-        )
-        mob.gold = gold + (wealth * self.rng.number_range(1, 20) // 5000000)
-        mob.silver = silver + (wealth * self.rng.number_range(1, 20) // 50000)
+        added_gold = wealth * self.rng.number_range(1, 20) // 5000000
+        added_silver = wealth * self.rng.number_range(1, 20) // 50000
+        if added_gold == 0 and added_silver == 0:
+            return
+        mob.gold = gold + added_gold
+        mob.silver = silver + added_silver
+        self.logger.debug("mobile_update topped up shopkeeper money for %s: wealth=%s, previous=%s, current=%s",
+                          self._actor_label(mob), wealth, current, mob.gold * 100 + mob.silver)
 
     async def execute_special_function(self, mob: Mobile, room) -> bool:
         lambdas = list((mob.special_function if mob is not None else []) or [])
         if not lambdas:
-            self.logger.debug(
-                f"execute_special_function found no bound special lambdas for {self._actor_label(mob)} in {self._room_label(room)} "
-                f"(special_name={str((mob.special_name if mob is not None else '') or '')!r})"
-            )
+            self.logger.debug(f"execute_special_function found no bound special lambdas for {self._actor_label(mob)} in {self._room_label(room)} "
+                              f"(special_name={str((mob.special_name if mob is not None else '') or '')!r})")
             return False
-        self.logger.debug(
-            f"execute_special_function starting for {self._actor_label(mob)} in {self._room_label(room)} "
-            f"with special_name={str(mob.special_name or '')!r} and {len(lambdas)} lambda(s)"
-        )
+        self.logger.debug(f"execute_special_function starting for {self._actor_label(mob)} in {self._room_label(room)} "
+                          f"with special_name={str(mob.special_name or '')!r} and {len(lambdas)} lambda(s)")
         context = MobileContext(actor=mob, room=room, handler=self, special_name=str(mob.special_name or ""))
         await self._execute_lambda_sequence(context, lambdas)
         await self._flush_context_payloads(context)
-        self.logger.debug(
-            f"execute_special_function completed for {self._actor_label(mob)} in {self._room_label(context.room)}: "
-            f"performed={context.performed}, done={context.done}"
-        )
+        self.logger.debug(f"execute_special_function completed for {self._actor_label(mob)} in {self._room_label(context.room)}: "
+                          f"performed={context.performed}, done={context.done}")
         return bool(context.performed)
 
     def execute_special_by_name(self, mob: Mobile, special_name: str, room, context: MobileContext | None = None) -> bool:
-        lambdas = self._special_library().get(str(special_name or "").strip().lower(), [])
+        special = self.special_registry.by_name(special_name)
+        lambdas = list(special.special_function or ()) if special is not None else []
         if not lambdas:
             self.logger.debug(
                 f"execute_special_by_name found no library special for name={str(special_name or '')!r} "
@@ -316,6 +327,12 @@ class MobileHandler:
         if "context" in payload:
             standard = True
 
+        if not standard and payload.get("to_room_obj") is not None:
+            if not isinstance(payload["to_room_obj"], Room):
+                return "destination must be a room"
+            if not isinstance(payload.get("view_character"), Character):
+                return "standalone room view requires a player character"
+
         if standard and payload.get("payloads"):
             entries = payload["payloads"]
             if not isinstance(entries, (list, tuple)):
@@ -378,6 +395,16 @@ class MobileHandler:
             await self.player_handler._emit_standard_payload(payload['actor'], payload,
                                                              context=payload['context'])
             return
+        destination = payload.get("to_room_obj")
+        if destination is not None:
+            viewer = payload["view_character"]
+            if viewer.room_id != destination.id:
+                return
+            context = Context(character=viewer, room=destination, registry_service=self.registry_service,
+                              handler_service=self.handler_service)
+            await self.player_handler._emit_standard_payload(viewer, payload, context=context)
+            await self.player_handler._send_prompt(viewer, context, prefer_context_room=False)
+            return
         if payload.get("to_victim") and payload.get("victim") is not None:
             await self.message_bus.send_to_character(payload["victim"].id, self.message_bus.text_to_message(payload["to_victim"]))
         if payload.get("to_room"):
@@ -420,19 +447,6 @@ class MobileHandler:
         except Exception:
             self.logger.error(f"_resolve_room_for_mobile failed for {self._actor_label(mob)}", exc_info=True)
             return room
-
-    def _special_library(self) -> dict[str, list[str]]:
-        if self._special_library_cache is None:
-            library = {}
-            for special in self.special_registry.all_specials():
-                name = str(special.name or "").strip().lower()
-                lambdas = list(special.special_function or [])
-                if name and lambdas and name not in library:
-                    library[name] = lambdas
-
-            self._special_library_cache = library
-            self.logger.info(f"_special_library built cache with {len(library)} special definition(s)")
-        return self._special_library_cache
 
     @staticmethod
     def _actor_label(mob: Mobile | None) -> str:

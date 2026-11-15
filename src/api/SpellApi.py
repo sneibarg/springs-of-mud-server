@@ -1734,7 +1734,7 @@ class SpellApi:
         if handler is None:
             return None
         return (
-            getattr(handler, "fight_commands", None)
-            or getattr(handler, "fight_handler", None)
+            getattr(handler, "fight_handler", None)
+            or getattr(handler, "fight_commands", None)
             or handler
         )

@@ -41,10 +41,8 @@ class MobileService(FetchAndRegisterMixin):
         if mobile is None:
             self.logger.error(f"Failed to build mobile for {raw_mobile}")
         else:
-            special = self.special_registry.for_mobile(mobile.area_id, mobile.vnum)
-            if special is not None:
-                mobile.special_name = special.name
-                mobile.special_function = list(special.special_function)
+            mobile.special_assignment_area_id = mobile.area_id
+            mobile.bind_special(self.special_registry.for_mobile(mobile.area_id, mobile.vnum))
         return mobile
 
     def _register_fetch_item(self, mobile: Mobile) -> None:
