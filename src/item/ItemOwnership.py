@@ -88,7 +88,11 @@ class ItemOwnership:
             room.remove_item_from_room(item)
 
     def find_world_vnum(self, target_vnum):
-        for item, root, location in self.walk_world_items():
-            if str(item.vnum) == str(target_vnum):
-                return item, item is root and location["kind"] == "room"
-        return None, False
+        """Return the newest live match and whether it is directly on the floor."""
+        wanted = str(target_vnum)
+        matches = (
+            (item, item is root and location["kind"] == "room")
+            for item, root, location in self.walk_world_items()
+            if str(item.vnum) == wanted
+        )
+        return max(matches, key=lambda match: match[0].creation_order, default=(None, False))

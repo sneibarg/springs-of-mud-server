@@ -18,7 +18,6 @@ class Command:
     position: str
     enabled: bool
     lambdas: list[str]
-    function: list[str]
     usage: str
     level: int
     max_arguments: int

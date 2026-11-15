@@ -160,7 +160,7 @@ class FinalCommandTests(FinalFixture, unittest.TestCase):
         from copy import deepcopy
         from interp.Command import Command
         document = deepcopy(self.documents['invis'])
-        document.update(show=False, shortcuts='', usage='', function=[])
+        document.update(show=False, shortcuts='', usage='')
         self.assertFalse(Command.from_json(document).show)
 
     def test_wizhelp_filters_level_enabled_and_show_without_position_filter(self):

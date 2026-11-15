@@ -30,6 +30,7 @@ from interp.Context import Context
 from interp.InterpHandler import InterpHandler
 from interp.commands.Communications import Communications
 from interp.commands.Info import Info
+from item.Effect import Effect
 from item.EffectHandler import EffectHandler
 from mobile.Mobile import Mobile
 from mobile.MobileFactory import MobileFactory
@@ -80,7 +81,7 @@ class RuntimeFixture:
 
     def command(self, name):
         data = deepcopy(self.documents[name])
-        for key, value in [('shortcuts', ''), ('usage', ''), ('function', [])]:
+        for key, value in [('shortcuts', ''), ('usage', '')]:
             data.setdefault(key, value)
         return Command.from_json(data)
 
@@ -122,12 +123,12 @@ class QuitPersistenceTests(RuntimeFixture, unittest.IsolatedAsyncioTestCase):
         self.handler.message_bus = Mock(text_to_message=lambda text: text,
                                         send_to_character=AsyncMock(), session_handler=self.sessions)
 
-    def add_companions(self):
+    def add_companions(self, *, pet_name='', cost=0):
         prototype = MobileFactory.from_data(
             dict(id='pet', name='pet', size='medium',
                  hitDice='{"number": 1, "type": 1, "bonus": 10}',
                  armorClass='{"pierce": 0, "slash": 0, "bash": 0, "exotic": 0}'), {})
-        pet = Shop.complete_pet_purchase(self.actor, self.room, prototype, '', 0,
+        pet = Shop.complete_pet_purchase(self.actor, self.room, prototype, pet_name, cost,
                                          self.enums.get('actBits'), self.enums.get('affectedBy'),
                                          self.enums.get('commFlags'))
         self.registry.register(pet)
@@ -223,6 +224,125 @@ class QuitPersistenceTests(RuntimeFixture, unittest.IsolatedAsyncioTestCase):
         self.assertIs(self.registry.get(id=self.actor.id), self.actor)
         self.assertEqual(resting, self.actor.character_attributes.position)
         context.conn.close.assert_awaited_once()
+
+    async def test_paid_pet_survives_quit_and_fresh_authentication(self):
+        from tests.test_runtime_factories import RuntimeFactoryTests
+
+        pet, _ = self.add_companions(pet_name='Whiskers', cost=25)
+        items = RuntimeFactoryTests()
+        bag, gem, ring = (items.item(name) for name in ('pet-bag', 'pet-gem', 'pet-ring'))
+        bag.vnum, gem.vnum, ring.vnum = '100', '101', '102'
+        bag.area_id, gem.area_id, ring.area_id = 'bag-area', 'gem-area', 'ring-area'
+        bag.extra_flags, gem.extra_flags, ring.extra_flags = 'A', 'B', 'C'
+        bag.contains.append(gem)
+        pet.add_item(bag)
+        pet.equip_item(ring, 'finger1')
+        pet.hit = 4
+        pet.mana = 2
+        pet.gold = 2
+        pet.status_flags.pulse_wait = 3
+        pet.fighting = self.actor
+        pet.set_position(self.enums.get('positions').POS_FIGHTING.value)
+        self.handler.entity_extractor.fight_handler.effect_handler.affect_to_char(
+            pet, Effect(type='spell.bless', where='TO_AFFECTS', location='APPLY_HITROLL', modifier=2, duration=3))
+        account = NS(account_name='tester', player_character_list=[self.actor.id])
+        records = []
+
+        def persist(_url, *, json, timeout):
+            records.append(deepcopy(json))
+            return Mock(json=lambda: deepcopy(json))
+
+        with patch('player.CharacterService.requests.put', side_effect=persist):
+            await self.handler.do_quit(self.actor, self.context('quit'))
+
+        self.assertIsNone(self.actor.pet)
+        self.assertNotIn(pet.id, self.room.mobiles)
+        loaded = self.service._build_fetch_item(json.loads(json.dumps(records[0])))
+        self.assertEqual(records[0]['pet'], self.actor.saved_pet)
+        self.assertEqual(25, 100 * (10 - loaded.gold) + 5 - loaded.silver)
+        self.assertNotIn('master', records[0]['pet'])
+        self.assertNotIn('fighting', records[0]['pet'])
+
+        legacy_record = deepcopy(records[0])
+        legacy_items = [legacy_record['pet']['inventory'][0],
+                        legacy_record['pet']['inventory'][0]['contains'][0],
+                        legacy_record['pet']['equipped']['finger1']]
+        for item in legacy_items:
+            item.pop('areaId')
+            item.pop('extraFlags')
+        legacy = self.service._build_fetch_item(legacy_record)
+        prototypes = {
+            '100': NS(area_id='prototype-area', extra_flags='D'),
+            '102': NS(area_id='prototype-ring', extra_flags='E'),
+        }
+        for label, source in [('cache', self.actor), ('HTTP', loaded), ('legacy HTTP', legacy)]:
+            with self.subTest(source=label):
+                registry = CharacterRegistry()
+                registry.register(source)
+                auth = AuthenticationService(NS(get=lambda **_: account), registry)
+                connection = NS(send_message=AsyncMock())
+                session = self.sessions.create_session('fresh')
+                ok, _, authenticated = await auth.authenticate_with_payload(
+                    connection, session, {'accountId': source.account_id, 'characterId': source.id})
+                self.assertTrue(ok)
+                self.assertIs(authenticated, source)
+                handler = ConnectionHandler.__new__(ConnectionHandler)
+                handler.registry_service = NS(character_registry=registry, item_registry=NS(
+                    get_or_none=lambda *, vnum: prototypes.get(vnum)))
+                handler._enter_world(authenticated, self.room)
+                restored = authenticated.pet
+                self.assertIsNot(restored, pet)
+                self.assertIs(restored.master, authenticated)
+                self.assertIs(restored.leader, authenticated)
+                self.assertIs(self.room.mobiles[pet.id], restored)
+                self.assertIs(registry.get(id=pet.id), restored)
+                self.assertEqual(('pet Whiskers', 4, 2, 2), (restored.name, restored.hit, restored.mana, restored.gold))
+                self.assertEqual(3, restored.effects[0].duration)
+                self.assertEqual(2, restored.hit_roll)
+                self.assertEqual(self.enums.get('positions').POS_STANDING.value, restored.character_attributes.position)
+                self.assertEqual(0, restored.status_flags.pulse_wait)
+                self.assertIsNone(restored.fighting)
+                self.assertIsNone(authenticated.saved_pet)
+                restored_bag, = restored.inventory
+                restored_gem, = restored_bag.contains
+                restored_ring = restored.equipped.finger1
+                self.assertEqual((bag.id, gem.id, ring.id), (restored_bag.id, restored_gem.id, restored_ring.id))
+                self.assertIs(restored, restored_ring._effect_wearer)
+                expected = [('bag-area', 'A'), ('gem-area', 'B'), ('ring-area', 'C')]
+                if source is legacy:
+                    expected = [('prototype-area', 'D'), (self.room.area_id, '0'), ('prototype-ring', 'E')]
+                self.assertEqual(expected, [(item.area_id, item.extra_flags)
+                                            for item in (restored_bag, restored_gem, restored_ring)])
+                self.room.remove_mobile_from_room(restored)
+                self.room.remove_player_from_room(authenticated)
+
+    async def test_quit_clears_snapshot_for_distant_pet(self):
+        pet, _ = self.add_companions()
+        distant_room = Room(id='distant', area_id=self.room.area_id)
+        self.room.remove_mobile_from_room(pet)
+        distant_room.add_mobile_to_room(pet)
+        self.rooms.all_rooms = lambda: [self.room, distant_room]
+        self.rooms.get_or_none = lambda *, id: next(
+            (room for room in self.rooms.all_rooms() if room.id == id), None)
+
+        with patch('player.CharacterService.requests.put') as put:
+            await self.handler.do_quit(self.actor, self.context('quit'))
+
+        self.assertIsNone(put.call_args.kwargs['json']['pet'])
+        self.assertIsNone(self.actor.saved_pet)
+        self.assertNotIn(pet.id, distant_room.mobiles)
+
+    async def test_quit_preserves_live_pet_if_service_drops_snapshot(self):
+        pet, _ = self.add_companions()
+        context = self.context('quit')
+        with patch('player.CharacterService.requests.put', return_value=Mock(json=lambda: {})):
+            await self.handler.do_quit(self.actor, context)
+
+        self.assertIs(self.actor.pet, pet)
+        self.assertIs(self.room.mobiles[pet.id], pet)
+        self.assertIs(self.room.characters[self.actor.id], self.actor)
+        self.assertTrue(self.session.is_playing())
+        context.conn.close.assert_not_awaited()
 
     async def test_blocked_quit_never_submits_a_save(self):
         self.actor.character_attributes.position = self.enums.get('positions').POS_FIGHTING.value

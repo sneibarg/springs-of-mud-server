@@ -215,7 +215,6 @@ def _load_command(name: str) -> Command:
         if entry.get("name") == name:
             payload = deepcopy(entry)
             payload.setdefault("shortcuts", "")
-            payload.setdefault("function", [])
             payload.setdefault("usage", "")
             return Command.from_json(payload)
     raise KeyError(name)
@@ -287,7 +286,6 @@ class TestCommunicationsDynamicCommands(unittest.TestCase):
                 "position": "POS_DEAD",
                 "enabled": True,
                 "lambdas": [],
-                "function": [],
                 "usage": "",
                 "level": 0,
                 "maxArguments": 0,

@@ -22,18 +22,14 @@ class EntityExtractor:
         entities = {id(value): value for value in self.registries.character_registry.all_characters()}
         for room in self.registries.room_registry.all_rooms():
             entities.update((id(value), value) for value in list(room.characters.values()) + list(room.mobiles.values()))
-        pet = getattr(entity, 'pet', None)
-        if pet is not None:
-            self.extract(pet, seen)
-            entity.pet = None
+        self.extract_pet(entity, seen)
         self.fight_handler.stop_fighting(entity, both=True)
         for other in entities.values():
-            # Clean one-way combat links as well as registered combat events.
+            # The room scan can miss cached characters outside the live world.
             if other is not entity and other.fighting is entity:
-                self.fight_handler.stop_fighting(other, both=True)
+                self.fight_handler.stop_fighting(other, both=False)
             if other.master is entity:
-                other.master = None
-                CharacterApi.set_affected_by_name(other, CharacterApi.get_enum('affectedBy'), 'AFF_CHARM', False)
+                self.detach_follower(other, self.fight_handler.effect_handler, CharacterApi.get_enum('affectedBy'))
             if other.leader is entity:
                 other.leader = None
             if getattr(other, 'pet', None) is entity:
@@ -41,9 +37,13 @@ class EntityExtractor:
             context = getattr(other, 'context', None)
             if isinstance(context, dict) and context.get('reply_to') == entity.id:
                 context.pop('reply_to', None)
-        entity.master = None
+        if entity.master is not None:
+            self.detach_follower(entity, self.fight_handler.effect_handler, CharacterApi.get_enum('affectedBy'))
         entity.leader = None
         entity.on = None
+        self._remove_from_world(entity)
+
+    def _remove_from_world(self, entity):
         room = self.registries.room_registry.get_or_none(id=entity.room_id)
         if room is not None:
             if CharacterApi.is_npc(entity):
@@ -60,8 +60,23 @@ class EntityExtractor:
                 pass
             entity.room_id = ''
         else:
-            # CharacterRegistry is also the offline service cache. Keep persisted
-            # inventory and the saved room hint for the next authenticated login.
             entity.world_retired = True
             entity.stop_playtime()
             self.registries.character_registry.remove_playing(entity)
+
+    def extract_pet(self, owner, seen=None):
+        pet = getattr(owner, 'pet', None)
+        if pet is not None:
+            owner.pet = None
+            self.extract(pet, {id(owner)} if seen is None else seen)
+
+    @staticmethod
+    def detach_follower(follower, effect_handler, affected_by):
+        master = follower.master
+        if getattr(master, 'pet', None) is follower:
+            master.pet = None
+        follower.master = None
+        follower.leader = None
+        if CharacterApi.is_affected_by_name(follower, affected_by, 'AFF_CHARM'):
+            effect_handler.affect_strip(follower, 'spell.charm_person')
+            CharacterApi.set_affected_by_name(follower, affected_by, 'AFF_CHARM', False)

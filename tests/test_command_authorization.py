@@ -63,7 +63,7 @@ class TestCommandAuthorization(unittest.TestCase):
         doc = self.documents[name]
         data = dict(_id="command", id="command", name=doc["name"], shortcuts=doc.get("shortcuts", ""),
                     role=doc["role"], position=doc["position"], enabled=doc["enabled"],
-                    level=doc["level"], lambdas=doc.get("lambdas", []), function=[], usage="",
+                    level=doc["level"], lambdas=doc.get("lambdas", []), usage="",
                     max_arguments=doc.get("maxArguments", 0), pipeline=doc.get("pipeline", False),
                     payload=GamePayload.from_json(doc.get("payload")))
         data.update(changes)

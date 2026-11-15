@@ -128,6 +128,7 @@ class TestGuardedFlagRuntimePaths(unittest.TestCase):
         commands.room_registry = SimpleNamespace(get_or_none=lambda **_: room)
         commands.ActBitsEnum = SimpleNamespace(ACT_AGGRESSIVE=SimpleNamespace(value=2))
         commands.fight_handler = FightHandler.__new__(FightHandler)
+        commands.fight_handler.room_registry = SimpleNamespace(all_rooms=lambda: [room])
         commands.fight_handler.PositionsEnum = Positions
         commands.fight_handler.combat_registry = SimpleNamespace(get_by_combatant=lambda identifier: [])
         for entity in [actor, *mobiles]:

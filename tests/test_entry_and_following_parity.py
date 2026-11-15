@@ -2,13 +2,15 @@ import asyncio
 import unittest
 from copy import deepcopy
 from types import SimpleNamespace as NS
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import AsyncMock, Mock, call, patch
 
 from tests.test_movement_rules_parity import MovementFixture
 from api.CharacterApi import CharacterApi
 from api.MobileApi import MobileApi
 from area.Area import Area
 from area.Room import Room
+from area.Special import Special
+from area.SpecialRegistry import SpecialRegistry
 from item.Effect import Effect
 from item.EffectUpdateHandler import EffectUpdateHandler
 from interp.commands.Fight import Fight
@@ -19,6 +21,7 @@ from mobile.MobileHandler import MobileHandler
 from skill.Spell import Spell
 from devtools.collection_query import load_collections
 from tests.test_review_application_fixes import ROOT
+from util.FightUtil import FightUtil
 from util.WizUtil import WizUtil
 
 
@@ -305,6 +308,51 @@ class TravelIntegrationTests(MovementFixture, unittest.TestCase):
         self.actor.master = second
         self.flee()
         self.assertEqual([self.destination.id] * 3, [p.room_id for p in (self.actor, first, second)])
+
+
+class MobileWanderPulseTests(MovementFixture, unittest.IsolatedAsyncioTestCase):
+    async def test_bundled_wander_uses_live_posture_and_exit_rules(self):
+        mob = self.npc()
+        self.room.add_mobile_to_room(mob)
+        positions = self.enums.get('positions')
+        mob.position = positions.POS_STANDING
+        FightUtil.set_fighting_position(mob, positions)
+
+        handler = MobileHandler.__new__(MobileHandler)
+        handler.logger = Mock()
+        handler.registry_service = self.registries
+        handler.room_registry = self.rooms
+        handler.area_registry = NS(get_or_none=lambda **_: None)
+        handler.shop_registry = NS(find_by_keeper_vnum=lambda _: None)
+        handler.act_bits = self.enums.get('actBits')
+        handler.room_flags = self.enums.get('roomFlags')
+        handler.exit_flags = self.exit_flags
+        handler.movement_commands = self.movement
+        handler.rng = Mock(number_bits=Mock(return_value=0))
+        handler._handle_payload = AsyncMock()
+        handler._special_library_cache = None
+        handler.special_registry = SpecialRegistry()
+        collections = load_collections(ROOT / 'resources/collections', ['specials'])
+        for document in collections['specials'].documents:
+            handler.special_registry.register(Special.from_json(document))
+
+        await handler.mobile_update()
+        handler.rng.number_bits.assert_not_called()
+        self.assertIs(mob, self.room.mobiles[mob.id])
+
+        mob.character_attributes.position = positions.POS_STANDING
+        self.exit.exit_flags |= int(self.exit_flags.EX_CLOSED)
+        await handler.mobile_update()
+        self.assertEqual([call(3), call(5)], handler.rng.number_bits.call_args_list)
+        self.assertIs(mob, self.room.mobiles[mob.id])
+
+        handler.rng.number_bits.reset_mock()
+        self.exit.exit_flags &= ~int(self.exit_flags.EX_CLOSED)
+        await handler.mobile_update()
+        self.assertEqual([call(3), call(5)], handler.rng.number_bits.call_args_list)
+        self.assertNotIn(mob.id, self.room.mobiles)
+        self.assertIs(mob, self.destination.mobiles[mob.id])
+        handler._handle_payload.assert_awaited_once()
 
 
 class MobileTravelEmissionTests(unittest.IsolatedAsyncioTestCase):

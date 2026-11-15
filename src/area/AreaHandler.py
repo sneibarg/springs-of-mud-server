@@ -207,9 +207,9 @@ class AreaHandler:
         else:
             limit = arg2
 
-        obj_to, obj_to_in_room = ItemOwnership(None, self.room_registry).find_world_vnum(target_vnum)
         if area.number_of_players > 0:
             return False
+        obj_to, obj_to_in_room = ItemOwnership(None, self.room_registry).find_world_vnum(target_vnum)
         if obj_to is None:
             return False
         if (not obj_to_in_room) and (not last):

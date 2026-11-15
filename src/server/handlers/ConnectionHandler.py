@@ -12,6 +12,7 @@ from area.Room import Room
 from interp.InterpHandler import InterpHandler
 from api.CharacterApi import CharacterApi
 from api.GameApi import GameApi
+from mobile.PetSnapshot import restore_pet
 from server.connection.TelnetConnection import TelnetConnection
 from server.connection.ConnectionManager import ConnectionManager
 from server.session.SessionHandler import SessionHandler
@@ -117,7 +118,7 @@ class ConnectionHandler:
 
                 if room is not None:
                     occupants = list(room.characters.values())
-                    room.add_player_to_room(character)
+                    self._enter_world(character, room)
                     await self.room_handler.print_room(character.id, room)
                     players_text = room.get_players_in_room(character)
                     mobiles_text = room.get_mobiles_in_room(character)
@@ -148,6 +149,27 @@ class ConnectionHandler:
                 if connection:
                     await connection.close()
             self.logger.info(f"Connection closed: {peer_info if connection else 'unknown'}")
+
+    def _enter_world(self, character: Character, room: Room) -> None:
+        snapshot = character.saved_pet
+        if snapshot is None:
+            room.add_player_to_room(character)
+            return
+
+        pet = restore_pet(snapshot, character, item_registry=self.registry_service.item_registry)
+        registry = self.registry_service.character_registry
+        registry.register(pet)
+        try:
+            room.add_player_to_room(character)
+            character.pet = pet
+            room.add_mobile_to_room(pet)
+        except Exception:
+            room.remove_mobile_from_room(pet)
+            room.remove_player_from_room(character)
+            character.pet = None
+            registry.unregister(pet)
+            raise
+        character.saved_pet = None
 
     def _character_lock(self, character_id: str) -> asyncio.Lock:
         return self._character_locks.setdefault(character_id, asyncio.Lock())

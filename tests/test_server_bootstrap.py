@@ -42,7 +42,7 @@ class ServerBootstrapTests(unittest.TestCase):
             "/rooms": [dict(id="room_001", areaId="area_001", vnum="1", name="Test room")],
             "/areas": [dict(id="area_001", vnum="1", name="Test area", author="Test", suggestedLevelRange="1 10")],
             "/helps": [dict(id="summary-help", keyword="SUMMARY", text="Help summary")],
-            "/commands": [dict(self.quit_command, function=[], usage="")],
+            "/commands": [dict(self.quit_command, usage="")],
         })
         self.fail_endpoint = None
         self.http_get = self.enterContext(patch("requests.get", side_effect=self.response))

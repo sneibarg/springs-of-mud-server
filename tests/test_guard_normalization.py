@@ -23,7 +23,7 @@ class GuardNormalizationTests(unittest.TestCase):
                 with self.subTest(model=model.__name__, as_json=as_json, guards=raw):
                     if model is Command:
                         document = dict(name='test', shortcuts='', role='player', position='standing',
-                                        enabled=True, lambdas=[], function=[], usage='', level=0, maxArguments=0)
+                                        enabled=True, lambdas=[], usage='', level=0, maxArguments=0)
                     else:
                         document = dict(id='test', name='test', kind='skill', handlerId='', target='ignore',
                                         minPosition='standing', nounDamage='', levelByClass={}, ratingByClass={},

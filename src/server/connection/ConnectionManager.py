@@ -64,3 +64,10 @@ class ConnectionManager:
 
     def connection_count(self) -> int:
         return len(self._connections)
+
+
+def has_open_character_connection(manager: ConnectionManager | None, character_id: str) -> bool:
+    if manager is None:
+        return False
+    connection = manager.get_connection_by_character(character_id)
+    return connection is not None and not connection.is_closed()

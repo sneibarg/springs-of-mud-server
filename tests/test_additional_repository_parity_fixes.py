@@ -212,7 +212,8 @@ class AdditionalParityTests(unittest.IsolatedAsyncioTestCase):
         f.actor.status_flags.played = 0
         f.actor.start_playtime(1000)
         f.registries.character_registry = NS(all_characters=lambda: [f.actor], remove_playing=Mock())
-        extractor = EntityExtractor(f.registries, NS(stop_fighting=Mock()), NS(current_session=lambda actor: None))
+        fight = NS(stop_fighting=Mock(), effect_handler=Mock())
+        extractor = EntityExtractor(f.registries, fight, NS(current_session=lambda actor: None))
         with patch('player.Character.datetime') as clock:
             clock.now.return_value.timestamp.return_value = 1100
             extractor.extract(f.actor)

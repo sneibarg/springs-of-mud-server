@@ -2,6 +2,8 @@ def dexterity_defense(character, bonus_lookup):
     from util.GenericUtil import GenericUtil
 
     from api.CharacterApi import CharacterApi
+    if not CharacterApi.is_awake(character):
+        return 0
     dexterity = CharacterApi.current_stat(character, 'dexterity')
     return GenericUtil.to_int(bonus_lookup("dexterity", str(dexterity)).get("defensive", 0), 0)
 

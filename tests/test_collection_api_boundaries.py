@@ -76,7 +76,7 @@ class CollectionApiBoundaryTests(unittest.TestCase):
 
     def command(self, name):
         document = deepcopy(self.commands[name])
-        for key, default in [('shortcuts', ''), ('usage', ''), ('function', [])]:
+        for key, default in [('shortcuts', ''), ('usage', '')]:
             document.setdefault(key, default)
         return Command.from_json(document)
 

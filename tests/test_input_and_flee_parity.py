@@ -4,10 +4,13 @@ from unittest.mock import AsyncMock, Mock, patch
 
 from tests.test_movement_rules_parity import MovementFixture
 from api.CharacterApi import CharacterApi
+from combat.CombatHandler import FightHandler
+from combat.CombatRegistry import CombatRegistry
 from interp.Context import Context
 from interp.InterpHandler import InterpHandler
 from interp.commands.Fight import Fight
 from player.PlayerHandler import PlayerHandler
+from skill.Ability import Ability
 from util.InterpUtil import InterpUtil
 
 
@@ -116,6 +119,62 @@ class FleeParityTests(MovementFixture, unittest.TestCase):
         with patch('interp.commands.Fight.random.randint', side_effect=[0, 0, 1, 0, 100]):
             self.commands.do_flee(self.actor, self.ctx('flee'))
         self.assertEqual(self.actor.room_id, self.temple.id)
+
+    def use_live_combat(self):
+        fight = FightHandler.__new__(FightHandler)
+        fight.room_registry = self.rooms
+        fight.combat_registry = CombatRegistry()
+        fight.PositionsEnum = self.enums.get('positions')
+        fight.AffectBits = self.enums.get('affectedBy')
+        fight.aggressive_entry_rounds = Mock(return_value=[])
+        self.commands.fight_handler = self.movement.fight_handler = fight
+        self.room.add_player_to_room(self.victim)
+        self.actor.fighting = None
+        return fight
+
+    def assert_escape_preserves_other_fight(self, escape, destination):
+        fight = self.use_live_combat()
+        third = self.character('third')
+        pursuer = self.character('pursuer')
+        self.room.add_player_to_room(third)
+        self.room.add_player_to_room(pursuer)
+        fight.set_fighting(self.actor, self.victim, self.room.id)
+        first_event = fight.set_fighting(self.victim, third, self.room.id)
+        second_event = fight.set_fighting(third, self.victim, self.room.id)
+        # Live pointers can precede the next combat registry refresh.
+        pursuer.fighting = self.actor
+        CharacterApi.set_position(pursuer, 'POS_FIGHTING')
+
+        escape()
+
+        self.assertEqual(destination.id, self.actor.room_id)
+        self.assertIsNone(self.actor.fighting)
+        self.assertIs(self.victim.fighting, third)
+        self.assertIs(third.fighting, self.victim)
+        self.assertEqual(CharacterApi.pos_value('POS_FIGHTING'), CharacterApi.position_value(self.victim))
+        self.assertCountEqual([first_event, second_event], fight.combat_registry.all_events())
+        self.assertIsNone(pursuer.fighting)
+        self.assertEqual(CharacterApi.pos_value('POS_STANDING'), CharacterApi.position_value(pursuer))
+
+    def test_flee_leaves_the_other_two_combatants_fighting(self):
+        self.assert_escape_preserves_other_fight(self.flee, self.destination)
+
+    def test_recall_leaves_the_other_two_combatants_fighting(self):
+        with patch('interp.commands.Movement.random.randint', return_value=100), \
+                patch.object(Ability, 'check_improve_by_name'):
+            self.assert_escape_preserves_other_fight(lambda: self.attempt('recall'), self.temple)
+
+    def test_flee_clears_both_sides_of_a_mutual_duel(self):
+        fight = self.use_live_combat()
+        fight.set_fighting(self.actor, self.victim, self.room.id)
+        fight.set_fighting(self.victim, self.actor, self.room.id)
+
+        self.flee()
+
+        self.assertIsNone(self.actor.fighting)
+        self.assertIsNone(self.victim.fighting)
+        self.assertEqual(CharacterApi.pos_value('POS_STANDING'), CharacterApi.position_value(self.victim))
+        self.assertEqual([], fight.combat_registry.all_events())
 
 
 class InputHideParityTests(MovementFixture, unittest.IsolatedAsyncioTestCase):

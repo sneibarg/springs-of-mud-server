@@ -50,7 +50,8 @@ class TestCombatGroupRewards(unittest.TestCase):
         self.handler.ItemFlags = SimpleNamespace(ITEM_ANTI_EVIL=1, ITEM_ANTI_GOOD=2, ITEM_ANTI_NEUTRAL=4)
         self.handler.effect_handler.remove_item_effects = Mock()
         self.handler.message_bus = SimpleNamespace(text_to_message=lambda text: text,
-                                                   send_to_character=AsyncMock(), send_to_room=AsyncMock())
+                                                   send_to_character=AsyncMock(), send_to_room=AsyncMock(),
+                                                   connection_manager=self.handler.message_bus.connection_manager)
         self.advancement = patch.object(Runtime, "CharacterAdvancement", Advancement)
         self.advancement.start()
         self.addCleanup(self.advancement.stop)

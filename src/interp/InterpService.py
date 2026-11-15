@@ -55,5 +55,5 @@ class InterpService(FetchAndRegisterMixin):
     def _build_summary_command(self) -> Command:
         from util.GenericUtil import GenericUtil
         summary_id = GenericUtil.generate_mongo_id()
-        summary_cmd = Command(_id=summary_id, id=summary_id, max_arguments=0, level=0, name='summary', shortcuts="", message="", skill_id="", position="", usage="", role="", enabled=True, lambdas=[], function=[], help=self.help_registry.get(keyword='summary'))
+        summary_cmd = Command(_id=summary_id, id=summary_id, max_arguments=0, level=0, name='summary', shortcuts="", message="", skill_id="", position="", usage="", role="", enabled=True, lambdas=[], help=self.help_registry.get(keyword='summary'))
         return summary_cmd

@@ -212,6 +212,13 @@ class _Context(SimpleNamespace):
     def finish(self):
         self.done = True
 
+    def wiz_handler(self):
+        if not getattr(self, "switched", False):
+            return None
+        session = SimpleNamespace(character=self.character, metadata={"switched_original": object()},
+                                  is_playing=lambda: True)
+        return SimpleNamespace(current_session=lambda _character: session)
+
 
 _ensure_injector()
 _stub_package("server")
@@ -278,7 +285,6 @@ def _load_command(name: str) -> Command:
         if entry.get("name") == name:
             payload = deepcopy(entry)
             payload.setdefault("shortcuts", "")
-            payload.setdefault("function", [])
             payload.setdefault("usage", "")
             return Command.from_json(payload)
     raise KeyError(name)
@@ -421,7 +427,8 @@ class TestFightDynamicCommands(unittest.TestCase):
                     commands.interp_api = InterpApi()
                     commands.spell_api = Mock()
                     commands._resolve_spell_target = Mock(return_value=(master, "char", ""))
-                    ctx = _Context(character=actor, command=_load_command("cast"), room=SimpleNamespace(id="room"), result="curse")
+                    ctx = _Context(character=actor, command=_load_command("cast"), room=SimpleNamespace(id="room"),
+                                   result="curse", switched=npc)
                     result = commands.do_cast(actor, ctx)
                     self.assertEqual("is_follower", result["blocked_key"])
                     self.assertEqual(100, actor.mana)
@@ -467,7 +474,7 @@ class TestFightDynamicCommands(unittest.TestCase):
                 commands._resolve_spell_target.assert_called_once()
 
     def test_cast_access_guards_block_before_execution_and_mana_charge(self):
-        # ROM magic.c do_cast rejects unlearned/under-level PCs, but exempts NPCs.
+        # ROM exempts descriptor-controlled NPCs from player spell access requirements.
         cases = [
             ("missing learned spell", 10, "mage", None, False, 20, True),
             ("zero proficiency", 10, "mage", 0, False, 20, True),
@@ -476,7 +483,7 @@ class TestFightDynamicCommands(unittest.TestCase):
             ("at class level", 10, "mage", 1, False, 100, False),
             ("above class level", 11, "mage", 100, False, 100, False),
             ("different class requirement", 10, "warrior", 100, False, 20, True),
-            ("NPC exemption", 1, "mage", None, True, 0, False),
+            ("switched NPC exemption", 1, "mage", None, True, 0, False),
         ]
         for label, level, class_name, learned, npc, mana, blocked in cases:
             with self.subTest(label=label):
@@ -502,7 +509,7 @@ class TestFightDynamicCommands(unittest.TestCase):
 
                 commands.spell_api.cast.side_effect = perform
                 context = _Context(character=character, command=_load_command("cast"),
-                                   room=room, result="armor", done=False)
+                                   room=room, result="armor", done=False, switched=npc)
                 payload = commands.do_cast(character, context)
 
                 self.assertTrue(context.done)

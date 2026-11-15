@@ -7,7 +7,7 @@ from player.Character import Character
 from api.GameApi import GameApi
 from util.GenericUtil import GenericUtil
 from game.RandomNumberGenerator import RandomNumberGenerator
-
+from game.AnimateEntity import AnimateEntity
 
 if TYPE_CHECKING:
     from area.Room import Room
@@ -79,7 +79,7 @@ class CharacterApi(GameApi):
         bonus = bonus_table.get(str(normalized))
         if bonus is not None:
             return bonus
-        return bonus_table.get(normalized,{})
+        return bonus_table.get(normalized, {})
 
     @classmethod
     def get_registry(cls):
@@ -125,8 +125,10 @@ class CharacterApi(GameApi):
         flags = cls.get_enum("roomFlags")
         parameters = cls.get_enum("gameParameters")
         raw = cls.flags_to_int(room.room_flags)
+
         def flagged(name):
             return cls.is_set(raw, int(getattr(flags, name)))
+
         immortal = cls.is_immortal(character)
         if flagged("ROOM_IMP_ONLY") and cls.get_trust(character) < int(parameters.MAX_LEVEL):
             return False
@@ -364,11 +366,9 @@ class CharacterApi(GameApi):
 
     @classmethod
     def position_value(cls, character: Character) -> int:
-        from game.AnimateEntity import AnimateEntity
-
         standing = cls.pos_value("POS_STANDING")
         return AnimateEntity.position_value(character, cls.positions, include_start_position=False,
-                                             default_position=standing if standing >= 0 else 0)
+                                            default_position=standing if standing >= 0 else 0)
 
     @classmethod
     def set_position(cls, character: Character, pos_name: str):
@@ -440,10 +440,12 @@ class CharacterApi(GameApi):
         if cls.is_affected(character, cls.AffectedBits.AFF_BLIND.value):
             return False
 
-        if room is not None and room.is_room_dark() and not cls.is_affected(character, cls.AffectedBits.AFF_INFRARED.value):
+        if room is not None and room.is_room_dark() and not cls.is_affected(character,
+                                                                            cls.AffectedBits.AFF_INFRARED.value):
             return False
 
-        if cls.is_affected(victim, cls.AffectedBits.AFF_INVISIBLE.value) and not cls.is_affected(character, cls.AffectedBits.AFF_DETECT_INVIS.value):
+        if cls.is_affected(victim, cls.AffectedBits.AFF_INVISIBLE.value) and not cls.is_affected(character,
+                                                                                                 cls.AffectedBits.AFF_DETECT_INVIS.value):
             return False
 
         if cls.is_affected(victim, cls.AffectedBits.AFF_SNEAK.value) \
@@ -491,7 +493,8 @@ class CharacterApi(GameApi):
     def get_max_train(cls, character, stat_index: int, current_value: int = 0) -> int:
         if cls.is_npc(character) or character.level > cls.GameParameters.LEVEL_IMMORTAL:
             return 25
-        bonus = (3 if character.race.lower() == 'human' else 2) if int(character.character_class.attr_prime) == stat_index else 0
+        bonus = (3 if character.race.lower() == 'human' else 2) if int(
+            character.character_class.attr_prime) == stat_index else 0
         return min(25, cls.race_stat_max(character, stat_index) + bonus)
 
     @classmethod

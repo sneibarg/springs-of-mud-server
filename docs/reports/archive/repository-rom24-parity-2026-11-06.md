@@ -2,7 +2,7 @@
 
 November 6, 2026. Reviewed Python HEAD `2c15d2e14d2acff08825bcb3d484195c4300eb17` against `C:/Users/scott/PycharmProjects/PyRom/Rom24/src`.
 
-**Five verified behavioral mismatches need resolution: four P2 issues and one P3 issue.** This review changes documentation and evidence scripts only. It leaves runtime code, collections, the C reference, and the pre-existing working-tree changes under `rom24-code-paths/whole-codebase` untouched.
+**Five verified behavioral mismatches need resolution: four P2 issues and one P3 issue.** This review changes documentation and evidence scripts only. It leaves runtime code, collections, the C reference, and the pre-existing working-tree changes under `../rom24-code-paths/whole-codebase` untouched.
 
 The scope is repository-wide inventory and regression validation, with fresh source comparison and executable probes of selected paths. It is **not an exhaustive branch-by-branch certification** of the entire server. The coverage matrix below distinguishes fresh tracing, test coverage, and unexamined behavior. Historical findings are not automatically counted as current defects.
 
@@ -24,7 +24,7 @@ All five have C source evidence and reproductions in the [probe script](rom24-pa
 
 **Expected:** [special.c:962](C:/Users/scott/PycharmProjects/PyRom/Rom24/src/special.c:962) invokes ordinary `do_open("gate")`; the close step invokes `do_close`. [act_move.c:398](C:/Users/scott/PycharmProjects/PyRom/Rom24/src/act_move.c:398) refuses a locked gate, and [act_move.c:405](C:/Users/scott/PycharmProjects/PyRom/Rom24/src/act_move.c:405) updates the reciprocal exit when it points back to the origin. Closing has the equivalent reciprocal update at [act_move.c:491](C:/Users/scott/PycharmProjects/PyRom/Rom24/src/act_move.c:491). The command also produces the door notices.
 
-**Actual:** The authored mayor route reaches [MobileApi.py:470](../../src/api/MobileApi.py#L470), then [MobileApi.py:751](../../src/api/MobileApi.py#L751). `_toggle_gate` directly changes CLOSED on each local exit whose entire keyword equals `gate`. It neither checks LOCKED nor updates the reciprocal exit or emits the ordinary door notices.
+**Actual:** The authored mayor route reaches [MobileApi.py:470](../../../src/api/MobileApi.py#L470), then [MobileApi.py:751](../../../src/api/MobileApi.py#L751). `_toggle_gate` directly changes CLOSED on each local exit whose entire keyword equals `gate`. It neither checks LOCKED nor updates the reciprocal exit or emits the ordinary door notices.
 
 **Reproduction:** Executed the actual mayor route lambda with a one-step `O.` route state and real paired exits. Starting with flags `3/3` (door + closed), Python produces `1/3`: open on the mayor's side and closed on the other. Starting with local flags `7` (door + closed + locked), it produces `5`: open but still locked. Closing's asymmetry is established by the shared helper; the executable probe exercises opening.
 
@@ -38,7 +38,7 @@ All five have C source evidence and reproductions in the [probe script](rom24-pa
 
 **Expected:** [act_info.c:1219](C:/Users/scott/PycharmProjects/PyRom/Rom24/src/act_info.c:1219) prints the description (or the default notice), then independently prints the named door's open/closed state at [act_info.c:1224](C:/Users/scott/PycharmProjects/PyRom/Rom24/src/act_info.c:1224).
 
-**Actual:** [RoomHandler.py:125](../../src/area/RoomHandler.py#L125) returns immediately after a nonempty description, so its door-state branch is unreachable. The current `look` collection command's guards and pipeline permit this case; they do not supply the missing state afterward. The dispatch is [Info.py:194](../../src/interp/commands/Info.py#L194).
+**Actual:** [RoomHandler.py:125](../../../src/area/RoomHandler.py#L125) returns immediately after a nonempty description, so its door-state branch is unreachable. The current `look` collection command's guards and pipeline permit this case; they do not supply the missing state afterward. The dispatch is [Info.py:194](../../../src/interp/commands/Info.py#L194).
 
 **Reproduction:** The public interpreter, current `look` document, production room handler, and message bus output only `An iron gate blocks the road.` for a closed gate. There is no closed-state line.
 
@@ -52,7 +52,7 @@ All five have C source evidence and reproductions in the [probe script](rom24-pa
 
 **Expected:** [fight.c:898](C:/Users/scott/PycharmProjects/PyRom/Rom24/src/fight.c:898) clears KILLER, or otherwise THIEF, when a different player kills someone outside their same clan. [handler.c:333](C:/Users/scott/PycharmProjects/PyRom/Rom24/src/handler.c:333) explicitly returns false for independent clans. [tables.c:46](C:/Users/scott/PycharmProjects/PyRom/Rom24/src/tables.c:46) marks both the empty clan and `loner` independent. Two clanless players therefore do not qualify for the same-clan exemption.
 
-**Actual:** [CombatDeathHandler.py:149](../../src/combat/CombatDeathHandler.py#L149) exempts matching guild strings unless the attacker's string is exactly `independent` or `loner`. Empty strings match and return early. The live lethal-damage path calls this helper after `raw_kill` at [CombatHandler.py:1036](../../src/combat/CombatHandler.py#L1036).
+**Actual:** [CombatDeathHandler.py:149](../../../src/combat/CombatDeathHandler.py#L149) exempts matching guild strings unless the attacker's string is exactly `independent` or `loner`. Empty strings match and return early. The live lethal-damage path calls this helper after `raw_kill` at [CombatHandler.py:1036](../../../src/combat/CombatHandler.py#L1036).
 
 **Reproduction:** With real Character models and loaded player flags, invoking production cleanup separately for KILLER and THIEF leaves each flag set. This probe targets the cleanup boundary; it does not simulate the preceding lethal attack.
 
@@ -66,7 +66,7 @@ All five have C source evidence and reproductions in the [probe script](rom24-pa
 
 **Expected:** [update.c:673](C:/Users/scott/PycharmProjects/PyRom/Rom24/src/update.c:673) sends the light notice through `act` after reducing its fuel to zero. The default minimum position is RESTING ([merc.h:1842](C:/Users/scott/PycharmProjects/PyRom/Rom24/src/merc.h:1842)); [comm.c:2475](C:/Users/scott/PycharmProjects/PyRom/Rom24/src/comm.c:2475) filters recipients, and [comm.c:2522](C:/Users/scott/PycharmProjects/PyRom/Rom24/src/comm.c:2522) resolves `$p` per observer. The lit-light visibility exception at [handler.c:2508](C:/Users/scott/PycharmProjects/PyRom/Rom24/src/handler.c:2508) no longer applies once fuel is zero.
 
-**Actual:** [Character.py:444](../../src/player/Character.py#L444) constructs literal item-name strings. [EntityUpdateHandler.py:112](../../src/game/EntityUpdateHandler.py#L112) sends that same string to all other room players, without a posture or object-visibility check. This is distinct from ordinary item-timer decay, whose recipient rendering was already repaired.
+**Actual:** [Character.py:444](../../../src/player/Character.py#L444) constructs literal item-name strings. [EntityUpdateHandler.py:112](../../../src/game/EntityUpdateHandler.py#L112) sends that same string to all other room players, without a posture or object-visibility check. This is distinct from ordinary item-timer decay, whose recipient rendering was already repaired.
 
 **Reproduction:** A real invisible light expires from fuel 1 to 0. Production object visibility confirms that the awake witness cannot see it. Both that witness and a sleeping player nevertheless receive `the secret lamp goes out.` through the real message bus.
 
@@ -80,7 +80,7 @@ All five have C source evidence and reproductions in the [probe script](rom24-pa
 
 **Expected:** [special.c:774](C:/Users/scott/PycharmProjects/PyRom/Rom24/src/special.c:774) uses `act` for the devouring notice. Its recipient posture filter and per-observer `$n` expansion are [comm.c:2475](C:/Users/scott/PycharmProjects/PyRom/Rom24/src/comm.c:2475) and [comm.c:2512](C:/Users/scott/PycharmProjects/PyRom/Rom24/src/comm.c:2512). The awake witness sees a generic identity; the sleeper receives nothing.
 
-**Actual:** The current `spec_fido` collection lambda calls [MobileApi.py:394](../../src/api/MobileApi.py#L394). It expands `$n` once through [MobileApi.py:863](../../src/api/MobileApi.py#L863), then [MobileApi.py:770](../../src/api/MobileApi.py#L770) selects room players without a posture filter. `MobileHandler._handle_payload` forwards that literal room message to the selected targets.
+**Actual:** The current `spec_fido` collection lambda calls [MobileApi.py:394](../../../src/api/MobileApi.py#L394). It expands `$n` once through [MobileApi.py:863](../../../src/api/MobileApi.py#L863), then [MobileApi.py:770](../../../src/api/MobileApi.py#L770) selects room players without a posture filter. `MobileHandler._handle_payload` forwards that literal room message to the selected targets.
 
 **Reproduction:** Executed the current authored special with a real invisible Mobile and NPC corpse. The corpse is removed, and its queued notice is `the invisible fido savagely devours a corpse.` with both awake and sleeping witnesses included. The probe checks the produced payload and audience; socket delivery for this special was traced rather than executed.
 
@@ -92,7 +92,7 @@ All five have C source evidence and reproductions in the [probe script](rom24-pa
 
 The complete isolated sweep ran **136 top-level modules, 1,673 reported tests, 123 passing modules, 13 non-passing modules, zero timeouts, five failure entries, and 30 error entries**. The reported count includes unittest loader-error placeholders; it is not a count of successful test methods. Full per-module output is in [test results](rom24-parity-2026-11-06-tests.json), and the [runner](rom24-parity-2026-11-06-tests.py) makes the isolation and 45-second timeout reproducible.
 
-The initial system `python` was an ActiveState launcher that failed before tests started. The repository `.venv/Scripts/python.exe` is Python 3.14.0. Sandbox asyncio runs stalled; they were stopped, and the completed sweep ran with local Windows asyncio loopback access. Modules ran in separate processes because several test files install global import stubs. A successful combined-process discovery run is not claimed. No implementation fixes or desired-behavior regression tests were added.
+The initial system `python` was an ActiveState launcher that failed before tests started. The repository `../../../.venv/Scripts/python.exe` is Python 3.14.0. Sandbox asyncio runs stalled; they were stopped, and the completed sweep ran with local Windows asyncio loopback access. Modules ran in separate processes because several test files install global import stubs. A successful combined-process discovery run is not claimed. No implementation fixes or desired-behavior regression tests were added.
 
 Treat these as a separate test-maintenance backlog, not 13 additional gameplay findings:
 
@@ -138,12 +138,12 @@ Prior room/visibility, travel, note membership, and item-transfer remediation is
 
 These remain decisions or follow-up investigations, not verified defects in the queue:
 
-- **Command abbreviations:** [interp.c:424](C:/Users/scott/PycharmProjects/PyRom/Rom24/src/interp.c:424) accepts table-order prefixes, while [InterpUtil.py:136](../../src/util/InterpUtil.py#L136) resolves names and authored shortcuts. Confirm whether that explicit shortcut policy is deliberate, including socials, before changing lookup semantics.
-- **Idle/limbo/autoquit:** ROM [update.c:684](C:/Users/scott/PycharmProjects/PyRom/Rom24/src/update.c:684) advances idle ticks and moves characters to limbo. Python's [SessionHandler.py:55](../../src/server/session/SessionHandler.py#L55) and connection loop use elapsed session activity. Product intent for limbo and automatic quit still needs confirmation; do not infer a defect from different scheduler architecture alone.
-- **Pose selection:** [act_comm.c:1347](C:/Users/scott/PycharmProjects/PyRom/Rom24/src/act_comm.c:1347) uses C pose eligibility/tables. [Communications.py:311](../../src/interp/commands/Communications.py#L311) selects authored pose keys. Class/level eligibility policy remains unconfirmed.
-- **QUIET clan sender:** [act_comm.c:680](C:/Users/scott/PycharmProjects/PyRom/Rom24/src/act_comm.c:680) checks NOCHANNELS before sending; Python [Communications.py:199](../../src/interp/commands/Communications.py#L199) also rejects a QUIET sender. Establish intended channel policy before altering it.
+- **Command abbreviations:** [interp.c:424](C:/Users/scott/PycharmProjects/PyRom/Rom24/src/interp.c:424) accepts table-order prefixes, while [InterpUtil.py:136](../../../src/util/InterpUtil.py#L136) resolves names and authored shortcuts. Confirm whether that explicit shortcut policy is deliberate, including socials, before changing lookup semantics.
+- **Idle/limbo/autoquit:** ROM [update.c:684](C:/Users/scott/PycharmProjects/PyRom/Rom24/src/update.c:684) advances idle ticks and moves characters to limbo. Python's [SessionHandler.py:55](../../../src/server/session/SessionHandler.py#L55) and connection loop use elapsed session activity. Product intent for limbo and automatic quit still needs confirmation; do not infer a defect from different scheduler architecture alone.
+- **Pose selection:** [act_comm.c:1347](C:/Users/scott/PycharmProjects/PyRom/Rom24/src/act_comm.c:1347) uses C pose eligibility/tables. [Communications.py:311](../../../src/interp/commands/Communications.py#L311) selects authored pose keys. Class/level eligibility policy remains unconfirmed.
+- **QUIET clan sender:** [act_comm.c:680](C:/Users/scott/PycharmProjects/PyRom/Rom24/src/act_comm.c:680) checks NOCHANNELS before sending; Python [Communications.py:199](../../../src/interp/commands/Communications.py#L199) also rejects a QUIET sender. Establish intended channel policy before altering it.
 - **Offline recovery:** [save.c:921](C:/Users/scott/PycharmProjects/PyRom/Rom24/src/save.c:921) applies elapsed-offline resource recovery. Python persistence/authentication is service-backed. This review did not inspect the upstream character service, so responsibility and actual end-to-end behavior remain unresolved.
 
 Accepted differences include asynchronous transport, service-backed persistence/authentication, dynamic enums and registries, designer-authored guards/payloads, and managed memory. They are not defects merely because ROM uses synchronous C code and static tables.
 
-Not performed: exhaustive branch pairing of every function, full area/content record comparison, legacy `tests/old-tests`, executable-C differential testing, live sockets/content services, or all cross-command timing/interleaving scenarios. A subsystem with passing tests or no new finding is not certified behaviorally equivalent. Resolve F01–F05 with focused regressions, repair the listed test fixtures, and use the coverage matrix to select the next deeper audit rather than treating this report as complete parity proof.
+Not performed: exhaustive branch pairing of every function, full area/content record comparison, legacy `../../../tests/old-tests`, executable-C differential testing, live sockets/content services, or all cross-command timing/interleaving scenarios. A subsystem with passing tests or no new finding is not certified behaviorally equivalent. Resolve F01–F05 with focused regressions, repair the listed test fixtures, and use the coverage matrix to select the next deeper audit rather than treating this report as complete parity proof.

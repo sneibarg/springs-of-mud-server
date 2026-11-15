@@ -118,6 +118,7 @@ class PlayerHandler:
         self.character_registry.remove_playing(character)
         saved = False
         try:
+            saved_pet = CharacterService.pet_snapshot(character)
             saved = await self.character_service.save_character_async(character)
             if not saved:
                 failed = self.interp_api.render_message_key(context, "unsaved", channel="to_char",
@@ -128,6 +129,7 @@ class PlayerHandler:
             position = character.character_attributes.position
             self.entity_extractor.extract(character)
             character.character_attributes.position = position
+            character.saved_pet = saved_pet
             if context.conn is not None and context.conn.is_closed():
                 return
             await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(payload["to_char"]))

@@ -22,13 +22,15 @@ class TestImmortalRecovery(unittest.TestCase):
         self.api = NS(is_npc=lambda v: v.npc, get_trust=lambda v: 60,
                       enum_bit=lambda *a: 1, unset_act_flags=lambda v, bit: setattr(v, 'aggressive', False))
         scope = {'CharacterApi': self.api, 'GenericUtil': NS(to_int=lambda v, d: int(v)),
-                 'FightUtil': NS(entity_position_value=lambda v: v.character_attributes.position)}
+                 'FightUtil': NS(entity_position_value=lambda v: v.character_attributes.position),
+                 'LookupUtil': NS(people=lambda room: [*room.characters.values(), *room.mobiles.values()])}
         Fight = methods('src/combat/CombatHandler.py', 'FightHandler',
                         {'update_pos', '_set_position', '_set_default_combat_position', 'stop_fighting'}, scope)
         self.fight = Fight()
         self.fight.PositionsEnum = NS(**{name: NS(value=i) for i, name in enumerate(
             ['POS_DEAD', 'POS_MORTAL', 'POS_INCAP', 'POS_STUNNED', 'POS_SLEEPING', 'POS_RESTING', 'POS_STANDING'])})
         self.fight.combat_registry = NS(get_by_combatant=lambda _: [])
+        self.fight.room_registry = NS(all_rooms=lambda: [self.room])
         self.fight.effect_handler = NS(affect_strip=self.strip)
         self.WizApi = methods('src/api/WizApi.py', 'WizApi', {'restore_character'}, {})
         self.util = NS(argument_text=lambda result, params: params,

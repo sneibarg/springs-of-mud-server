@@ -102,6 +102,15 @@ class Fight:
         return self.fight_api.run_action(self, context)
 
     def do_cast(self, character: Character, context: Context):
+        if CharacterApi.is_npc(character):
+            wiz_handler = context.wiz_handler()
+            session = wiz_handler.current_session(character) if wiz_handler is not None else None
+            if (session is None or session.character is not character
+                    or session.metadata.get("switched_original") is None
+                    or not (session.is_playing() or session.is_idle())):
+                context.finish()
+                return None
+
         spell_name, target_arg = FightUtil.parse_cast_argument(context.result, context.parameters)
         spell = FightUtil.find_spell(self.spell_registry, spell_name, character) if spell_name else None
         mana_cost = FightUtil.cast_mana_cost(character, spell)
@@ -121,7 +130,7 @@ class Fight:
         context.cast_target_kind = target_kind
         context.cast_target_error = target_error
         late_guards = {"insufficient_mana"}
-        if str(spell.target or "").upper() == "CHAR_OFFENSIVE":
+        if spell is not None and str(spell.target or "").upper() == "CHAR_OFFENSIVE":
             late_guards.add("is_follower")
         payload = self.interp_api.evaluate_guards_only(
             context, context.command.name, guard_filter=lambda guard: guard.message_key not in late_guards)

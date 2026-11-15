@@ -132,6 +132,7 @@ class MobileFactory:
             "material": prototype.material,
             "level": prototype.level,
             "hit_roll": prototype.hit_roll,
+            "wealth": prototype.wealth,
             "gold": 0,
             "silver": 0,
             "flags": None,
@@ -156,6 +157,7 @@ class MobileFactory:
         mob.hit_dice = prototype.hit_dice
         mob.mana_dice = prototype.mana_dice
         mob.damage_dice = prototype.damage_dice
+        mob.dam_roll = mob.damage_dice.bonus
 
         mob.max_hit = rng.dice(prototype.hit_dice.number, prototype.hit_dice.type) + prototype.hit_dice.bonus
         mob.hit = mob.max_hit
@@ -328,8 +330,6 @@ class MobileFactory:
     def apply_extended_mobile_fields(mobile: Mobile, mobile_data: dict):
         mobile.armor_class = MobileFactory.parse_ac(mobile_data)
         mobile.hit_dice, mobile.mana_dice, mobile.damage_dice = MobileFactory.parse_dice(mobile_data)
-        mobile.hitroll = GenericUtil.to_int(mobile_data.get("hitroll", 0), default=0)
-        mobile.wealth = GenericUtil.to_int(mobile_data.get("wealth", mobile_data.get("gold", 0)), default=0)
 
     @staticmethod
     def build_normalized_mobile_data(mobile_id: str, mobile_data: dict, player_name: str, race_name: str, level: int) -> dict:
@@ -356,11 +356,12 @@ class MobileFactory:
             "flags": str(mobile_data.get("flags", "") or ""),
             "id": mobile_id,
             "level": level,
-            "hit_roll": GenericUtil.to_int(mobile_data.get("hit_roll", 0), default=0),
+            "hit_roll": GenericUtil.to_int(mobile_data.get("hit_roll", mobile_data.get("hitroll")), default=0),
             "hit_dice": None,
             "mana_dice": None,
             "damage_dice": None,
             "armor_class": None,
+            "wealth": GenericUtil.to_int(mobile_data.get("wealth", mobile_data.get("gold", 0)), default=0),
             "gold": GenericUtil.to_int(mobile_data.get("gold", 0), default=0),
             "silver": GenericUtil.to_int(mobile_data.get("silver", 0), default=0),
             "status_flags": None,

@@ -32,7 +32,7 @@ class HelpFixture(RuntimeFixture):
         self.service.help_registry = self.helps
         for name in self.documents:
             document = deepcopy(self.documents[name])
-            for key, value in [('shortcuts', ''), ('usage', ''), ('function', [])]:
+            for key, value in [('shortcuts', ''), ('usage', '')]:
                 document.setdefault(key, value)
             self.commands.register(self.service._build_fetch_item(document))
         self.commands.register(self.service._build_summary_command())

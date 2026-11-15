@@ -153,6 +153,9 @@ class MobileHandler:
             if special_performed:
                 continue
 
+            room = self._resolve_room_for_mobile(room, mob)
+            if room is None or mob.id not in room.mobiles:
+                continue
             self._update_shop_money(mob)
 
             if not MobileApi.mobile_is_standing(mob):
@@ -180,7 +183,7 @@ class MobileHandler:
         shop = self.shop_registry.find_by_keeper_vnum(mob.vnum)
         if shop is None:
             return
-        wealth = GenericUtil.to_int(getattr(mob, "wealth", 0), 0)
+        wealth = mob.wealth
         if wealth <= 0:
             return
         gold = GenericUtil.to_int(mob.gold, 0)
@@ -306,6 +309,10 @@ class MobileHandler:
         if "actor" in payload or ("context" in payload and not standard):
             if not getattr(payload.get("actor"), "id", None):
                 return "actor must have an id"
+        if "combat_round" in payload:
+            if not getattr(payload.get("actor"), "id", None):
+                return "combat round actor must have an id"
+            return MobileHandler._payload_problem(payload["combat_round"], standard=True, seen=seen | {id(payload)})
         if "context" in payload:
             standard = True
 
@@ -361,6 +368,9 @@ class MobileHandler:
         return bool(context.performed)
 
     async def _handle_payload(self, payload: dict):
+        if "combat_round" in payload:
+            await self.fight_handler.emit_round_payload(payload["actor"], payload["combat_round"])
+            return
         if 'context' in payload:
             context = payload['context']
             if isinstance(context, Context) and context.handler_service is None:
@@ -368,7 +378,7 @@ class MobileHandler:
             await self.player_handler._emit_standard_payload(payload['actor'], payload,
                                                              context=payload['context'])
             return
-        if payload.get("to_victim") and payload.get("victim") is not None and not CharacterApi.is_npc(payload["victim"]):
+        if payload.get("to_victim") and payload.get("victim") is not None:
             await self.message_bus.send_to_character(payload["victim"].id, self.message_bus.text_to_message(payload["to_victim"]))
         if payload.get("to_room"):
             targets = payload.get("targets", [])

@@ -76,7 +76,6 @@ class TestCommandData(unittest.TestCase):
                 "position": "POS_SLEEPING",
                 "enabled": True,
                 "lambdas": ["lambda ctx: ctx.player_handler().do_practice(ctx.character, ctx)"],
-                "function": [],
                 "usage": "",
                 "level": 0,
                 "maxArguments": 0,

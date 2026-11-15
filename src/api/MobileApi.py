@@ -7,6 +7,7 @@ from typing import Any, Optional
 
 from api.GameApi import GameApi
 from api.ItemApi import ItemApi
+from game.AnimateEntity import AnimateEntity
 from mobile.Mobile import Mobile
 from util.DisplayUtil import DisplayUtil, RecipientText
 from util.GenericUtil import GenericUtil
@@ -267,22 +268,17 @@ class MobileApi(GameApi):
         victim = ctx.resolve(victim_alias)
         if victim is None or ctx.room is None:
             return False
-        safe, _ = ctx.handler.fight_handler.is_safe(ctx.actor, victim, room=ctx.room)
+        fight = ctx.handler.fight_handler
+        safe, _ = fight.is_safe(ctx.actor, victim, room=ctx.room)
         if safe:
             return False
         if ctx.actor.fighting is None:
-            ctx.handler.fight_handler.set_fighting(ctx.actor, victim, ctx.room.id)
+            fight.set_fighting(ctx.actor, victim, ctx.room.id)
         if victim.fighting is None:
-            ctx.handler.fight_handler.set_fighting(victim, ctx.actor, ctx.room.id)
-        result = ctx.handler.fight_handler.multi_hit(ctx.actor, victim, dt="TYPE_UNDEFINED")
-        payload = {
-            "to_room": result.get("to_room", ""),
-            "targets": [player for player in ctx.room.players_in_room() if str(player.id) != str(victim.id)],
-        }
-        if not CharacterApi.is_npc(victim):
-            payload["victim"] = victim
-            payload["to_victim"] = result.get("to_victim", "")
-        ctx.queue_payload(payload)
+            fight.set_fighting(victim, ctx.actor, ctx.room.id)
+        result = fight.multi_hit(ctx.actor, victim, dt="TYPE_UNDEFINED")
+        round_payload = fight.build_round_payload(ctx.actor, victim, ctx.room, result)
+        ctx.queue_payload({"actor": ctx.actor, "combat_round": round_payload})
         return ctx.mark_performed()
 
     @staticmethod
@@ -418,7 +414,8 @@ class MobileApi(GameApi):
         return False
 
     @classmethod
-    def follow_time_script(cls, ctx: MobileContext, open_hour: int, close_hour: int, open_path: str, close_path: str):
+    def follow_time_script(cls, ctx: MobileContext, open_hour: int, close_hour: int, open_path: str,
+                           close_path: str, combat_special: str = ""):
         weather = ctx.handler.weather_handler.time_info
         hour = GenericUtil.to_int((weather.hour if weather is not None else -1), -1)
         state = getattr(ctx.actor, "_special_state", None)
@@ -432,6 +429,9 @@ class MobileApi(GameApi):
             elif hour == GenericUtil.to_int(close_hour, -1):
                 state.update({"path": str(close_path or ""), "move": True, "pos": 0})
 
+        if combat_special and ctx.actor.fighting is not None:
+            return cls.when_fighting_delegate(ctx, combat_special)
+
         if not state.get("move"):
             return False
         if CharacterApi.position_value(ctx.actor) < CharacterApi.pos_value("POS_SLEEPING"):
@@ -444,40 +444,38 @@ class MobileApi(GameApi):
             return False
 
         step = path[pos]
-        acted = False
+        performed = ctx.performed
         if step in "012345":
-            acted = cls._move_mobile_direction(ctx, int(step))
+            cls._move_mobile_direction(ctx, int(step))
         elif step == "W":
-            setattr(ctx.actor, "position", CharacterApi.pos_value("POS_STANDING"))
+            CharacterApi.set_position(ctx.actor, "POS_STANDING")
             cls._queue_room_message(ctx, "$n awakens and groans loudly.")
-            acted = True
         elif step == "S":
-            setattr(ctx.actor, "position", CharacterApi.pos_value("POS_SLEEPING"))
+            CharacterApi.set_position(ctx.actor, "POS_SLEEPING")
             cls._queue_room_message(ctx, "$n lies down and falls asleep.")
-            acted = True
         elif step == "a":
-            acted = bool(cls.say_random(ctx, ["$n says 'Hello Honey!'"]))
+            cls.say_random(ctx, ["$n says 'Hello Honey!'"])
         elif step == "b":
-            acted = bool(cls.say_random(ctx, ["$n says 'What a view!  I must do something about that dump!'"]))
+            cls.say_random(ctx, ["$n says 'What a view!  I must do something about that dump!'"])
         elif step == "c":
-            acted = bool(cls.say_random(ctx, ["$n says 'Vandals!  Youngsters have no respect for anything!'"]))
+            cls.say_random(ctx, ["$n says 'Vandals!  Youngsters have no respect for anything!'"])
         elif step == "d":
-            acted = bool(cls.say_random(ctx, ["$n says 'Good day, citizens!'"]))
+            cls.say_random(ctx, ["$n says 'Good day, citizens!'"])
         elif step == "e":
-            acted = bool(cls.say_random(ctx, ["$n says 'I hereby declare the city of Midgaard open!'"]))
+            cls.say_random(ctx, ["$n says 'I hereby declare the city of Midgaard open!'"])
         elif step == "E":
-            acted = bool(cls.say_random(ctx, ["$n says 'I hereby declare the city of Midgaard closed!'"]))
+            cls.say_random(ctx, ["$n says 'I hereby declare the city of Midgaard closed!'"])
         elif step == "O":
-            acted = ctx.handler.run_door_command(ctx, "open", "gate")
+            ctx.handler.run_door_command(ctx, "open", "gate")
         elif step == "C":
-            acted = ctx.handler.run_door_command(ctx, "close", "gate")
+            ctx.handler.run_door_command(ctx, "close", "gate")
         elif step == ".":
             state["move"] = False
 
         state["pos"] = pos + 1
-        if acted:
-            ctx.mark_performed()
-        return acted
+        # Route steps leave the rest of the mobile pulse available.
+        ctx.performed = performed
+        return False
 
     @classmethod
     def poison_bite(cls, ctx: MobileContext, chance_percent: str, messages: tuple[str, str, str]):
@@ -900,9 +898,9 @@ class MobileApi(GameApi):
 
     @classmethod
     def mobile_is_standing(cls, mob: Any) -> bool:
-        standing = cls.enum_bit(cls.get_enum("positions"), "POS_STANDING")
-        current = GenericUtil.to_int(getattr(mob, "position", getattr(mob, "start_pos", standing)), standing)
-        return current == standing
+        positions = cls.get_enum("positions")
+        standing = cls.enum_bit(positions, "POS_STANDING")
+        return AnimateEntity.position_value(mob, positions, default_position=standing) == standing
 
     @classmethod
     def mobile_will_assist(cls, char: Mobile) -> bool:

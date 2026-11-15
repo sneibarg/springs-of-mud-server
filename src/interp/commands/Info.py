@@ -257,7 +257,9 @@ class Info:
             context.finish()
             return ""
 
-        character_race = getattr(character, "character_race", None)
+        is_npc = CharacterApi.is_npc(character)
+        display_name = character.name if is_npc else f"{character.name} {character.title}"
+        class_name = "mobile" if is_npc else character.character_class.name
         status_flags = character.status_flags
         played = GenericUtil.to_int((status_flags.played if status_flags is not None else 0), 0)
         logon = GenericUtil.to_int((status_flags.logon if status_flags is not None else 0), 0)
@@ -268,6 +270,8 @@ class Info:
 
         trust = CharacterApi.get_trust(character)
         sex_text = str(character.sex or "sexless").lower()
+        if is_npc:
+            sex_text = {"0": "sexless", "1": "male", "2": "female"}.get(sex_text, sex_text)
         if sex_text not in ("male", "female", "sexless"):
             sex_text = "sexless"
 
@@ -277,40 +281,42 @@ class Info:
         max_weight = character.max_weight()
 
         lines = [
-            f"You are {character.name} {character.title}, level {character.level}, {age_years} years old ({total_hours} hours).",
+            f"You are {display_name}, level {character.level}, {age_years} years old ({total_hours} hours).",
         ]
         if trust != character.level:
             lines.append(f"You are trusted at level {trust}.")
 
         lines.extend([
-            f"Race: {character.race}  Sex: {sex_text}  Class: {character.character_class.name}",
+            f"Race: {character.race}  Sex: {sex_text}  Class: {class_name}",
             f"You have {character.hit}/{character.max_hit} hit, {character.mana}/{character.max_mana} mana, {character.movement}/{character.max_movement} movement.",
             f"You have {attributes.practices} practices and {attributes.trains} training sessions.",
             f"You are carrying {carry_number}/{max_items} items with weight {carry_weight // 10}/{max_weight // 10} pounds.",
-            f"Str: {attributes.strength}({character_race.max_strength})  Int: {attributes.intelligence}({character_race.max_intelligence})  Wis: {attributes.wisdom}({character_race.max_wisdom})  Dex: {attributes.dexterity}({character_race.max_dexterity})  Con: {attributes.constitution}({character_race.max_constitution})",
+            self._score_stats(character, is_npc),
             f"You have scored {attributes.accumulated_experience} exp, and have {character.gold} gold and {character.silver} silver coins.",
-            f"You need {attributes.experience_per_level - attributes.experience} exp to level."
         ])
 
+        if not is_npc:
+            lines.append(f"You need {attributes.experience_per_level - attributes.experience} exp to level.")
         lines.append(f"Wimpy set to {attributes.wimpy} hit points.")
-        char_context = character.context if isinstance(character.context, dict) else {}
-        drunk = GenericUtil.to_int(getattr(status_flags, "drunk", getattr(character, "drunk", char_context.get("drunk", 0))), 0)
-        thirst = GenericUtil.to_int(getattr(status_flags, "thirst", getattr(character, "thirst", char_context.get("thirst", 1))), 1)
-        hunger = GenericUtil.to_int(getattr(status_flags, "hunger", getattr(character, "hunger", char_context.get("hunger", 1))), 1)
-        if drunk > 10:
-            lines.append("You are drunk.")
-        if thirst == 0:
-            lines.append("You are thirsty.")
-        if hunger == 0:
-            lines.append("You are hungry.")
+        if not is_npc:
+            char_context = character.context if isinstance(character.context, dict) else {}
+            drunk = GenericUtil.to_int(getattr(status_flags, "drunk", getattr(character, "drunk", char_context.get("drunk", 0))), 0)
+            thirst = GenericUtil.to_int(getattr(status_flags, "thirst", getattr(character, "thirst", char_context.get("thirst", 1))), 1)
+            hunger = GenericUtil.to_int(getattr(status_flags, "hunger", getattr(character, "hunger", char_context.get("hunger", 1))), 1)
+            if drunk > 10:
+                lines.append("You are drunk.")
+            if thirst == 0:
+                lines.append("You are thirsty.")
+            if hunger == 0:
+                lines.append("You are hungry.")
 
         position_line = InfoUtil.score_position_line(attributes)
         lines.append(position_line)
 
-        ac_pierce = character.armor_class.get_ac(character, 0)
-        ac_bash = character.armor_class.get_ac(character, 1)
-        ac_slash = character.armor_class.get_ac(character, 2)
-        ac_magic = character.armor_class.get_ac(character, 3)
+        armor = character.armor_class
+        ac_pierce, ac_bash, ac_slash, ac_magic = (
+            armor.get_ac(character, category) if armor is not None else 0 for category in range(4)
+        )
 
         if character.level >= 25:
             lines.append(f"Armor: pierce: {ac_pierce}  bash: {ac_bash}  slash: {ac_slash}  magic: {ac_magic}")
@@ -341,6 +347,17 @@ class Info:
             lines.append(EffectUtil.format_affects(character).rstrip("\r\n"))
         context.finish()
         return "\r\n".join(lines) + "\r\n"
+
+    @staticmethod
+    def _score_stats(character, is_npc: bool) -> str:
+        stats = (("Str", "strength"), ("Int", "intelligence"), ("Wis", "wisdom"),
+                 ("Dex", "dexterity"), ("Con", "constitution"))
+        if is_npc:
+            return "  ".join(f"{label}: {CharacterApi.permanent_stat(character, name)}"
+                             f"({CharacterApi.current_stat(character, name)})" for label, name in stats)
+        attributes, race = character.character_attributes, character.character_race
+        return "  ".join(f"{label}: {getattr(attributes, name)}({getattr(race, 'max_' + name)})"
+                         for label, name in stats)
 
     def do_time(self, context: Context) -> str:
         time_info = self.weather_handler.time_info

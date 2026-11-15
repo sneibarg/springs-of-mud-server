@@ -2,7 +2,7 @@ import json
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import AsyncMock, Mock, call, patch
 
 from tests.test_update_handler_active_players import Positions, Room
 from api.CharacterApi import CharacterApi
@@ -10,6 +10,7 @@ from api.MobileApi import MobileApi
 from mobile.MobileHandler import MobileHandler
 from area.Special import Special
 from enum import IntEnum
+from util.FightUtil import FightUtil
 
 
 class ActBits(IntEnum):
@@ -58,6 +59,26 @@ class MobilePulseTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(['special', 'money roll', 'money roll'], events)
         self.assertEqual((10, 1000), (actor.gold, actor.silver))
         handler._execute_generic_special.assert_not_awaited()
+
+    async def test_generic_actions_follow_live_posture_across_combat(self):
+        handler, room, actor = self.handler()
+        actor.position = Positions.POS_STANDING
+        actor.character_attributes = SimpleNamespace(position=Positions.POS_STANDING)
+        expected_actions = [call(actor, room, 'spec_scavenge'), call(actor, room, 'spec_wander')]
+
+        with patch.object(MobileApi, 'mobile_is_charmed', return_value=False), patch.object(
+                MobileApi, 'get_enum', return_value=Positions):
+            await handler.mobile_update()
+            self.assertEqual(expected_actions, handler._execute_generic_special.await_args_list)
+            handler._execute_generic_special.reset_mock()
+
+            FightUtil.set_fighting_position(actor, Positions)
+            await handler.mobile_update()
+            handler._execute_generic_special.assert_not_awaited()
+
+            actor.character_attributes.position = Positions.POS_STANDING
+            await handler.mobile_update()
+            self.assertEqual(expected_actions, handler._execute_generic_special.await_args_list)
 
     async def test_malformed_bound_special_output_does_not_stop_later_mobiles(self):
         handler, room, actor = self.handler()

@@ -8,6 +8,10 @@ class ArmorValues:
         "exotic": ("magic", "exotic"),
     }
 
+    def get_ac(self, character, category) -> int:
+        from combat.ArmorDefense import legacy_armor_class
+        return legacy_armor_class(self, character, category)
+
     def base_value(self, category):
         category = str(category).lower().removeprefix("dam_")
         fields = ArmorValues.CATEGORIES.get(category, ArmorValues.CATEGORIES["exotic"])

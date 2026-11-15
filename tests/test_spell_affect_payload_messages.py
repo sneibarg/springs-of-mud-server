@@ -786,7 +786,7 @@ class TestTableDamageSpells(unittest.TestCase):
         self.enterContext(patch.object(SpellApi.is_affected.__globals__['CharacterApi'], 'is_affected_by_name',
             side_effect=lambda entity, enums, flag: bool(int(entity.status_flags.affected_by) & int(enums[flag])), create=True))
         self.api._effect_active = SpellApi._effect_active.__get__(self.api)
-        self.fight.is_safe = Mock(return_value=False)
+        self.fight.is_safe = Mock(return_value=(False, ""))
         self.api._room_flag = Mock(return_value=False)
         return ctx
 
@@ -842,7 +842,8 @@ class TestTableDamageSpells(unittest.TestCase):
                     ctx.victim.status_flags.imm = int(self.enums['mobImmunity'].IMM_CHARM)
                 if scenario == 'higher':
                     ctx.victim.level += 1
-                self.fight.is_safe.return_value = scenario == 'safe'
+                safety_notice = "Not in this room.\r\n" if scenario == 'safe' else ""
+                self.fight.is_safe.return_value = (scenario == 'safe', safety_notice)
                 self.api._room_flag.return_value = scenario == 'law'
                 self.api.saves_spell = Mock(return_value=scenario == 'saved')
                 self.effects.reset_mock()
@@ -851,6 +852,9 @@ class TestTableDamageSpells(unittest.TestCase):
                 self.assertEqual(applied, self.effects.apply_spell_effects.called)
                 if save_count:
                     self.api.saves_spell.assert_called_once_with(ctx, 'DAM_CHARM', 0, target=ctx.victim)
+                if scenario == 'safe':
+                    self.assertEqual([{"to_char": safety_notice}], ctx.payloads)
+                    self.assertIsNone(ctx.victim.master)
                 if scenario == 'law':
                     self.assertIn('mayor', ctx.payloads[-1]['to_char'])
 
@@ -2003,6 +2007,20 @@ class TestTableDamageSpells(unittest.TestCase):
                 self.assertNotIn(ctx.victim, ctx.payloads[-2]['targets'])
                 self.assertEqual('Ok.\r\n', ctx.payloads[-1]['to_char'])
 
+    def test_bless_uses_live_fighting_posture_before_applying_bonuses(self):
+        ctx = self.live_effect_context('bless', 32)
+        del ctx.victim.position
+        ctx.victim.character_attributes.position = self.enums['positions'].POS_FIGHTING
+        ctx.victim.saving_throw = 0
+        self.assertFalse(self.api.execute_lambdas(ctx))
+        self.assertEqual([], ctx.victim.effects)
+        self.assertEqual((10, 0), (ctx.victim.hit_roll, ctx.victim.saving_throw))
+
+        self.PositionApi.set_position(ctx.victim, 'POS_STANDING')
+        ctx.done = False
+        self.assertTrue(self.api.execute_lambdas(ctx))
+        self.assertEqual((14, -4), (ctx.victim.hit_roll, ctx.victim.saving_throw))
+
     def test_worn_bless_curse_adjust_saves_and_reverse_counters_without_applying_opposite(self):
         for name, opposite, delta in [('bless', 'curse', -1), ('curse', 'bless', 1)]:
             with self.subTest(spell=name):
@@ -2622,9 +2640,9 @@ class TestTableDamageSpells(unittest.TestCase):
         ctx.actor.name = 'Caster'
         ctx.actor.hit = 101
         ctx.actor.movement = 55
-        ctx.actor.character_attributes = SimpleNamespace(alignment=0)
+        ctx.actor.character_attributes = SimpleNamespace(alignment=0, position=self.enums['positions'].POS_STANDING)
         ctx.victim.id = 'victim'
-        ctx.victim.character_attributes = SimpleNamespace(alignment=0)
+        ctx.victim.character_attributes = SimpleNamespace(alignment=0, position=self.enums['positions'].POS_STANDING)
         ctx.room = SimpleNamespace(area_id='area', characters={'actor': ctx.actor, 'victim': ctx.victim}, mobiles={})
         self.api._find_room_for_entity = Mock(return_value=ctx.room)
         self.fight.is_safe_spell = Mock(return_value=False)
@@ -2635,7 +2653,8 @@ class TestTableDamageSpells(unittest.TestCase):
             with self.subTest(caster=caster_alignment):
                 ctx = self.room_context('holy word')
                 ctx.actor.character_attributes.alignment = caster_alignment
-                targets = [SimpleNamespace(id=str(a), name=str(a), character_attributes=SimpleNamespace(alignment=a))
+                targets = [SimpleNamespace(id=str(a), name=str(a), character_attributes=SimpleNamespace(
+                    alignment=a, position=self.enums['positions'].POS_STANDING))
                            for a in (-350, 0, 350)]
                 ctx.room.characters = {'actor': ctx.actor, **{p.id: p for p in targets}}
                 events = []
@@ -2674,11 +2693,9 @@ class TestTableDamageSpells(unittest.TestCase):
 
     def test_holy_word_invoked_buff_guards_preserve_calm_and_fighting_restrictions(self):
         ctx = self.room_context('holy word')
-        ctx.victim.position = int(self.enums['positions'].POS_FIGHTING)
+        ctx.victim.character_attributes.position = self.enums['positions'].POS_FIGHTING
         self.api._effect_active.side_effect = lambda victim, name: victim is ctx.victim and name == 'spell.calm'
-        with patch.dict(SpellApi.has_position.__globals__, GameApi=self.game_api()), \
-                patch.object(_CharacterApi, 'position_value', side_effect=lambda victim: int(victim.position), create=True):
-            self.assertTrue(self.api.execute_lambdas(ctx))
+        self.assertTrue(self.api.execute_lambdas(ctx))
         applied = [call.args[1] for call in self.effects.apply_spell_effects.call_args_list]
         self.assertTrue(all(victim is ctx.actor for victim in applied))
         self.assertEqual(2, len(applied))

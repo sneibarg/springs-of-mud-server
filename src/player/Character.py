@@ -19,6 +19,7 @@ from util.GenericUtil import GenericUtil
 
 if TYPE_CHECKING:
     from item.Item import Item
+    from mobile.Mobile import Mobile
 
 
 @dataclass
@@ -51,6 +52,8 @@ class Character(AnimateEntity):
     aliases: dict[str, str] = field(default_factory=dict)
     note_read_stamps: dict[str, int] = field(default_factory=dict)
     note_read_ids: dict[str, list[str]] = field(default_factory=dict)
+    pet: Mobile | None = field(default=None, init=False, repr=False, compare=False)
+    saved_pet: dict | None = field(default=None, repr=False, compare=False, kw_only=True)
     world_retired: bool = field(default=False, init=False, repr=False, compare=False)
     _playtime_active: bool = field(default=False, init=False, repr=False, compare=False)
     carriage_return: bool = True
@@ -82,6 +85,7 @@ class Character(AnimateEntity):
         from item.Effect import Effect
         from item.Item import Item
         payload = GenericUtil.camel_to_snake_case(data)
+        payload['saved_pet'] = payload.pop('pet', None)
         payload['groups'] = list(payload.get('groups') or [])
         payload['note_read_stamps'] = {
             str(key): max(0, GenericUtil.to_int(value, 0))

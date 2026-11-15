@@ -28,6 +28,7 @@ class Mobile(AnimateEntity):
     max_movement: int = field(default=100, kw_only=True)
     saving_throw: int = field(default=0, kw_only=True)
     dam_roll: int = field(default=0, kw_only=True)
+    wealth: int = field(default=0, kw_only=True)
     count: int = 0
     killed: int = 0
     start_pos: int = 0

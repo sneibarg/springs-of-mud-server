@@ -1,7 +1,11 @@
 import json
 import unittest
+from types import SimpleNamespace
+from unittest.mock import Mock
 
 from tests.test_update_handler_active_players import build_character_data
+from interp.Context import Context
+from interp.commands.Movement import Movement
 from item.Effect import Effect
 from item.Item import Item
 from player.Character import Character
@@ -21,6 +25,21 @@ class TestItemPersistence(unittest.TestCase):
         restored = Character.from_json(json.loads(json.dumps(payload)))
         self.assertEqual(character.groups, restored.groups)
         self.assertEqual(payload, CharacterService._serialize_character(restored))
+
+    def test_gain_rejects_repurchase_after_reloading_purchased_group(self):
+        document = build_character_data()
+        document["groups"] = ["combat"]
+        character = Character.from_json(document)
+        character.character_attributes.trains = 5
+        restored = Character.from_json(CharacterService._serialize_character(character))
+        commands = Movement.__new__(Movement)
+        commands.group_registry = SimpleNamespace(
+            all_groups=lambda: [SimpleNamespace(name="combat", rating=[2, 2, 2, 2])])
+        commands._gain_trainer = Mock(return_value=SimpleNamespace(name="Trainer"))
+        context = Context(character=restored, registry_service=SimpleNamespace(), room=object(), result="combat")
+        payload = commands.do_gain(restored, context)
+        self.assertEqual("tells_already_know_group", payload["message_key"])
+        self.assertEqual(5, restored.character_attributes.trains)
 
     def test_legacy_character_groups_default_to_independent_empty_lists(self):
         document = build_character_data()

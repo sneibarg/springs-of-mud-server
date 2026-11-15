@@ -99,6 +99,23 @@ class ReconnectTests(unittest.IsolatedAsyncioTestCase):
             (actual.id, 'Reconnecting. Type replay to see missed tells.\r\n'),
             ('viewer', 'Tester has reconnected.\r\n')])
 
+    async def test_link_dead_reconnect_keeps_live_pet_instead_of_restoring_snapshot(self):
+        pet = SimpleNamespace(id='live-pet', hit=3, master=self.character, leader=self.character)
+        self.character.pet = pet
+        self.room.mobiles[pet.id] = pet
+        _, old_session = self.connection('old', True)
+        await self.handler._cleanup_session(old_session)
+        stale = Character.from_json({**build_character_data(), 'pet': {'id': 'old-pet', 'hit': 8}})
+        connection, session = self.connection('new')
+
+        _, actual = await self.handler._attach_character(stale, session, connection)
+
+        self.assertTrue(session.metadata['entered_world'])
+        self.assertIs(self.character, actual)
+        self.assertIs(actual.pet, pet)
+        self.assertEqual(3, actual.pet.hit)
+        self.assertEqual({pet.id: pet}, self.room.mobiles)
+
     async def test_takeover_confirms_and_late_cleanup_cannot_unbind_new_session(self):
         old, old_session = self.connection('old', True)
         new, new_session = self.connection('new', answers=[Message(MessageType.GAME, {'text': 'maybe'}), Message(MessageType.GAME, {'text': 'Y'})])

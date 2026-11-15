@@ -1,7 +1,7 @@
 import unittest
 from copy import deepcopy
 from types import SimpleNamespace as NS
-from unittest.mock import AsyncMock, Mock
+from unittest.mock import AsyncMock, Mock, call
 
 from tests.test_movement_rules_parity import MovementFixture, item
 from tests.test_review_application_fixes import ROOT
@@ -88,6 +88,68 @@ class Rom24ReportTests(MovementFixture, unittest.IsolatedAsyncioTestCase):
         mayor._special_state = {"path": step + ".", "move": True, "pos": 0}
         return await self.mobile_handler._execute_generic_special(mayor, self.room, "spec_mayor")
 
+    def bound_mayor(self):
+        mayor = self.special_actor("the mayor")
+        special = next(special for special in self.specials if special.name == "spec_mayor")
+        mayor.special_name = special.name
+        mayor.special_function = list(special.special_function)
+        return mayor
+
+    async def test_mayor_initializes_and_pauses_a_due_route_during_combat(self):
+        mayor = self.bound_mayor()
+        handler = self.mobile_handler
+        cases = (
+            (6, "ctx.finish()", False, "Oe"),
+            (6, "False", False, "Oe"),
+            (20, "ctx.mark_performed()", True, "CE"),
+        )
+        for hour, outcome, cast, path_marker in cases:
+            with self.subTest(hour=hour, outcome=outcome):
+                mayor._special_state = {}
+                mayor.fighting = self.actor
+                CharacterApi.set_position(mayor, "POS_FIGHTING")
+                handler.weather_handler.time_info.hour = hour
+                handler._special_library_cache = {"spec_cast_mage": [f"lambda ctx: {outcome}"]}
+                self.messages[self.actor.id].send_message.reset_mock()
+
+                self.assertEqual(cast, await handler.execute_special_function(mayor, self.room))
+                self.assertTrue(mayor._special_state["move"])
+                self.assertIn(path_marker, mayor._special_state["path"])
+                self.assertEqual(0, mayor._special_state["pos"])
+
+                handler.weather_handler.time_info.hour = 12
+                self.assertEqual(cast, await handler.execute_special_function(mayor, self.room))
+                self.assertEqual(0, mayor._special_state["pos"])
+                self.assertEqual([], self.heard(self.actor))
+
+                mayor.fighting = None
+                CharacterApi.set_position(mayor, "POS_SLEEPING")
+                self.assertFalse(await handler.execute_special_function(mayor, self.room))
+                self.assertEqual(1, mayor._special_state["pos"])
+                self.assertEqual(CharacterApi.pos_value("POS_STANDING"), CharacterApi.position_value(mayor))
+                self.assertEqual(["The mayor awakens and groans loudly.\r\n"], self.heard(self.actor))
+
+    async def test_mayor_route_move_leaves_generic_processing_in_the_destination(self):
+        mayor = self.bound_mayor()
+        mayor._special_state = {"path": "0.", "move": True, "pos": 0}
+        handler = self.mobile_handler
+        handler.room_registry = self.rooms
+        handler.act_bits = self.enums.get("actBits")
+        handler.room_flags = self.enums.get("roomFlags")
+        handler.exit_flags = self.exit_flags
+        handler.area_registry = NS(get_or_none=lambda **_: None)
+        handler.shop_registry = NS(find_by_keeper_vnum=lambda _: None)
+        handler._execute_generic_special = AsyncMock()
+
+        await handler.mobile_update()
+
+        self.assertIs(mayor, self.destination.mobiles[mayor.id])
+        self.assertEqual(1, mayor._special_state["pos"])
+        self.assertEqual([
+            call(mayor, self.destination, "spec_scavenge"),
+            call(mayor, self.destination, "spec_wander"),
+        ], handler._execute_generic_special.await_args_list)
+
     async def test_mayor_opens_and_closes_both_sides_and_announces_each(self):
         mayor = self.special_actor("the mayor")
         far = self.listen(self.character("far"))
@@ -99,10 +161,10 @@ class Rom24ReportTests(MovementFixture, unittest.IsolatedAsyncioTestCase):
         self.exit.exit_flags |= closed
         self.reverse.exit_flags |= closed
 
-        self.assertTrue(await self.mayor_step(mayor, "O"))
+        self.assertFalse(await self.mayor_step(mayor, "O"))
         self.assertFalse((self.exit.exit_flags | self.reverse.exit_flags) & closed)
         self.assertFalse(await self.mayor_step(mayor, "O"))
-        self.assertTrue(await self.mayor_step(mayor, "C"))
+        self.assertFalse(await self.mayor_step(mayor, "C"))
         self.assertTrue((self.exit.exit_flags & self.reverse.exit_flags) & closed)
         self.assertFalse(await self.mayor_step(mayor, "C"))
         self.assertEqual(["the mayor opens iron.\r\n", "the mayor closes iron.\r\n"], self.heard(self.actor))
@@ -121,7 +183,7 @@ class Rom24ReportTests(MovementFixture, unittest.IsolatedAsyncioTestCase):
                 self.destination.exits = exits
                 self.reverse.to_room_id = self.temple.id
                 self.exit.exit_flags = door | closed
-                self.assertTrue(await self.mayor_step(mayor, "O"))
+                self.assertFalse(await self.mayor_step(mayor, "O"))
                 self.assertEqual((door, door | closed), (self.exit.exit_flags, self.reverse.exit_flags))
 
     async def test_directional_look_prints_description_then_authored_door_state(self):
@@ -227,9 +289,12 @@ class Rom24ReportTests(MovementFixture, unittest.IsolatedAsyncioTestCase):
         CharacterApi.set_position(sleeper, "POS_SLEEPING")
         self.flag(mayor, "AFF_INVISIBLE")
 
-        self.assertTrue(await self.mayor_step(mayor, "W"))
+        CharacterApi.set_position(mayor, "POS_SLEEPING")
+        self.assertFalse(await self.mayor_step(mayor, "W"))
+        self.assertEqual(CharacterApi.pos_value("POS_STANDING"), CharacterApi.position_value(mayor))
         self.flag(mayor, "AFF_INVISIBLE", False)
-        self.assertTrue(await self.mayor_step(mayor, "S"))
+        self.assertFalse(await self.mayor_step(mayor, "S"))
+        self.assertEqual(CharacterApi.pos_value("POS_SLEEPING"), CharacterApi.position_value(mayor))
 
         self.assertEqual(["Someone awakens and groans loudly.\r\n",
                           "The mayor lies down and falls asleep.\r\n"], self.heard(self.actor))

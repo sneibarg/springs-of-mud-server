@@ -307,9 +307,11 @@ class Equipped:
 
     @classmethod
     def wear_all(cls, character, wear_flags_enum, item_flags, *, effect_handler=None, visible=None) -> WearResult:
+        from util.LookupUtil import LookupUtil
+
         result = WearResult()
-        for item in list(character.loot or []):
-            if visible is not None and not visible(item):
+        for item in character.owned_items():
+            if LookupUtil.worn(character, item) or (visible is not None and not visible(item)):
                 continue
             item_result = cls.wear_item(character, item, wear_flags_enum, item_flags, replace=False, effect_handler=effect_handler)
             result.shared_messages.extend(item_result.shared_messages)

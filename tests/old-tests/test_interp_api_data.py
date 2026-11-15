@@ -131,7 +131,6 @@ class TestInterpApiData(unittest.TestCase):
                         "default": "%c has left the game.",
                     },
                 },
-                "function": [],
                 "usage": "",
             }
         )

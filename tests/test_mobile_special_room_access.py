@@ -57,12 +57,23 @@ class MobileSpecialRoomAccessTests(unittest.IsolatedAsyncioTestCase):
         self.can_see.assert_called_with(self.actor, self.player, self.room)
         self.assertEqual(self.ctx.room_players(exclude_ids={'player'}), [self.observer])
 
-    async def test_multi_hit_queues_observers_and_victim(self):
+    async def test_multi_hit_dispatches_the_full_combat_round(self):
         self.ctx.set_alias('victim', self.player)
-        with patch('api.MobileApi.CharacterApi.is_npc', return_value=False):
-            self.assertTrue(MobileApi.multi_hit(self.ctx, 'victim'))
-        self.assertEqual(self.ctx.payloads[0]['targets'], [self.observer])
-        self.assertEqual(self.ctx.payloads[0]['to_victim'], 'Ouch!')
+        fight = self.handler.fight_handler
+        round_payload = {"payloads": [
+            {"victim": self.player, "to_victim": "Ouch!"},
+            {"victim": self.observer, "to_victim": "Area hit!"},
+        ]}
+        fight.build_round_payload.return_value = round_payload
+        self.assertTrue(MobileApi.multi_hit(self.ctx, 'victim'))
+        fight.build_round_payload.assert_called_once_with(self.actor, self.player, self.room, fight.multi_hit.return_value)
+
+        handler = MobileHandler.__new__(MobileHandler)
+        handler.logger = Mock()
+        handler.fight_handler = fight
+        fight.emit_round_payload = AsyncMock()
+        await handler._flush_context_payloads(self.ctx)
+        fight.emit_round_payload.assert_awaited_once_with(self.actor, round_payload)
 
     async def test_thief_iterates_room_players(self):
         self.room.remove_player_from_room(self.observer)

@@ -1094,7 +1094,8 @@ class TestFightHandlerAggression(unittest.TestCase):
         handler.check_assist = Mock(return_value=[])
         handler.message_bus = SimpleNamespace(text_to_message=lambda text: text,
                                               send_to_character=AsyncMock(), send_to_room=AsyncMock(),
-                                              send_prompt=AsyncMock())
+                                              send_prompt=AsyncMock(),
+                                              connection_manager=handler.message_bus.connection_manager)
         with unittest.mock.patch.object(_SkillUtil, "take_improve_messages", return_value="", create=True):
             asyncio.run(handler.violence_update())
 
@@ -1128,6 +1129,8 @@ class TestFightHandlerAggression(unittest.TestCase):
         handler.escape_handler = None
         handler.npc_skill_handler = None
         handler.logger = _Logger()
+        handler.message_bus = SimpleNamespace(connection_manager=SimpleNamespace(
+            get_connection_by_character=lambda _character_id: None))
         handler.area_registry = SimpleNamespace(get_or_none=lambda **_kwargs: None)
         handler.skill_registry = SimpleNamespace(get_or_none=lambda **_kwargs: None)
         handler.combat_registry = SimpleNamespace(upsert=Mock(), get_by_combatant=Mock(return_value=[]), remove_by_id=Mock())

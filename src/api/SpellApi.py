@@ -25,6 +25,7 @@ from util.ElementalExposure import ElementalExposure
 from api.CharacterApi import CharacterApi
 from util.PlayerUtil import PlayerUtil
 from server.LoggerFactory import LoggerFactory
+from server.connection.ConnectionManager import ConnectionManager, has_open_character_connection
 from skill.SpellContext import SpellContext
 from skill.SpellSpeech import SpellSpeech
 from skill.Ability import Ability
@@ -40,12 +41,13 @@ class SpellApi:
 
     @inject
     def __init__(self, effect_handler: EffectHandler, interp_api: InterpApi,
-                 elemental_exposure: ElementalExposure = None):
+                 elemental_exposure: ElementalExposure = None, connection_manager: ConnectionManager = None):
         self.__name__ = "SpellApi"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.effect_handler = effect_handler
         self.interp_api = interp_api
         self.elemental_exposure = elemental_exposure
+        self.connection_manager = connection_manager
 
     @staticmethod
     def casting_proficiency(actor, spell) -> int:
@@ -173,7 +175,8 @@ class SpellApi:
         payload: dict[str, Any] = {}
         if to_char and ctx.is_player_source:
             payload["to_char"] = to_char
-        if to_victim and target is not None and not CharacterApi.is_npc(target):
+        if to_victim and target is not None and (
+                not CharacterApi.is_npc(target) or has_open_character_connection(self.connection_manager, target.id)):
             payload["victim"] = target
             payload["to_victim"] = to_victim
         if to_room:
@@ -509,7 +512,11 @@ class SpellApi:
         return self._fight_handler(ctx).is_safe_spell(ctx.actor, victim, area=area)
 
     def is_safe(self, ctx: SpellContext, target: Any = None) -> bool:
-        return self._fight_handler(ctx).is_safe(ctx.actor, ctx.resolve(target) if target is not None else ctx.victim)
+        victim = ctx.resolve(target) if target is not None else ctx.victim
+        safe, notice = self._fight_handler(ctx).is_safe(ctx.actor, victim)
+        if safe and notice:
+            self.send(ctx, to_char=notice)
+        return safe
 
     def character_flag(self, ctx: SpellContext, field: str, flag: str, target: Any = None) -> bool:
         enums = {"act": "actBits", "off": "offenseTypes", "imm": "mobImmunity"}
@@ -615,11 +622,7 @@ class SpellApi:
 
     def has_position(self, ctx: SpellContext, name: str, target: Any = None) -> bool:
         victim = ctx.resolve(target) if target is not None else ctx.victim
-        position = getattr(victim, "position", None)
-        if position is None:
-            return False
-        positions = GameApi.get_enum("positions")
-        return CharacterApi.position_value(victim) == int(getattr(positions, name))
+        return victim is not None and CharacterApi.position_value(victim) == CharacterApi.pos_value(name)
 
     def for_each_room(self, ctx: SpellContext, operation, predicate=None, safe: bool = False,
                       stop_on_block: bool = False):

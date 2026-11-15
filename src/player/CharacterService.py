@@ -5,6 +5,8 @@ from typing import Any
 import requests
 
 from injector import inject
+from api.CharacterApi import CharacterApi
+from mobile.PetSnapshot import snapshot_pet
 from player.Character import Character
 from player.CharacterRegistry import CharacterRegistry
 from player.CharacterRace import CharacterRace
@@ -67,6 +69,10 @@ class CharacterService(FetchAndRegisterMixin):
         try:
             response = requests.put(f"{self.characters_endpoint}/{character_id}", json=payload, timeout=10)
             response.raise_for_status()
+            pet = payload.get("pet")
+            if pet is not None and response.json().get("pet") != pet:
+                self.logger.error("Character service did not preserve the pet snapshot for %s.", character_id)
+                return False
             self.logger.debug(f"Saved character {payload.get('name', '')} ({character_id}).")
             return True
         except requests.RequestException as e:
@@ -128,7 +134,17 @@ class CharacterService(FetchAndRegisterMixin):
             "characterClass": serialize_wire_value(character.character_class, excluded_fields=cls._WIRE_EXCLUDED_FIELDS),
             "promptFormat": cls._serialize_prompt_format(character.prompt_format),
             "equipped": serialize_wire_value(character.equipped, excluded_fields=cls._WIRE_EXCLUDED_FIELDS),
+            "pet": cls.pet_snapshot(character),
         }
+
+    @staticmethod
+    def pet_snapshot(character: Character) -> dict | None:
+        pet = character.pet
+        if pet is None:
+            return character.saved_pet
+        if not character.room_id or pet.room_id != character.room_id:
+            return None
+        return snapshot_pet(pet, CharacterApi.pos_value('POS_FIGHTING'), CharacterApi.pos_value('POS_STANDING'))
 
     @staticmethod
     def _serialize_character_race(character_race: CharacterRace | None) -> dict[str, Any]:

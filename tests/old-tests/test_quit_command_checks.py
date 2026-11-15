@@ -164,7 +164,6 @@ class TestQuitCommandChecks(unittest.TestCase):
                     },
                     "toVictim": {},
                 },
-                "function": [],
                 "usage": "",
             }
         )

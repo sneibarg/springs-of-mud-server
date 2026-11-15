@@ -4,6 +4,7 @@ import json
 import threading
 
 from dataclasses import dataclass, field
+from itertools import count
 from typing import Optional, List, TYPE_CHECKING
 
 from api.GameApi import GameApi
@@ -15,6 +16,9 @@ from util.GenericUtil import GenericUtil
 if TYPE_CHECKING:
     from area.Room import Room
     from player.Character import Character
+
+
+_creation_order = count()
 
 
 @dataclass
@@ -70,6 +74,8 @@ class Item:
         self.__name__ = "Item"
         self.logger = LoggerFactory.get_logger(self.__name__)
         self.lock = threading.RLock()
+        # Runtime-only order, independent of id, ownership, and saved fields.
+        self.creation_order = next(_creation_order)
 
     def __hash__(self):
         return hash(self.id)
