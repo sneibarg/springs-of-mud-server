@@ -10,6 +10,7 @@ from api.MobileApi import MobileApi
 from api.SpellApi import SpellApi
 from combat.CombatHandler import FightHandler
 from devtools.collection_query import load_collections
+from interp.commands.Communications import Communications
 from interp.commands.Fight import Fight
 from item.Effect import Effect
 from mobile.MobileContext import MobileContext
@@ -254,6 +255,7 @@ class RemainingGameplayTests(MovementFixture, unittest.TestCase):
         self.commands.fight_handler, self.commands.interp_api = self.fight, self.api
         self.commands.fight_api = FightApi(self.rooms, self.skill_registry, self.skill_api, self.fight)
         self.commands.room_registry, self.commands.skill_registry = self.rooms, self.skill_registry
+        self.commands.game_parameters = self.enums.get('gameParameters')
         self.commands.movement_commands = self.movement
         self.commands.AffectBits = self.enums.get('affectedBy')
         self.handler = MobileHandler.__new__(MobileHandler)
@@ -277,9 +279,43 @@ class RemainingGameplayTests(MovementFixture, unittest.TestCase):
     def test_nasty_falls_back_to_murder_when_backstab_prerequisite_fails(self):
         self.setup_nasty()
         self.mob.unequip_item('wielded')
+        self.mob.short_description = 'a thief'
+        CharacterApi.set_position(self.actor, 'POS_RESTING')
+        witness = self.follower('witness')
+        witness.level = self.mob.level
+        self.room.remove_player_from_room(witness)
+        self.destination.area_id = self.room.area_id
+        self.destination.add_player_to_room(witness)
+        quiet = self.follower('quiet')
+        quiet.level = self.mob.level
+        comm_flags = self.enums.get('commFlags')
+        quiet.status_flags.set_flag('comm', comm_flags.COMM_QUIET)
+        yell = Communications.__new__(Communications)
+        yell.interp_api, yell.room_registry, yell.comm_flags = self.api, self.rooms, comm_flags
+        yell.session_handler = NS(get_playing_sessions=lambda: [
+            NS(character=entity) for entity in (self.actor, witness, quiet)])
+        player = NS(communications_commands=yell)
+        self.handler.handler_service = NS(get_handler=lambda _: player)
+        wait = self.commands.game_parameters.PULSE_VIOLENCE.value
+        begin = self.fight.multi_hit.side_effect
+
+        def first_swing(attacker, victim, **kwargs):
+            self.assertEqual(wait, attacker.status_flags.pulse_wait)
+            self.assertEqual(CharacterApi.pos_value('POS_RESTING'), CharacterApi.position_value(victim))
+            self.assertIsNone(attacker.fighting)
+            self.assertIsNone(victim.fighting)
+            return begin(attacker, victim, **kwargs)
+
+        self.fight.multi_hit.side_effect = first_swing
         MobileApi.nasty_opening_attack(self.ctx_nasty, (1, 9), ['backstab', 'murder'])
         self.assertEqual(['backstab', 'murder'], [p['context'].command.name for p in self.ctx_nasty.payloads])
         self.fight.multi_hit.assert_called_once_with(self.mob, self.actor, dt='TYPE_UNDEFINED')
+        self.fight.set_fighting.assert_not_called()
+        opening, _ = self.ctx_nasty.payloads[1]['payloads'][0]['payloads']
+        self.assertIs(self.actor, opening['actor'])
+        speech = opening['payloads'][0]
+        self.assertEqual([witness], speech['global_targets'])
+        self.assertIn("Actor yells 'Help! I am being attacked by a thief!'", speech['global_message'].for_recipient(witness.id))
 
     def test_nasty_keeps_combat_after_missed_backstab_without_murder_fallback(self):
         self.setup_nasty()

@@ -1,4 +1,6 @@
 """Read-only immortal diagnostics over live world state and prototypes."""
+from dataclasses import fields as dataclass_fields
+
 from api.AreaApi import AreaApi
 from api.CharacterApi import CharacterApi
 from api.InterpApi import InterpApi
@@ -93,6 +95,12 @@ class WizDiagnostics:
         return ', '.join(f'{name}: {getattr(target, name, "")}' for name in names)
 
     @classmethod
+    def _member_values(cls, value):
+        if value is None:
+            return 'None'
+        return cls.fields(value, (member.name for member in dataclass_fields(value) if member.repr))
+
+    @classmethod
     def effects(cls, target):
         return [f'Affect: {cls.fields(effect, ("type", "where", "level", "duration", "location", "modifier", "bitvector"))}'
                 for effect in (target.effects if target is not None else []) or []]
@@ -103,9 +111,9 @@ class WizDiagnostics:
                  cls.fields(target, ('name', 'id', 'room_id', 'race', 'character_class', 'guild', 'level', 'trust', 'sex', 'position')),
                  f'Hit: {target.hit}/{target.max_hit} Mana: {target.mana}/{target.max_mana} Move: {target.movement}/{target.max_movement}',
                  cls.fields(target, ('gold', 'silver', 'hit_roll', 'dam_roll', 'saving_throw', 'timer', 'size', 'material')),
-                 f'Attributes: {target.character_attributes}',
-                 f'Armor: {target.armor_class}',
-                 f'Flags: {target.status_flags}',
+                 f'Attributes: {cls._member_values(target.character_attributes)}',
+                 f'Armor: {cls._member_values(target.armor_class)}',
+                 f'Flags: {cls._member_values(target.status_flags)}',
                  cls.fields(target, ('special_name', 'description')),
                  'Master: ' + WizUtil.display_name(target.master) + ' Leader: ' + WizUtil.display_name(target.leader)]
         lines.extend(cls.effects(target))

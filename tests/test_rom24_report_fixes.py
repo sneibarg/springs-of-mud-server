@@ -161,6 +161,48 @@ class Rom24ReportTests(MovementFixture, unittest.IsolatedAsyncioTestCase):
         self.assertEqual(f"\r\n< {self.destination.name}>", messages[-1].rstrip())
         handler.logger.error.assert_not_called()
 
+    async def test_bundled_mage_teleport_looks_and_prompts_in_switched_body(self):
+        mage = self.special_actor("the mage")
+        mage.bind_special(self.mage_special)
+        body = self.npc()
+        body.id = "switched-body"
+        body.context = {"controller_original": self.actor}
+        body.prompt_format = PromptFormat(room_name=True)
+        body.carriage_return = True
+        mage.fighting, body.fighting = body, mage
+        CharacterApi.set_position(mage, "POS_FIGHTING")
+        CharacterApi.set_position(body, "POS_FIGHTING")
+        self.room.add_mobile_to_room(body)
+        self.messages[body.id] = Mock(spec=TelnetConnection, is_closed=Mock(return_value=False),
+                                      send_message=AsyncMock())
+        self.registries.character_registry.get = lambda id: body if id == body.id else self.actor
+        self.rooms.get = self.rooms.get_or_none
+        self.destination.name = "A distant square"
+        self.destination.description = "A dry fountain stands at the center."
+        self.destination.light = 1
+
+        handler = self.mobile_handler
+        player = handler.player_handler
+        player.info_commands.PlayerActBits = self.enums.get("playerActBits")
+        player.area_registry = NS(get_or_none=lambda **_: NS(name="Destination area"))
+        player._send_prompt = PlayerHandler._send_prompt.__get__(player)
+        handler.spell_registry = NS(all_spells=lambda: [self.teleport])
+        handler.skill_registry = self.skill_registry
+        handler.rng = NS(number_bits=lambda _: 0)
+        handler.spell_api = SpellApi(self.effects, self.api, connection_manager=self.bus.connection_manager)
+
+        with patch.object(MobileApi, "choose_weighted", return_value="teleport"), \
+                patch.object(handler.spell_api, "random_room", return_value=self.destination), \
+                patch.object(handler.spell_api, "saves_spell", return_value=False):
+            self.assertTrue(await handler.execute_special_function(mage, self.room))
+
+        self.assertIs(body, self.destination.mobiles[body.id])
+        notices = self.heard(body)
+        self.assertEqual("You have been teleported!\r\n", notices[0])
+        self.assertIn(self.destination.description, notices[1])
+        self.assertEqual(f"\r\n< {self.destination.name}>", notices[-1].rstrip())
+        handler.logger.error.assert_not_called()
+
     async def test_mobile_special_skips_invalid_and_stale_room_views(self):
         mobile = self.special_actor("a mobile")
         mobile.special_function = [

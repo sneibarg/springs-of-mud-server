@@ -94,6 +94,9 @@ class StatMobileCommandExecutionTests(StatMobileResourceFixture, unittest.Isolat
         recipient, text = handler.message_bus.send_to_character.await_args.args
         self.assertEqual(recipient, self.actor.id)
         self.assertIn('Move: 100/100', text)
+        self.assertIn(f'Attributes: strength: {self.mobile.character_attributes.strength}', text)
+        self.assertIn('Armor: pierce: 70, slash: 60, bash: 50, exotic: 40', text)
+        self.assertIn(f'Flags: act: {self.mobile.status_flags.act},', text)
 
 
 if __name__ == '__main__':

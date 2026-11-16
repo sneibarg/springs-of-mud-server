@@ -109,15 +109,19 @@ class FightApi:
         if plan.operation == "multi_hit":
             victim = view.victim
             room = view.room
+            murder = view.command.name == "murder"
+            opening = fight_commands._murder_opening(view) if murder else None
             notice = self.fight_handler.check_killer(view.actor, victim)
-            if view.actor.fighting is None:
-                self.fight_handler.set_fighting(view.actor, victim, room.id)
-            if victim.fighting is None:
-                self.fight_handler.set_fighting(victim, view.actor, room.id)
+            if not murder:
+                if view.actor.fighting is None:
+                    self.fight_handler.set_fighting(view.actor, victim, room.id)
+                if victim.fighting is None:
+                    self.fight_handler.set_fighting(victim, view.actor, room.id)
             pre_corpse_ids = fight_commands._pre_corpse_ids(room)
             result = self.fight_handler.multi_hit(view.actor, victim, dt=plan.data.get("dt", "TYPE_UNDEFINED"))
             result = self.fight_handler._merge_attack_payloads(notice, result)
-            return self.fight_handler.build_round_payload(view.actor, victim, room, result, pre_corpse_ids)
+            round_payload = self.fight_handler.build_round_payload(view.actor, victim, room, result, pre_corpse_ids)
+            return {"payloads": [opening, round_payload]} if opening is not None else round_payload
 
         if plan.operation == "backstab":
             victim = view.victim

@@ -27,6 +27,13 @@ class RecipientText(str):
 
 class DisplayUtil:
     @staticmethod
+    def has_player_controller(entity):
+        from api.CharacterApi import CharacterApi
+
+        return entity is not None and (not CharacterApi.is_npc(entity)
+                                      or (getattr(entity, 'context', None) or {}).get('controller_original') is not None)
+
+    @staticmethod
     def room_listeners(actor, room):
         from api.CharacterApi import CharacterApi
 
@@ -63,6 +70,44 @@ class DisplayUtil:
         fallback = render(None)
         variants = {str(player.id): render(player) for player in (room.characters if room is not None else {}).values()}
         return RecipientText(text, variants, fallback)
+
+    @classmethod
+    def act_text(cls, text, observer, room, actor, victim=None, item=None):
+        entities = {token: entity for token, entity in (("$n", actor), ("$N", victim), ("$p", item))
+                    if entity is not None and (token in text or token == "$N" and "$S" in text)}
+        tokens = cls.visible_tokens(entities, observer, room)
+        if "$S" in text:
+            tokens["$S"] = victim.his_her() if tokens.get("$N", "someone") != "someone" else "their"
+        if "$N" in text:
+            tokens.setdefault("$N", "someone")
+        for token, value in tokens.items():
+            text = text.replace(token, value)
+        return text[:1].upper() + text[1:].rstrip("\r\n") + "\r\n"
+
+    @classmethod
+    def combat_act(cls, actor, victim, room, *, to_char="", to_room="", to_victim="",
+                   include_victim_in_room=False):
+        from api.CharacterApi import CharacterApi
+
+        payloads = []
+        candidates = (
+            (actor, to_char),
+            (victim if victim is not actor else None, to_victim),
+        )
+        for recipient, text in candidates:
+            if (text and cls.has_player_controller(recipient)
+                    and CharacterApi.position_value(recipient) >= CharacterApi.pos_value("POS_RESTING")):
+                payloads.append({"victim": recipient,
+                                 "to_victim": cls.act_text(text, recipient, room, actor, victim)})
+        if to_room:
+            listeners = [entity for entity in cls.room_listeners(actor, room)
+                         if include_victim_in_room or entity is not victim]
+            if listeners:
+                fallback = cls.act_text(to_room, None, room, actor, victim)
+                variants = {str(entity.id): cls.act_text(to_room, entity, room, actor, victim)
+                            for entity in listeners}
+                payloads.append({"to_room": RecipientText(fallback, variants, fallback), "targets": listeners})
+        return payloads
 
     @staticmethod
     def entity_name(entity, *, is_npc) -> str:

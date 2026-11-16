@@ -25,6 +25,7 @@ class SpellContext:
     performed: bool = False
     failed: bool = False
     script_failed: bool = False
+    announced: bool = False
 
     def __post_init__(self):
         self.aliases.setdefault("actor", self.actor)

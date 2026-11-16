@@ -18,11 +18,10 @@ class TestElementalBreath(unittest.TestCase):
         self.primary = SimpleNamespace(is_npc=False)
         self.other = SimpleNamespace(is_npc=False)
         self.actor = SimpleNamespace(is_npc=False)
-        self.room = object()
+        self.room = SimpleNamespace(people_newest_first=Mock(return_value=[self.actor, self.primary, self.other]))
         self.ctx = SimpleNamespace(victim=self.primary, actor=self.actor, room=self.room, level=80,
                                    spell=SimpleNamespace(noun_damage='breath'), mark_performed=Mock(return_value=True))
         self.api._find_room_for_entity = Mock(return_value=self.room)
-        self.api._room_entities = Mock(return_value=[self.actor, self.primary, self.other])
         self.api.eval_int = Mock(return_value=200)
         self.api._queue_damage_payload = Mock()
         self.fight = Mock()
@@ -41,7 +40,7 @@ class TestElementalBreath(unittest.TestCase):
                     self.ctx.elemental_breath = lambda *a, **kw: self.api.elemental_breath(self.ctx, *a, **kw)
                     with patch.object(self.Api.elemental_breath.__globals__['EffectUtil'], 'saves_spell',
                                       return_value=saved, create=True) as saves:
-                        self.assertTrue(eval(DOCUMENTS[name]['lambdas'][0])(self.ctx))
+                        self.assertTrue(eval(DOCUMENTS[name]['lambdas'][-1])(self.ctx))
                     expected = [('effect', self.room, 80, 100),
                                 ('effect', self.primary, 40 if saved else 80, 50 if saved else 200),
                                 ('damage', self.primary, 100 if saved else 200),
@@ -60,10 +59,10 @@ class TestElementalBreath(unittest.TestCase):
             self.ctx.elemental_breath = lambda *a, **kw: self.api.elemental_breath(self.ctx, *a, **kw)
             with patch.object(self.Api.elemental_breath.__globals__['EffectUtil'], 'saves_spell',
                               return_value=saved, create=True):
-                self.assertTrue(eval(DOCUMENTS['lightning breath']['lambdas'][0])(self.ctx))
+                self.assertTrue(eval(DOCUMENTS['lightning breath']['lambdas'][-1])(self.ctx))
             self.assertEqual([('effect', self.primary, 40 if saved else 80, 50 if saved else 200),
                               ('damage', self.primary, 100 if saved else 200)], events)
-        self.api._room_entities.assert_not_called()
+        self.room.people_newest_first.assert_not_called()
 
     def test_floor_exposure_precedes_safety_and_runs_when_all_characters_are_safe(self):
         events = []

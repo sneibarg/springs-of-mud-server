@@ -21,6 +21,7 @@ from item.Effect import Effect
 from item.Item import Item
 from mobile.MobileHandler import MobileHandler
 from skill.Spell import Spell
+from util.EffectUtil import EffectUtil
 
 
 class RestoredSpecialTests(MovementFixture, unittest.IsolatedAsyncioTestCase):
@@ -104,6 +105,32 @@ class RestoredSpecialTests(MovementFixture, unittest.IsolatedAsyncioTestCase):
                         self.assertTrue(await self.handler.execute_special_function(undead, self.room))
                 self.assertEqual([call(1, total)] * total, roll.call_args_list)
                 self.assertEqual(expected, Counter(entry.args[1] for entry in cast.call_args_list))
+
+    async def test_caster_specials_change_named_sex_and_restore_it_on_expiry(self):
+        for family in ('spec_cast_mage', 'spec_cast_cleric'):
+            vnum = next(special.mob_vnum for special in self.specials if special.name == family)
+            caster = self.mobile(vnum, family)
+            caster.level = 20
+            caster.fighting = self.actor
+            self.actor.fighting = caster
+            CharacterApi.set_position(caster, 'POS_FIGHTING')
+            for original, new, restored in (('male', 2, '1'), ('female', 0, '2')):
+                with self.subTest(family=family, sex=original), \
+                        patch.object(MobileApi, 'choose_weighted', return_value='change sex'), \
+                        patch.object(EffectUtil, 'saves_spell', return_value=False), \
+                        patch.object(SpellApi, 'roll_different', return_value=new) as roll:
+                    self.actor.sex = original
+                    self.assertTrue(await self.handler.execute_special_function(caster, self.room))
+                    self.assertEqual(str(new), self.actor.sex)
+                    roll.assert_called_once()
+                    self.assertEqual(int(restored), roll.call_args.args[-1])
+                    effect, = self.actor.effects
+                    self.assertEqual(('spell.change_sex', 40), (effect.type, effect.duration))
+                    effect.duration = 0
+                    self.effects.tick_effects(self.actor)
+                    self.assertEqual(restored, self.actor.sex)
+                    self.assertEqual([], self.actor.effects)
+        self.handler.logger.error.assert_not_called()
 
     async def test_bundled_thief_uses_integer_half_level_as_the_percentage_cap(self):
         thief = self.mobile('6608', 'spec_thief')
@@ -215,21 +242,107 @@ class RestoredSpecialTests(MovementFixture, unittest.IsolatedAsyncioTestCase):
         CharacterApi.set_position(mob, 'POS_FIGHTING')
         self.actor.fighting = mob
         mob.fighting = self.actor
+        witness = self.follower('witness')
         real_cast = self.handler.spell_api.execute_lambdas
         with patch.object(self.handler.spell_api, 'execute_lambdas', wraps=real_cast) as cast:
             for roll, spell in enumerate(('fire', 'lightning', 'lightning', 'gas', 'acid', 'frost', 'frost', 'frost')):
                 with self.subTest(roll=roll):
+                    self.handler.message_bus.send_to_room.reset_mock()
+                    self.handler.message_bus.send_to_character.reset_mock()
                     self.handler.rng.number_bits.reset_mock(side_effect=True)
                     self.handler.rng.number_bits.side_effect = [roll] if spell == 'gas' else [roll, 0]
                     self.assertTrue(await self.handler.execute_special_function(mob, self.room))
                     context = cast.call_args.args[0]
                     self.assertEqual(f'{spell} breath', context.spell.name)
+                    warning, listeners = self.handler.message_bus.send_to_room.await_args_list[0].args
+                    self.assertIn(witness, listeners)
+                    self.assertNotIn('casts', warning.for_recipient(witness.id))
                     if spell == 'gas':
                         self.assertEqual([call(3)], self.handler.rng.number_bits.call_args_list)
                         self.assertEqual('room', context.target_kind)
                         self.assertIsNone(context.target)
+                        self.assertIn(self.actor, listeners)
                     else:
                         self.assertIs(context.target, self.actor)
+                        self.assertNotIn(self.actor, listeners)
+                        self.assertEqual(self.actor.id, self.handler.message_bus.send_to_character.await_args.args[0])
+        self.handler.logger.error.assert_not_called()
+
+    async def test_area_breaths_and_earthquake_use_their_rom_target_orders(self):
+        dragon = self.mobile('2016', 'spec_breath_any')
+        npc = self.mobile('npc-target')
+        caster_vnum = next(s.mob_vnum for s in self.specials if s.name == 'spec_cast_cleric')
+        cleric = self.mobile(caster_vnum, 'spec_cast_cleric')
+        newest = self.follower('newest')
+        self.room.remove_player_from_room(self.actor)
+        self.room.add_player_to_room(self.actor)
+        dragon.hit = 120
+        dragon.fighting = npc
+        npc.fighting = dragon
+        newest.fighting = dragon
+        self.actor.fighting = dragon
+        CharacterApi.set_position(dragon, 'POS_FIGHTING')
+        CharacterApi.set_position(cleric, 'POS_FIGHTING')
+        self.combat.is_safe_spell.side_effect = lambda _actor, target, **_: target in (dragon, cleric)
+        for roll, targets in ((0, [self.actor, newest, npc]), (5, [self.actor, newest, npc]),
+                              (3, [self.actor, newest])):
+            with self.subTest(breath=roll), patch.object(EffectUtil, 'saves_spell', return_value=False):
+                self.combat.damage.reset_mock()
+                self.handler.rng.number_bits.side_effect = [roll] if roll == 3 else [roll, 0]
+                self.assertTrue(await self.handler.execute_special_function(dragon, self.room))
+                self.assertEqual(targets, [call.args[1] for call in self.combat.damage.call_args_list])
+
+        self.combat.damage.reset_mock()
+        self.actor.fighting = cleric
+        self.handler.rng.number_bits.side_effect = [0]
+        with patch.object(MobileApi, 'choose_weighted', return_value='earthquake'):
+            self.assertTrue(await self.handler.execute_special_function(cleric, self.room))
+        self.assertEqual([newest, npc, self.actor], [call.args[1] for call in self.combat.damage.call_args_list])
+        self.handler.logger.error.assert_not_called()
+
+    async def test_fire_breath_warns_recipients_before_damage_without_generic_announcement(self):
+        dragon = self.mobile('2016', 'spec_breath_any')
+        dragon.context = {'controller_original': self.character('wizard')}
+        primary = self.mobile('body')
+        primary.context = {'controller_original': self.character('other wizard')}
+        observer = self.follower('observer')
+        sleeper = self.follower('sleeper')
+        CharacterApi.set_position(sleeper, 'POS_SLEEPING')
+        dragon.hit = 120
+        dragon.fighting, primary.fighting = primary, dragon
+        CharacterApi.set_position(dragon, 'POS_FIGHTING')
+        CharacterApi.set_position(primary, 'POS_FIGHTING')
+        self.flag(dragon, 'AFF_INVISIBLE')
+        self.handler.rng.number_bits.side_effect = [0, 0]
+        self.combat.damage.return_value = {'to_victim': 'Burn damage.\r\n'}
+
+        def damage(*args, **kwargs):
+            # The spell context already holds the warning before the first hit.
+            self.assertTrue(cast.call_args.args[0].announced)
+            self.assertIn('cone of fire', cast.call_args.args[0].payloads[0]['to_victim'])
+            return {'to_victim': 'Burn damage.\r\n'}
+
+        self.combat.damage.side_effect = damage
+        with patch.object(self.handler.spell_api, 'execute_lambdas',
+                          wraps=self.handler.spell_api.execute_lambdas) as cast:
+            self.assertTrue(await self.handler.execute_special_function(dragon, self.room))
+
+        notices = self.handler.message_bus.send_to_character.await_args_list
+        self.assertIn(call(dragon.id, 'You breathe forth a cone of fire.\r\n'), notices)
+        self.assertIn(call(primary.id, 'Someone breathes a cone of hot fire over you!\r\n'), notices)
+        self.assertNotIn('casts fire breath', str(notices))
+        text, listeners = self.handler.message_bus.send_to_room.await_args_list[0].args
+        self.assertIn(observer, listeners)
+        self.assertNotIn(sleeper, listeners)
+        self.assertNotIn(primary, listeners)
+        self.assertEqual('Someone breathes forth a cone of fire.\r\n', text.for_recipient(observer.id))
+        self.handler.message_bus.send_to_character.reset_mock()
+        self.handler.rng.number_bits.side_effect = [0, 0]
+        CharacterApi.set_position(primary, 'POS_SLEEPING')
+        self.combat.damage.side_effect = None
+        await self.handler.execute_special_function(dragon, self.room)
+        self.assertNotIn(call(primary.id, 'Someone breathes a cone of hot fire over you!\r\n'),
+                         self.handler.message_bus.send_to_character.await_args_list)
         self.handler.logger.error.assert_not_called()
 
     async def test_adept_rolls_before_level_filter_and_cure_disease_leaves_pulse_available(self):
@@ -263,7 +376,7 @@ class RestoredSpecialTests(MovementFixture, unittest.IsolatedAsyncioTestCase):
         self.assertTrue(await self.handler.execute_special_function(mob, self.room))
 
         self.assertEqual([
-            call(self.actor.id, 'mobile 8309 bites you!\r\n'),
+            call(self.actor.id, 'Mobile 8309 bites you!\r\n'),
             call(self.actor.id, 'You feel momentarily ill, but it passes.\r\n'),
         ], self.handler.message_bus.send_to_character.await_args_list)
         room_notices = self.handler.message_bus.send_to_room.await_args_list
@@ -272,6 +385,61 @@ class RestoredSpecialTests(MovementFixture, unittest.IsolatedAsyncioTestCase):
         self.assertEqual(call('actor turns slightly green, but it passes.\r\n', [observer]), room_notices[1])
         self.assertEqual(2, len(room_notices))
         self.assertFalse(any(effect.type == 'spell.poison' for effect in self.actor.effects))
+        self.handler.logger.error.assert_not_called()
+
+    async def test_bite_purse_and_pickpocket_render_for_the_actual_recipients(self):
+        victim = self.actor
+        snake = self.mobile('8309', 'spec_poison')
+        snake.context = {'controller_original': self.character('wizard')}
+        snake.fighting = victim
+        self.flag(snake, 'AFF_INVISIBLE')
+        CharacterApi.set_position(snake, 'POS_FIGHTING')
+        self.handler.rng.number_percent.return_value = 1
+        self.combat._check_immunity.return_value = 'IS_IMMUNE'
+        self.assertTrue(await self.handler.execute_special_function(snake, self.room))
+        self.handler.message_bus.send_to_character.assert_any_await(snake.id, 'You bite actor!\r\n')
+        self.handler.message_bus.send_to_character.assert_any_await(victim.id, 'Someone bites you!\r\n')
+        self.handler.message_bus.send_to_character.reset_mock()
+        CharacterApi.set_position(victim, 'POS_SLEEPING')
+        self.assertTrue(await self.handler.execute_special_function(snake, self.room))
+        self.handler.message_bus.send_to_character.assert_any_await(victim.id, 'You feel momentarily ill, but it passes.\r\n')
+        self.assertNotIn(call(victim.id, 'Someone bites you!\r\n'),
+                         self.handler.message_bus.send_to_character.await_args_list)
+
+        CharacterApi.set_position(victim, 'POS_RESTING')
+        self.handler.message_bus.send_to_character.reset_mock()
+        with patch.object(EffectUtil, 'saves_spell', return_value=False):
+            self.assertTrue(await self.handler.execute_special_function(snake, self.room))
+        self.assertTrue(any(effect.type == 'spell.poison' for effect in victim.effects))
+        self.assertNotIn('casts poison', str(self.handler.message_bus.send_to_character.await_args_list))
+
+        body = self.mobile('switched-victim')
+        body.context = {'controller_original': self.character('other wizard')}
+        CharacterApi.set_position(body, 'POS_RESTING')
+        snake.fighting = body
+        self.assertTrue(await self.handler.execute_special_function(snake, self.room))
+        self.handler.message_bus.send_to_character.assert_any_await(body.id, 'Someone bites you!\r\n')
+
+        thief = self.mobile('3163', 'spec_nasty')
+        thief.context = snake.context
+        thief.fighting = victim
+        CharacterApi.set_position(thief, 'POS_FIGHTING')
+        CharacterApi.set_position(victim, 'POS_RESTING')
+        victim.gold = 100
+        with patch.object(MobileApi, 'choose_weighted', return_value='purse'):
+            self.assertTrue(await self.handler.execute_special_function(thief, self.room))
+        self.handler.message_bus.send_to_character.assert_any_await(
+            victim.id, 'Mobile 3163 rips apart your coin purse, spilling your gold!\r\n')
+        self.handler.message_bus.send_to_character.assert_any_await(
+            thief.id, "You slash apart actor's coin purse and gather his gold.\r\n")
+        self.assertEqual((90, 10), (victim.gold, thief.gold))
+
+        pickpocket = self.mobile('6608', 'spec_thief')
+        CharacterApi.set_position(pickpocket, 'POS_STANDING')
+        self.flag(pickpocket, 'AFF_INVISIBLE')
+        self.assertTrue(await self.handler.execute_special_function(pickpocket, self.room))
+        self.handler.message_bus.send_to_character.assert_any_await(
+            victim.id, "You discover someone's hands in your wallet!\r\n")
         self.handler.logger.error.assert_not_called()
 
     async def test_saved_bundled_mage_spell_skips_pulse_fallback(self):
@@ -444,6 +612,55 @@ class RestoredSpecialTests(MovementFixture, unittest.IsolatedAsyncioTestCase):
                 self.room.remove_mobile_from_room(strong)
                 self.combat.multi_hit.reset_mock()
         self.handler.logger.error.assert_not_called()
+
+    async def test_newer_bundled_rival_attacks_first_even_after_older_rival_reenters(self):
+        troll = self.mobile('2101', 'spec_troll_member', '2100')
+        ogre = self.mobile('2102', 'spec_ogre_member', '2101')
+        self.handler.act_bits = self.enums.get('actBits')
+        self.handler.area_registry = NS(get_or_none=lambda **_: None)
+        self.handler.shop_registry = NS(find_by_keeper_vnum=lambda _: None)
+
+        def initiate(attacker, victim, **kwargs):
+            attacker.fighting, victim.fighting = victim, attacker
+            CharacterApi.set_position(attacker, 'POS_FIGHTING')
+            CharacterApi.set_position(victim, 'POS_FIGHTING')
+            return {}
+
+        self.combat.multi_hit.side_effect = initiate
+        await self.handler.mobile_update()
+        self.combat.multi_hit.assert_called_once_with(ogre, troll, dt='TYPE_UNDEFINED')
+
+        for mob in (troll, ogre):
+            mob.fighting = None
+            CharacterApi.set_position(mob, 'POS_STANDING')
+        self.room.remove_mobile_from_room(troll)
+        self.destination.add_mobile_to_room(troll)
+        self.destination.remove_mobile_from_room(troll)
+        self.room.add_mobile_to_room(troll)
+        self.combat.multi_hit.reset_mock()
+        await self.handler.mobile_update()
+        self.combat.multi_hit.assert_called_once_with(ogre, troll, dt='TYPE_UNDEFINED')
+        self.handler.logger.error.assert_not_called()
+
+    async def test_mobile_pulse_keeps_global_creation_order_and_skips_removed_mobiles(self):
+        removed = self.mobile('removed')
+        middle = self.mobile('middle')
+        newest = self.mobile('newest')
+        self.room.remove_mobile_from_room(newest)
+        self.destination.add_mobile_to_room(newest)
+        self.handler.act_bits = self.enums.get('actBits')
+        self.handler.area_registry = NS(get_or_none=lambda **_: None)
+
+        async def special(mobile, room):
+            if mobile is newest:
+                self.room.remove_mobile_from_room(removed)
+                self.mobile('created_during_pulse')
+            return True
+
+        self.handler.execute_special_function = AsyncMock(side_effect=special)
+        await self.handler.mobile_update()
+        self.assertEqual([call(newest, self.destination), call(middle, self.room)],
+                         self.handler.execute_special_function.await_args_list)
 
     async def test_patrolman_targets_opponent_on_tie_and_announces_whistle_across_area(self):
         mob = self.mobile('2106', 'spec_patrolman')

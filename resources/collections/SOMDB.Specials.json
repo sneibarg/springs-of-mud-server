@@ -5651,7 +5651,7 @@
   "specialFunction": [
     "lambda ctx: ctx.require_awake()",
     "lambda ctx: ctx.nasty_opening_attack(level_window=(1, 9), skills=['backstab', 'murder'])",
-    "lambda ctx: ctx.nasty_combat_turn(coin_purse_fraction=0.10, flee_weight=1, purse_weight=1, idle_weight=2)"
+    "lambda ctx: ctx.nasty_combat_turn(coin_purse_fraction=0.10, flee_weight=1, purse_weight=1, idle_weight=2, purse_messages=(\"You slash apart $N's coin purse and gather his gold.\", \"$N's coin purse is ripped apart!\", '$n rips apart your coin purse, spilling your gold!'))"
   ],
   "_class": "org.springy.som.modulith.domain.special.internal.SpecialDocument"
 },

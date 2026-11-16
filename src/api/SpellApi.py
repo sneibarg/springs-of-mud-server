@@ -13,6 +13,7 @@ from injector import inject
 
 from api.InterpApi import InterpApi
 from api.GameApi import GameApi
+from game.AnimateEntity import AnimateEntity
 from item.EffectHandler import EffectHandler
 from item.Item import Item
 from item.ItemOwnership import ItemOwnership
@@ -469,6 +470,9 @@ class SpellApi:
     def alignment(self, ctx: SpellContext, target: Any = None) -> int:
         return self._alignment(ctx.resolve(target) if target is not None else ctx.victim)
 
+    def sex_value(self, ctx: SpellContext) -> int:
+        return AnimateEntity.sex_code(getattr(ctx.victim, "sex", None))
+
     def is_npc(self, ctx: SpellContext, target: Any = None) -> bool:
         return CharacterApi.is_npc(ctx.resolve(target) if target is not None else ctx.actor)
 
@@ -625,9 +629,12 @@ class SpellApi:
         return victim is not None and CharacterApi.position_value(victim) == CharacterApi.pos_value(name)
 
     def for_each_room(self, ctx: SpellContext, operation, predicate=None, safe: bool = False,
-                      stop_on_block: bool = False):
+                      stop_on_block: bool = False, world_order: bool = False):
         room = ctx.room or self._find_room_for_entity(ctx, ctx.actor)
-        for victim in self._room_entities(room):
+        occupants = self._room_entities(room)
+        if world_order:
+            occupants.sort(key=lambda entity: getattr(entity, "creation_order", 0), reverse=True)
+        for victim in occupants:
             scoped = replace(ctx, target=victim, aliases=dict(ctx.aliases, target=victim, victim=victim),
                              done=False, performed=False)
             if predicate is not None and not predicate(scoped):
@@ -812,6 +819,14 @@ class SpellApi:
             for channel in ("to_char", "to_victim", "to_room")
         }, **routing)
 
+    def announce_act(self, ctx: SpellContext, key: str, *, include_victim_in_room: bool = False):
+        messages = {channel: ctx.spell.message(channel, key)
+                    for channel in ("to_char", "to_room", "to_victim")}
+        ctx.announced |= any(messages.values())
+        for payload in DisplayUtil.combat_act(ctx.actor, ctx.victim, ctx.room,
+                                              include_victim_in_room=include_victim_in_room, **messages):
+            ctx.queue_payload(payload)
+
     def stop_when(self, ctx: SpellContext, condition: bool, message_key: str = "", **routing):
         if not condition:
             return False
@@ -906,7 +921,7 @@ class SpellApi:
         base_damage = self.eval_int(ctx, expression, victim=primary)
         if area:
             self.elemental_effect(ctx, kind, ctx.level, base_damage // 2, target=room)
-        victims = self._room_entities(room) if area else [primary]
+        victims = room.people_newest_first() if area else [primary]
         for victim in victims:
             if area:
                 if victim is ctx.actor or fight.is_safe_spell(ctx.actor, victim, area=True):
@@ -976,7 +991,8 @@ class SpellApi:
             base_damage = self.eval_int(ctx, expression)
             self.poison_effect(ctx, ctx.level, base_damage, target=room)
             acted = True
-        for victim in self._room_entities(room):
+        victims = room.people_newest_first() if effect == "poison" else self._room_entities(room)
+        for victim in victims:
             if victim is ctx.actor or self._fight_handler(ctx).is_safe_spell(ctx.actor, victim, area=True):
                 continue
             if target_filter is not None and not target_filter(victim):
@@ -1414,7 +1430,7 @@ class SpellApi:
             self._queue_room_text(ctx, room, room_notice(room, arrival_key), exclude)
         if notice_key and not notice_before:
             self.send_message(ctx, notice_key, target=victim)
-        if not CharacterApi.is_npc(victim):
+        if DisplayUtil.has_player_controller(victim):
             ctx.queue_payload({"view_character": victim, "to_room_obj": room})
         return ctx.mark_performed()
 
@@ -1595,7 +1611,6 @@ class SpellApi:
 
     @staticmethod
     def _alignment(entity) -> int:
-        from game.AnimateEntity import AnimateEntity
         return AnimateEntity.get_alignment(entity)
 
     @staticmethod

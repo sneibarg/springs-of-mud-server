@@ -3,6 +3,7 @@ from __future__ import annotations
 import threading
 
 from dataclasses import dataclass, field
+from itertools import count
 from typing import Any, Optional, TYPE_CHECKING
 
 from game.Equipped import Equipped
@@ -12,6 +13,8 @@ from util.GenericUtil import GenericUtil
 
 if TYPE_CHECKING:
     from item.Item import Item
+
+_creation_order = count(1)
 
 
 @dataclass(frozen=True)
@@ -49,10 +52,14 @@ class AnimateEntity:
     lock: threading.RLock = field(default_factory=threading.RLock, kw_only=True)
 
     def __post_init__(self):
+        self.record_world_entry()
         logger_name = self.__dict__["__name__"] if "__name__" in self.__dict__ else self.__class__.__name__
         self.logger = LoggerFactory.get_logger(logger_name)
         if self.lock is None:
             self.lock = threading.RLock()
+
+    def record_world_entry(self) -> None:
+        self.creation_order: int = next(_creation_order)
 
     def get_alignment(self) -> int:
         # Runtime attributes own alignment; prototypes retain the service field.
@@ -67,13 +74,17 @@ class AnimateEntity:
             return
         setattr(self, "alignment", str(int(value)))
 
+    @staticmethod
+    def sex_code(value) -> int:
+        sex = str(value or "").strip().lower()
+        if sex in {"male", "m"}:
+            return 1
+        if sex in {"female", "f"}:
+            return 2
+        return GenericUtil.to_int(sex, 0)
+
     def his_her(self) -> str:
-        sex = str(self.sex or "").strip().lower()
-        if sex in {"male", "m", "1"}:
-            return "his"
-        if sex in {"female", "f", "2"}:
-            return "her"
-        return "its"
+        return {1: "his", 2: "her"}.get(self.sex_code(self.sex), "its")
 
     def him_her(self) -> str:
         return {"his": "him", "her": "her"}.get(self.his_her(), "it")

@@ -24,6 +24,7 @@ from interp.commands.Movement import Movement
 from interp.commands.Fight import Fight
 from interp.Context import Context
 from util.CommunicationsUtil import CommunicationsUtil
+from util.DisplayUtil import DisplayUtil
 
 
 class MobileHandler:
@@ -143,12 +144,13 @@ class MobileHandler:
                 continue
             for mob in list(room.mobiles.values()):
                 snapshots.append((room, mob))
+        snapshots.sort(key=lambda entry: getattr(entry[1], "creation_order", 0), reverse=True)
         self.logger.debug(f"mobile_update starting with {len(snapshots)} mobile snapshot(s)")
 
         for room, mob in snapshots:
             self.logger.debug(f"mobile_update evaluating {self._actor_label(mob)} from snapshot room {self._room_label(room)}")
             room = self._resolve_room_for_mobile(room, mob)
-            if mob is None or room is None or mob.id not in room.mobiles:
+            if mob is None or room is None or room.mobiles.get(mob.id) is not mob:
                 self.logger.debug(f"mobile_update skipping snapshot because mob or resolved room is invalid: mob={self._actor_label(mob)}, room={self._room_label(room)}")
                 continue
             if MobileApi.mobile_is_charmed(mob):
@@ -167,7 +169,7 @@ class MobileHandler:
                 continue
 
             room = self._resolve_room_for_mobile(room, mob)
-            if room is None or mob.id not in room.mobiles:
+            if room is None or room.mobiles.get(mob.id) is not mob:
                 continue
             self._update_shop_money(mob)
 
@@ -330,8 +332,8 @@ class MobileHandler:
         if not standard and payload.get("to_room_obj") is not None:
             if not isinstance(payload["to_room_obj"], Room):
                 return "destination must be a room"
-            if not isinstance(payload.get("view_character"), Character):
-                return "standalone room view requires a player character"
+            if not isinstance(payload.get("view_character"), (Character, Mobile)):
+                return "standalone room view requires a character or mobile"
 
         if standard and payload.get("payloads"):
             entries = payload["payloads"]
@@ -398,7 +400,7 @@ class MobileHandler:
         destination = payload.get("to_room_obj")
         if destination is not None:
             viewer = payload["view_character"]
-            if viewer.room_id != destination.id:
+            if viewer.room_id != destination.id or not DisplayUtil.has_player_controller(viewer):
                 return
             context = Context(character=viewer, room=destination, registry_service=self.registry_service,
                               handler_service=self.handler_service)

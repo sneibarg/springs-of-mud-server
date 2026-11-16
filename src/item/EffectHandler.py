@@ -10,6 +10,7 @@ from typing import Any
 from injector import inject
 
 from api.GameApi import GameApi
+from game.AnimateEntity import AnimateEntity
 from game.EnumProvider import EnumProvider
 from item.Effect import Effect
 from server.LoggerFactory import LoggerFactory
@@ -88,7 +89,7 @@ class EffectHandler:
             entity.max_movement += modifier
         elif location == location_name("APPLY_SEX"):
             if hasattr(entity, "sex"):
-                entity.sex = str(GenericUtil.to_int(entity.sex, 0) + modifier)
+                entity.sex = str(AnimateEntity.sex_code(entity.sex) + modifier)
         elif location in (location_name("APPLY_HITROLL"), location_name("APPLY_HIT_ROLL")):
             if hasattr(entity, "hit_roll"):
                 entity.hit_roll = GenericUtil.to_int(entity.hit_roll, 0) + modifier

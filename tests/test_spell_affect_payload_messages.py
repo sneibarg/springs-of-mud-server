@@ -72,6 +72,8 @@ def _load_spell_api():
             "util.DisplayUtil",
             RecipientText=RecipientText,
             DisplayUtil=SimpleNamespace(
+                has_player_controller=lambda entity: not _CharacterApi.is_npc(entity),
+                combat_act=lambda *_args, **_kwargs: [],
                 display_effect_message=lambda message: str(message or "").strip(),
                 entity_name=lambda entity, is_npc: str(getattr(entity, "name", "someone") or "someone"),
                 visible_tokens=lambda entities, observer, room: {
@@ -2644,6 +2646,7 @@ class TestTableDamageSpells(unittest.TestCase):
         ctx.victim.id = 'victim'
         ctx.victim.character_attributes = SimpleNamespace(alignment=0, position=self.enums['positions'].POS_STANDING)
         ctx.room = SimpleNamespace(area_id='area', characters={'actor': ctx.actor, 'victim': ctx.victim}, mobiles={})
+        ctx.room.people_newest_first = lambda: list(reversed([*ctx.room.characters.values(), *ctx.room.mobiles.values()]))
         self.api._find_room_for_entity = Mock(return_value=ctx.room)
         self.fight.is_safe_spell = Mock(return_value=False)
         return ctx

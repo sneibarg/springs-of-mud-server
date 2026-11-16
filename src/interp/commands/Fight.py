@@ -98,6 +98,23 @@ class Fight:
             return payload
         return self.do_kill(character, context)
 
+    def _murder_opening(self, view):
+        self._set_wait(view.actor, self.game_parameters.PULSE_VIOLENCE.value)
+        player_handler = view.context.player_handler()
+        if player_handler is None:
+            return None
+        command = self.registry_service.interp_registry.get_or_none(name="yell")
+        if command is None:
+            return None
+        attacker = DisplayUtil.entity_name(view.actor, is_npc=CharacterApi.is_npc)
+        text = view.command.render_message("to_room", "help_yell", attacker=attacker)
+        if not text:
+            return None
+        context = Context(character=view.victim, command=command, room=view.room, result=text,
+                          registry_service=self.registry_service, handler_service=view.context.handler_service)
+        payload = player_handler.communications_commands.do_yell(context)
+        return {"actor": view.victim, "context": context, "payloads": [payload]}
+
     def do_kill(self, character, context):
         return self.fight_api.run_action(self, context)
 

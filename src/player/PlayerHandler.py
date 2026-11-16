@@ -1,4 +1,4 @@
-from util.DisplayUtil import RecipientText
+from util.DisplayUtil import DisplayUtil, RecipientText
 from util.WizUtil import WizUtil
 from item.ExtraDescriptionData import ExtraDescriptionData
 from util.LookupUtil import LookupUtil
@@ -1043,7 +1043,7 @@ class PlayerHandler:
         return channels
 
     async def _show_room_to_character(self, viewer: Character, room, context: Context):
-        if viewer is None or CharacterApi.is_npc(viewer):
+        if not DisplayUtil.has_player_controller(viewer):
             return
         await context.room_handler().print_room(viewer.id, room)
         blocked = CharacterApi.room_view_block_reason(viewer, room)
@@ -1056,7 +1056,8 @@ class PlayerHandler:
         if self.info_commands.PlayerActBits is not None:
             autoexit_bit = self.info_commands.PlayerActBits.PLR_AUTOEXIT.value
         if autoexit_bit is not None:
-            act = viewer.status_flags.act
+            controller = (getattr(viewer, "context", None) or {}).get("controller_original") or viewer
+            act = controller.status_flags.act
             if CharacterApi.is_set(act, autoexit_bit):
                 await context.room_handler().print_exits(viewer, automatic=True)
         await self.print_players_in_room(viewer)

@@ -33,6 +33,7 @@ def snapshot_pet(pet: Mobile, fighting_position: int, standing_position: int) ->
 
 def restore_pet(snapshot: dict, owner, *, item_registry=None) -> Mobile:
     data = GenericUtil.camel_to_snake_case(snapshot)
+    data.pop('creation_order', None)
     damage_bonus_in_dam_roll = data.pop('damage_bonus_in_dam_roll', False)
     resources = [data.pop(name) for name in ('hit', 'max_hit', 'mana', 'max_mana')]
     data['area_id'] = owner.area_id

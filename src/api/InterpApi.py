@@ -90,7 +90,7 @@ class InterpApi:
 
     def render_message_key(self, context, message_key: str, channel: str = "", fallback: str = "", **tokens) -> dict:
         view = self.build_interp_view(context)
-        self.logger.info(f"View payload: {view.context.command.payload}")
+        self.logger.debug(f"View payload: {view.context.command.payload}")
         merged_tokens = self._default_tokens(view)
         merged_tokens.update(tokens)
         plan = ActionPlan(

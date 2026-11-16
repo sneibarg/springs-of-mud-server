@@ -109,6 +109,8 @@ class RuntimeFactoryTests(unittest.TestCase):
         # Also tolerate reset-loaded equipment present in both ownership views.
         source.inventory = [carried, worn]
         copied = MobileFactory.copy_instance(source, fixture.enums)
+        self.assertLess(fixture.prototype.creation_order, source.creation_order)
+        self.assertLess(source.creation_order, copied.creation_order)
         self.assertEqual(2, len(copied.owned_items()))
         self.assertEqual('sword', copied.equipped.wielded.name)
         self.assertEqual(['bag'], [item.name for item in copied.inventory])

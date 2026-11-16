@@ -164,10 +164,18 @@ class CommandStateTests(TargetingFixture, unittest.TestCase):
 
     def test_character_stat_reports_resources_flags_attributes_and_effects(self):
         victim = self.player('bob')
+        victim.character_attributes.strength = 17
+        victim.armor_class.piercing = -27
+        victim.armor_class.magic = 13
+        victim.status_flags.fullness = 31
+        victim.status_flags.pulse_daze = 4
         victim.effects = [Effect(type='poison', duration=3, modifier=-2, location='APPLY_STR')]
-        output = self.diagnostics.stat(self.actor, 'char bob')['to_char']
-        for field in ('Hit:', 'Mana:', 'Move:', 'Attributes:', 'Flags:', 'poison', 'duration: 3'):
+        output = self.wiz.do_stat(self.actor, self.context('stat', 'char bob'))['to_char']
+        for field in ('Hit:', 'Mana:', 'Move:', 'Attributes: strength: 17', 'Armor: piercing: -27',
+                      'magic: 13', 'Flags: act:', 'fullness: 31', 'pulse_daze: 4', 'poison', 'duration: 3'):
             self.assertIn(field, output)
+        self.assertNotIn('_initialized', output)
+        self.assertNotIn('_bitfield_write_enabled', output)
 
     def test_typed_vnum_and_ability_lookup(self):
         self.registries.mobile_registry.all_mobiles = lambda: [NS(vnum='12', name='royal guard', short_description='a guard')]

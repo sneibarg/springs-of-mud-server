@@ -151,6 +151,7 @@ class ConnectionHandler:
             self.logger.info(f"Connection closed: {peer_info if connection else 'unknown'}")
 
     def _enter_world(self, character: Character, room: Room) -> None:
+        character.record_world_entry()
         snapshot = character.saved_pet
         if snapshot is None:
             room.add_player_to_room(character)

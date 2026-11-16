@@ -638,7 +638,9 @@ class SwitchedIdentityTests(TargetingFixture, unittest.IsolatedAsyncioTestCase):
                     type='spell.bless', where='TO_AFFECTS', location='APPLY_HITROLL', modifier=2, duration=3))
                 snapshot = snapshot_pet(mob, CharacterApi.pos_value('POS_FIGHTING'),
                                         CharacterApi.pos_value('POS_STANDING'))
-                restored = restore_pet(snapshot, owner)
+                self.assertNotIn('creationOrder', snapshot)
+                restored = restore_pet({**snapshot, 'creationOrder': 0}, owner)
+                self.assertGreater(restored.creation_order, mob.creation_order)
                 self.assertEqual(hit_roll + 2, restored.hit_roll)
                 fight.effect_handler.affect_strip(restored, 'spell.bless')
                 self.assertEqual(hit_roll, restored.hit_roll)

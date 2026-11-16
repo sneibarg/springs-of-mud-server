@@ -1357,7 +1357,7 @@
     "affectData": [],
     "lambdas": [
       "lambda ctx: ctx.send_message('cast', include_victim_in_room=True)",
-      "lambda ctx: ctx.for_each_room(lambda v: v.damage_expr(\"0 if ctx.is_affected('AFF_FLYING') else level + dice(2, 8)\", 'DAM_BASH', save_half=False), predicate=lambda v: v.victim is not v.actor, safe=True)",
+      "lambda ctx: ctx.for_each_room(lambda v: v.damage_expr(\"0 if ctx.is_affected('AFF_FLYING') else level + dice(2, 8)\", 'DAM_BASH', save_half=False), predicate=lambda v: v.victim is not v.actor, safe=True, world_order=True)",
       "lambda ctx: ctx.area_message('distant')"
     ],
     "levelByClass": {
@@ -4190,7 +4190,7 @@
     "lambdas": [
       "lambda ctx: ctx.stop_if_affected('spell.change_sex', 'alreadyAffected', 'alreadyAffectedOther')",
       "lambda ctx: ctx.stop_if_saved()",
-      "lambda ctx: ctx.apply_affect_data(modifier_expr='ctx.roll_different(0, 2, int(victim.sex)) - int(victim.sex)')",
+      "lambda ctx: ctx.apply_affect_data(modifier_expr='ctx.roll_different(0, 2, ctx.sex_value()) - ctx.sex_value()')",
       "lambda ctx: ctx.send_message('changed', include_actor_in_room=True)"
     ],
     "levelByClass": {
@@ -4278,19 +4278,25 @@
     "payload": {
       "toChar": {
         "msgOff": "!Acid Breath!",
-        "msgObj": ""
+        "msgObj": "",
+        "breathWarning": "You spit acid at $N."
       },
       "toRoom": {
         "acidContainer": "{item} fumes and dissolves.",
         "acidArmor": "{item} is pitted and etched.",
         "acidClothing": "{item} is corroded into scrap.",
         "acidFocus": "{item} corrodes and breaks.",
-        "acidScroll": "{item} is burned into waste."
+        "acidScroll": "{item} is burned into waste.",
+        "breathWarning": "$n spits acid at $N."
+      },
+      "toVictim": {
+        "breathWarning": "$n spits a stream of corrosive acid at you."
       }
     },
     "functionName": "acid_breath",
     "affectData": [],
     "lambdas": [
+      "lambda ctx: ctx.announce_act('breath_warning')",
       "lambda ctx: ctx.damage_expr('ctx.breath_damage(12, 11, 6, 16)', 'DAM_ACID', object_effect='acid')"
     ],
     "levelByClass": {
@@ -4330,7 +4336,8 @@
         "objectScroll": "{weapon} crackles and burns!",
         "objectStaff": "{weapon} smokes and chars!",
         "objectWand": "{weapon} sparks and sputters!",
-        "secondary": "{victim} is blinded by smoke!"
+        "secondary": "{victim} is blinded by smoke!",
+        "breathWarning": "You breathe forth a cone of fire."
       },
       "toRoom": {
         "objectContainer": "{weapon} ignites and burns!",
@@ -4340,7 +4347,8 @@
         "objectScroll": "{weapon} crackles and burns!",
         "objectStaff": "{weapon} smokes and chars!",
         "objectWand": "{weapon} sparks and sputters!",
-        "secondary": "{victim} is blinded by smoke!"
+        "secondary": "{victim} is blinded by smoke!",
+        "breathWarning": "$n breathes forth a cone of fire."
       },
       "toVictim": {
         "objectContainer": "{weapon} ignites and burns!",
@@ -4350,12 +4358,14 @@
         "objectScroll": "{weapon} crackles and burns!",
         "objectStaff": "{weapon} smokes and chars!",
         "objectWand": "{weapon} sparks and sputters!",
-        "secondary": "Your eyes tear up from smoke...you can't see a thing!"
+        "secondary": "Your eyes tear up from smoke...you can't see a thing!",
+        "breathWarning": "$n breathes a cone of hot fire over you!"
       }
     },
     "functionName": "fire_breath",
     "affectData": [],
     "lambdas": [
+      "lambda ctx: ctx.announce_act('breath_warning')",
       "lambda ctx: ctx.elemental_breath('ctx.breath_damage(10, 9, 5, 20)', 'flaming', area=True)"
     ],
     "levelByClass": {
@@ -4390,22 +4400,26 @@
         "msgOff": "!Frost Breath!",
         "objectDrinkCon": "{weapon} freezes and shatters!",
         "objectPotion": "{weapon} freezes and shatters!",
-        "secondary": "{victim} turns blue and shivers."
+        "secondary": "{victim} turns blue and shivers.",
+        "breathWarning": "You breathe out a cone of frost."
       },
       "toRoom": {
         "objectDrinkCon": "{weapon} freezes and shatters!",
         "objectPotion": "{weapon} freezes and shatters!",
-        "secondary": "{victim} turns blue and shivers."
+        "secondary": "{victim} turns blue and shivers.",
+        "breathWarning": "$n breathes out a freezing cone of frost!"
       },
       "toVictim": {
         "objectDrinkCon": "{weapon} freezes and shatters!",
         "objectPotion": "{weapon} freezes and shatters!",
-        "secondary": "A chill sinks deep into your bones."
+        "secondary": "A chill sinks deep into your bones.",
+        "breathWarning": "$n breathes a freezing cone of frost over you!"
       }
     },
     "functionName": "frost_breath",
     "affectData": [],
     "lambdas": [
+      "lambda ctx: ctx.announce_act('breath_warning')",
       "lambda ctx: ctx.elemental_breath('ctx.breath_damage(12, 11, 6, 16)', 'frost', area=True)"
     ],
     "levelByClass": {
@@ -4437,10 +4451,12 @@
     "payload": {
       "toChar": {
         "msgOff": "!Gas Breath!",
-        "msgObj": ""
+        "msgObj": "",
+        "breathWarning": "You breathe out a cloud of poisonous gas."
       },
       "toRoom": {
-        "poisoned": "{victim} looks very ill.\r\n"
+        "poisoned": "{victim} looks very ill.\r\n",
+        "breathWarning": "$n breathes out a cloud of poisonous gas!"
       },
       "toVictim": {
         "poisoned": "You feel poison coursing through your veins.\r\n"
@@ -4449,6 +4465,7 @@
     "functionName": "gas_breath",
     "affectData": [],
     "lambdas": [
+      "lambda ctx: ctx.announce_act('breath_warning', include_victim_in_room=True)",
       "lambda ctx: ctx.damage_room_expr('ctx.breath_damage(16, 15, 1, 12, upper_limit=8)', 'DAM_POISON', effect='poison', target_filter=lambda victim: not (ctx.is_npc() and ctx.is_npc(victim) and (getattr(ctx.actor, 'fighting', None) is victim or getattr(victim, 'fighting', None) is ctx.actor)))"
     ],
     "levelByClass": {
@@ -4483,23 +4500,27 @@
         "msgOff": "!Lightning Breath!",
         "objectJewelry": "{weapon} is fused into a worthless lump.",
         "objectStaff": "{weapon} overloads and explodes!",
-        "objectWand": "{weapon} overloads and explodes!"
+        "objectWand": "{weapon} overloads and explodes!",
+        "breathWarning": "You breathe a bolt of lightning at $N."
       },
       "toRoom": {
         "objectJewelry": "{weapon} is fused into a worthless lump.",
         "objectStaff": "{weapon} overloads and explodes!",
-        "objectWand": "{weapon} overloads and explodes!"
+        "objectWand": "{weapon} overloads and explodes!",
+        "breathWarning": "$n breathes a bolt of lightning at $N."
       },
       "toVictim": {
         "objectJewelry": "{weapon} is fused into a worthless lump.",
         "objectStaff": "{weapon} overloads and explodes!",
         "objectWand": "{weapon} overloads and explodes!",
-        "secondary": "Your muscles stop responding."
+        "secondary": "Your muscles stop responding.",
+        "breathWarning": "$n breathes a bolt of lightning at you!"
       }
     },
     "functionName": "lightning_breath",
     "affectData": [],
     "lambdas": [
+      "lambda ctx: ctx.announce_act('breath_warning')",
       "lambda ctx: ctx.elemental_breath('ctx.breath_damage(10, 9, 5, 20)', 'shocking', area=False)"
     ],
     "levelByClass": {

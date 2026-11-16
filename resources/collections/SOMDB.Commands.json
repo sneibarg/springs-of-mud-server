@@ -6946,7 +6946,9 @@
         "commandPositionResting": "Nah... You feel too relaxed...",
         "commandPositionSitting": "Better stand up first."
       },
-      "toRoom": {},
+      "toRoom": {
+        "helpYell": "Help! I am being attacked by {attacker}!"
+      },
       "toVictim": {}
     },
     "guards": [

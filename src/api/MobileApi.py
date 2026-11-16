@@ -188,15 +188,14 @@ class MobileApi(GameApi):
         if spell_context.script_failed:
             return False
         # A save can end the spell without an effect and still produce notices.
-        if not direct and spell_context.performed:
+        if not direct and spell_context.performed and not spell_context.announced:
             cls._queue_spell_payload(ctx, meta, None if object_target else victim, area=area)
         for payload in spell_context.payloads:
             ctx.queue_payload(payload)
         return claim_pulse and ctx.mark_performed()
 
     @classmethod
-    def cast_support_spell_by_bits(cls, ctx: MobileContext, target_alias: str, bits: int,
-                                   choices: list[tuple[str, str, bool]]):
+    def cast_support_spell_by_bits(cls, ctx: MobileContext, target_alias: str, bits: int, choices: list[tuple[str, str, bool]]):
         target = ctx.resolve(target_alias)
         if target is None:
             return False
@@ -494,12 +493,8 @@ class MobileApi(GameApi):
             chance = 0
         if ctx.handler.rng.number_percent() > chance:
             return False
-        _to_char, to_room, to_victim = messages
-        if to_room:
-            cls._queue_room_message(ctx, to_room, target=victim, exclude_ids={str(victim.id)})
-        if not CharacterApi.is_npc(victim) and to_victim:
-            ctx.queue_payload({"victim": victim, "to_victim": MobileApi.render_act(to_victim, ctx.actor, victim) + "\r\n"})
-        cls.cast_spell(ctx, "poison", target=victim)
+        cls._queue_combat_act(ctx, victim, messages)
+        cls.cast_spell(ctx, "poison", target=victim, direct=True)
         return ctx.mark_performed()
 
     @classmethod
@@ -517,9 +512,8 @@ class MobileApi(GameApi):
             if require_visibility and not CharacterApi.can_see(ctx.actor, victim, ctx.room):
                 continue
             if awake_discovery_check and CharacterApi.is_awake(victim) and ctx.handler.rng.number_range(0, thief_level) == 0:
-                ctx.queue_payload({"victim": victim, "to_victim": f"You discover {MobileApi.render_mobile_name(ctx.actor)}'s hands in your wallet!\r\n"})
-                cls._queue_room_message(ctx, "$N discovers $n's hands in $N's wallet!",
-                                        target=victim, exclude_ids={str(victim.id)})
+                cls._queue_combat_act(ctx, victim, ("", "$N discovers $n's hands in $S wallet!",
+                                                    "You discover $n's hands in your wallet!"))
                 return ctx.mark_performed()
 
             gold_roll = min(ctx.handler.rng.number_range(1, 20), percentage_cap)
@@ -563,19 +557,18 @@ class MobileApi(GameApi):
         return False
 
     @classmethod
-    def nasty_combat_turn(cls, ctx: MobileContext, coin_purse_fraction: float = 0.10, flee_weight: int = 1, purse_weight: int = 1, idle_weight: int = 0):
+    def nasty_combat_turn(cls, ctx: MobileContext, coin_purse_fraction: float = 0.10, flee_weight: int = 1,
+                          purse_weight: int = 1, idle_weight: int = 0, purse_messages: tuple[str, str, str] = (
+                              "", "$N's coin purse is ripped apart!", "$n rips apart your coin purse, spilling your gold!")):
         victim = ctx.actor.fighting
         if victim is None or CharacterApi.position_value(ctx.actor) != CharacterApi.pos_value("POS_FIGHTING"):
             return False
         action = MobileApi.choose_weighted([("purse", purse_weight), ("flee", flee_weight), ("idle", idle_weight)])
         if action == "purse":
+            cls._queue_combat_act(ctx, victim, purse_messages)
             stolen = int(GenericUtil.to_int(victim.gold, 0) * float(coin_purse_fraction))
             victim.gold = max(0, GenericUtil.to_int(victim.gold, 0) - stolen)
             ctx.actor.gold = GenericUtil.to_int(ctx.actor.gold, 0) + stolen
-            if not CharacterApi.is_npc(victim):
-                ctx.queue_payload({"victim": victim, "to_victim": "Someone rips apart your coin purse, spilling your gold!\r\n"})
-            cls._queue_room_message(ctx, "$N's coin purse is ripped apart!",
-                                    target=victim, exclude_ids={str(victim.id)})
             return ctx.mark_performed()
         if action == "flee":
             ctx.handler.run_combat_command(ctx, "flee")
@@ -768,6 +761,13 @@ class MobileApi(GameApi):
         return ctx.mark_performed()
 
     @staticmethod
+    def _queue_combat_act(ctx, victim, messages):
+        to_char, to_room, to_victim = messages
+        for payload in DisplayUtil.combat_act(ctx.actor, victim, ctx.room,
+                                              to_char=to_char, to_room=to_room, to_victim=to_victim):
+            ctx.queue_payload(payload)
+
+    @staticmethod
     def _queue_room_message(ctx: MobileContext, text: str, *, target=None, item=None,
                             exclude_ids: Optional[set[str]] = None):
         exclude = {str(ctx.actor.id)} | (exclude_ids or set())
@@ -775,14 +775,8 @@ class MobileApi(GameApi):
                    if str(listener.id) not in exclude]
         if not targets:
             return
-        entities = {token: entity for token, entity in (("$n", ctx.actor), ("$N", target), ("$p", item))
-                    if entity is not None and (token in text or token == "$N" and "$S" in text)}
-
         def render(observer):
-            tokens = DisplayUtil.visible_tokens(entities, observer, ctx.room)
-            visible_target = target if tokens.get("$N") != "someone" else None
-            rendered = MobileApi.render_act(text, ctx.actor, visible_target, tokens=tokens)
-            return rendered[:1].upper() + rendered[1:].rstrip("\r\n") + "\r\n"
+            return DisplayUtil.act_text(text, observer, ctx.room, ctx.actor, target, item)
 
         fallback = render(None)
         variants = {str(listener.id): render(listener) for listener in targets}
@@ -873,23 +867,6 @@ class MobileApi(GameApi):
     @staticmethod
     def render_mobile_name(entity) -> str:
         return DisplayUtil.entity_name(entity, is_npc=CharacterApi.is_npc)
-
-    @staticmethod
-    def render_act(text: str, actor, target=None, *, tokens=None) -> str:
-        rendered = str(text or "")
-        if tokens is None:
-            tokens = {"$n": MobileApi.render_mobile_name(actor), "$N": MobileApi.render_mobile_name(target)}
-        for token, value in tokens.items():
-            rendered = rendered.replace(token, value)
-        rendered = rendered.replace("$N", "someone")
-        sex = str((target.sex if target is not None else "") or "").lower()
-        poss = "their"
-        if sex in ("1", "m", "male"):
-            poss = "his"
-        elif sex in ("2", "f", "female"):
-            poss = "her"
-        rendered = rendered.replace("$S", poss)
-        return rendered
 
     @staticmethod
     def group_vnum(group_name: str) -> str:
