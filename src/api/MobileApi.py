@@ -203,7 +203,7 @@ class MobileApi(GameApi):
         if index >= len(choices):
             return False
         spell, message, claim_pulse = choices[index]
-        cls._queue_room_message(ctx, message)
+        cls._queue_room_message(ctx, message, prompt_listeners=True)
         return cls.cast_spell(ctx, spell, target=target, direct=True, claim_pulse=claim_pulse)
 
     @classmethod
@@ -769,7 +769,7 @@ class MobileApi(GameApi):
 
     @staticmethod
     def _queue_room_message(ctx: MobileContext, text: str, *, target=None, item=None,
-                            exclude_ids: Optional[set[str]] = None):
+                            exclude_ids: Optional[set[str]] = None, prompt_listeners: bool = False):
         exclude = {str(ctx.actor.id)} | (exclude_ids or set())
         targets = [listener for listener in DisplayUtil.room_listeners(None, ctx.room)
                    if str(listener.id) not in exclude]
@@ -780,7 +780,10 @@ class MobileApi(GameApi):
 
         fallback = render(None)
         variants = {str(listener.id): render(listener) for listener in targets}
-        ctx.queue_payload({"room_message": RecipientText(fallback, variants, fallback), "room_targets": targets})
+        payload = {"room_message": RecipientText(fallback, variants, fallback), "room_targets": targets}
+        if prompt_listeners:
+            payload["prompt_listeners"] = True
+        ctx.queue_payload(payload)
 
     @staticmethod
     def _queue_spell_payload(ctx: MobileContext, meta, victim, area: bool):

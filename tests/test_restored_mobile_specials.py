@@ -17,9 +17,13 @@ from devtools.collection_query import load_collections
 from game.Equipped import Equipped
 from interp.commands.Communications import Communications
 from interp.commands.Fight import Fight
+from interp.PromptFormat import PromptFormat
 from item.Effect import Effect
 from item.Item import Item
 from mobile.MobileHandler import MobileHandler
+from player.PlayerHandler import PlayerHandler
+from server.connection.TelnetConnection import TelnetConnection
+from server.messaging.MessageBus import MessageBus
 from skill.Spell import Spell
 from util.EffectUtil import EffectUtil
 
@@ -60,6 +64,7 @@ class RestoredSpecialTests(MovementFixture, unittest.IsolatedAsyncioTestCase):
         self.handler.effect_handler = self.effects
         self.handler.message_bus = Mock(text_to_message=lambda text: text,
                                         send_to_character=AsyncMock(), send_to_room=AsyncMock())
+        self.handler.player_handler = NS(_send_prompt=AsyncMock())
 
     def mobile(self, vnum, special_name='', group=''):
         mob = self.npc()
@@ -364,6 +369,38 @@ class RestoredSpecialTests(MovementFixture, unittest.IsolatedAsyncioTestCase):
         self.assertTrue(await self.handler.execute_special_function(mob, self.room))
         self.assertTrue(any(effect.type == 'spell.armor' for effect in eligible.effects))
         self.handler.logger.error.assert_not_called()
+
+    async def test_adept_prompts_room_listeners_after_utterance_and_spell_output(self):
+        mob = self.mobile('3012', 'spec_cast_adept')
+        student = self.follower('student')
+        student.level = 10
+        sleeper = self.follower('sleeper')
+        sleeper.level = self.actor.level = 11
+        CharacterApi.set_position(sleeper, 'POS_SLEEPING')
+        self.room.name = 'The practice hall'
+        connections = {}
+        for listener in (student, self.actor, sleeper):
+            listener.prompt_format = PromptFormat(room_name=True)
+            connections[listener.id] = Mock(spec=TelnetConnection, is_closed=Mock(return_value=False),
+                                            send_message=AsyncMock())
+        self.handler.message_bus = MessageBus(NS(get_connection_by_character=connections.get),
+                                              NS(get_session_by_character=lambda _: None))
+        player = PlayerHandler.__new__(PlayerHandler)
+        player.room_registry = self.rooms
+        player.area_registry = NS(get_or_none=lambda **_: NS(name='Midgaard'))
+        player.message_bus = self.handler.message_bus
+        self.handler.player_handler = player
+        self.handler.rng.number_bits.side_effect = lambda bits: 3 if bits == 4 else 0
+
+        self.assertTrue(await self.handler.execute_special_function(mob, self.room))
+
+        student_messages = [entry.args[0].data['text'] for entry in connections[student.id].send_message.await_args_list]
+        observer_messages = [entry.args[0].data['text'] for entry in connections[self.actor.id].send_message.await_args_list]
+        utterance = "Mobile 3012 utters the words 'judicandus dies'."
+        prompt = f'\r\n< {self.room.name}>'
+        self.assertEqual([utterance, 'You feel better!', prompt], [text.rstrip() for text in student_messages])
+        self.assertEqual([utterance, prompt], [text.rstrip() for text in observer_messages])
+        connections[sleeper.id].send_message.assert_not_awaited()
 
     async def test_saved_poison_bite_delivers_bite_and_resisted_notices(self):
         mob = self.mobile('8309', 'spec_poison')

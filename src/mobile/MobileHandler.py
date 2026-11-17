@@ -298,6 +298,7 @@ class MobileHandler:
                 break
 
     async def _flush_context_payloads(self, context: MobileContext):
+        prompt_targets = {}
         while context.payloads:
             payload = context.payloads.pop(0)
             problem = self._payload_problem(payload)
@@ -309,7 +310,10 @@ class MobileHandler:
                 f"_flush_context_payloads delivering payload for {self._actor_label(context.actor)} "
                 f"in {self._room_label(context.room)}"
             )
-            await self._handle_payload(payload)
+            for listener in await self._handle_payload(payload) or ():
+                prompt_targets[listener.id] = listener
+        for listener in prompt_targets.values():
+            await self.player_handler._send_prompt(listener, None)
 
     @staticmethod
     def _payload_problem(payload, *, standard=False, seen=frozenset()):
@@ -386,7 +390,7 @@ class MobileHandler:
         )
         return bool(context.performed)
 
-    async def _handle_payload(self, payload: dict):
+    async def _handle_payload(self, payload: dict) -> list[Character | Mobile] | None:
         if "combat_round" in payload:
             await self.fight_handler.emit_round_payload(payload["actor"], payload["combat_round"])
             return
@@ -413,10 +417,17 @@ class MobileHandler:
             targets = payload.get("targets", [])
             if len(targets) > 0:
                 await self.message_bus.send_to_room(self.message_bus.text_to_message(payload["to_room"]), targets)
+        prompt_targets = []
         if payload.get("room_message"):
             targets = payload.get("room_targets", [])
-            if len(targets) > 0:
-                await self.message_bus.send_to_room(self.message_bus.text_to_message(payload["room_message"]), targets)
+            if targets:
+                message = self.message_bus.text_to_message(payload["room_message"])
+                if payload.get("prompt_listeners"):
+                    for listener in targets:
+                        if await self.message_bus.send_to_character(listener.id, message):
+                            prompt_targets.append(listener)
+                else:
+                    await self.message_bus.send_to_room(message, targets)
         if payload.get("global_message"):
             targets = payload.get("global_targets", [])
             if len(targets) > 0:
@@ -425,6 +436,7 @@ class MobileHandler:
             await self.message_bus.broadcast(self.message_bus.text_to_message(payload["broadcast_message"]), payload.get("exclude_character_ids", []))
         if payload.get("area_message"):
             await self._send_to_area(payload.get("area_id", ""), payload["area_message"])
+        return prompt_targets
 
     async def _send_to_area(self, area_id: str, text: str):
         message = self.message_bus.text_to_message(text)
