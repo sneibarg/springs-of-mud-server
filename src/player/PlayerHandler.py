@@ -150,14 +150,14 @@ class PlayerHandler:
     async def do_who(self, character):
         await self.message_bus.send_to_character(
             character.id,
-            self.message_bus.text_to_message(self.info_commands.do_who(character))
+            self.message_bus.text_to_message(self.info_commands.do_who(character)), paginate=True
         )
 
     async def do_help(self, character: Character, context: Context):
         argument = context.result if isinstance(context.result, str) else " ".join(context.parameters or [])
         await self.message_bus.send_to_character(
             character.id,
-            self.message_bus.text_to_message(self.info_commands.do_help(argument))
+            self.message_bus.text_to_message(self.info_commands.do_help(argument)), paginate=True
         )
         context.finish()
 
@@ -334,7 +334,9 @@ class PlayerHandler:
     async def do_areas(self, character: Character, context: Context):
         text = self.info_commands.do_areas(character, context)
         if text:
-            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+            await self.message_bus.send_to_character(
+                character.id, self.message_bus.text_to_message(text), paginate=False
+            )
 
     async def do_commands(self, character: Character, context: Context):
         text = self.info_commands.do_commands(character, context)
@@ -344,17 +346,17 @@ class PlayerHandler:
     async def do_credits(self, character: Character, context: Context):
         text = self.info_commands.do_credits(character, context)
         if text:
-            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text), paginate=True)
 
     async def do_skills(self, character: Character, context: Context):
         text = self.info_commands.do_skills(character, context)
         if text:
-            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text), paginate=True)
 
     async def do_spells(self, character: Character, context: Context):
         text = self.info_commands.do_spells(character, context)
         if text:
-            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text), paginate=True)
 
     async def do_groups(self, character: Character, context: Context):
         text = self.info_commands.do_groups(character, context)
@@ -437,7 +439,7 @@ class PlayerHandler:
     async def do_whois(self, character: Character, context: Context):
         text = self.info_commands.do_whois(character, context)
         if text:
-            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text))
+            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(text), paginate=True)
 
     async def do_count(self, character: Character, context: Context):
         text = self.info_commands.do_count(context)
@@ -909,7 +911,10 @@ class PlayerHandler:
                 payload["to_victim"] = f"{payload.get('to_victim', '')}{Ability.take_improve_messages(victim)}"
         if payload.get("to_char") and (not CharacterApi.is_npc(character)
                 or self.message_bus.connection_manager.get_connection_by_character(character.id) is not None):
-            await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(payload["to_char"]))
+            options = {"paginate": True} if payload.get("paginate") else {}
+            await self.message_bus.send_to_character(
+                character.id, self.message_bus.text_to_message(payload["to_char"]), **options
+            )
         if payload.get("to_victim") and payload.get("victim") is not None:
             victim = payload["victim"]
             await self.message_bus.send_to_character(victim.id, self.message_bus.text_to_message(payload["to_victim"]))
@@ -1052,14 +1057,8 @@ class PlayerHandler:
                 await self.print_players_in_room(viewer)
                 await context.mobile_handler().print_mobiles_in_room(viewer)
             return
-        autoexit_bit = None
-        if self.info_commands.PlayerActBits is not None:
-            autoexit_bit = self.info_commands.PlayerActBits.PLR_AUTOEXIT.value
-        if autoexit_bit is not None:
-            controller = (getattr(viewer, "context", None) or {}).get("controller_original") or viewer
-            act = controller.status_flags.act
-            if CharacterApi.is_set(act, autoexit_bit):
-                await context.room_handler().print_exits(viewer, automatic=True)
+        if CharacterApi.has_player_flag(viewer, "PLR_AUTOEXIT"):
+            await context.room_handler().print_exits(viewer, automatic=True)
         await self.print_players_in_room(viewer)
         await context.mobile_handler().print_mobiles_in_room(viewer)
 

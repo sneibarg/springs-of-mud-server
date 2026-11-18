@@ -110,7 +110,9 @@ class RoomHandler:
             await self.message_bus.send_to_character(character_id, self.message_bus.text_to_message(f"[{room.name}]\r\n"))
         lines = Room.item_description_lines(room, character)
         if lines:
-            await self.message_bus.send_to_character(character_id, self.message_bus.text_to_message("\r\n".join(lines) + "\r\n"))
+            await self.message_bus.send_to_character(
+                character_id, self.message_bus.text_to_message("\r\n".join(lines) + "\r\n"), paginate=True
+            )
         return True
 
     async def look_direction(self, character: Character, context: Context):

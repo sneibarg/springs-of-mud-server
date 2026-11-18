@@ -84,6 +84,7 @@ class TestGuardedFlagRuntimePaths(unittest.TestCase):
         target.status_flags.assign_bitfield("act", 4)
         original.prompt_format = PromptFormat.default()
         original.carriage_return = False
+        original.scroll_lines = 18
         sessions, connections = SessionHandler(), ConnectionManager()
         session = sessions.create_session("session")
         session.character = original
@@ -92,6 +93,7 @@ class TestGuardedFlagRuntimePaths(unittest.TestCase):
 
         self.assertIs(original, handler.switch_character(original, target))
         self.assertIs(target, session.character)
+        self.assertEqual(18, target.context["scroll_lines"])
         self.assertTrue(connections.owns_character(target.id, session.session_id))
         self.assertFalse(connections.owns_character(original.id, session.session_id))
         self.assertIs(original, target.context["controller_original"])

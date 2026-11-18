@@ -25,11 +25,27 @@ class AliasApi:
 
     @classmethod
     def alias_parts(cls, view: "InterpView") -> tuple[str, str]:
-        alias_name, replacement = InterpUtil.one_argument(InterpUtil.argument_text(view))
-        return alias_name.strip().lower(), replacement.strip()
+        raw = view.context.result
+        argument = raw if isinstance(raw, str) and raw else InterpUtil.argument_text(view)
+        alias_name, replacement = InterpUtil.one_argument(argument.replace("~", "-"))
+        return alias_name.strip().lower(), replacement
+
+    @staticmethod
+    def owner(character):
+        seen = set()
+        while character is not None and id(character) not in seen:
+            seen.add(id(character))
+            controller = (getattr(character, "context", None) or {}).get("controller_original")
+            if controller is None:
+                return character
+            character = controller
+        return None
 
     @classmethod
     def aliases(cls, character) -> dict[str, str]:
+        character = cls.owner(character)
+        if character is None or CharacterApi.is_npc(character):
+            return {}
         context = Context.for_character(character)
         character_aliases = getattr(character, cls.ALIASES_KEY, None)
         raw = context.get(cls.ALIASES_KEY, character_aliases)
@@ -82,8 +98,8 @@ class AliasApi:
     @classmethod
     def invalid_alias_substitution(cls, view: "InterpView") -> bool:
         _alias_name, replacement = cls.alias_parts(view)
-        command, _rest = InterpUtil.one_argument(replacement)
-        return bool(command) and (command.startswith("delete") or command.startswith("prefix"))
+        replacement = replacement.lower()
+        return bool(replacement) and any(word.startswith(replacement) for word in ("delete", "prefix"))
 
     @classmethod
     def alias_limit_reached(cls, view: "InterpView") -> bool:
@@ -125,16 +141,9 @@ class AliasApi:
         original = str(command_text or "")
         if not original.strip() or character is None:
             return AliasSubstitution(original)
-        # Descriptor input uses the original player's aliases and prefix even
-        # while the command itself executes in a switched mobile body.
-        seen = set()
-        while id(character) not in seen:
-            seen.add(id(character))
-            controller = Context.for_character(character).get('controller_original')
-            if controller is None:
-                break
-            character = controller
-        else:
+        body = character
+        character = cls.owner(body)
+        if character is None:
             return AliasSubstitution(original)
         command_name, rest = InterpUtil.one_argument(original)
         prefix = str(Context.for_character(character).get('prefix', '') or '')
@@ -149,7 +158,9 @@ class AliasApi:
         if CharacterApi.is_npc(character):
             return result
         command_name, rest = InterpUtil.one_argument(original)
-        if not command_name or command_name in ('alias', 'prefix', 'pref', 'prefi') or command_name.startswith('una'):
+        raw_lower = original.lower()
+        if (not command_name or not raw_lower.startswith(command_name)
+                or raw_lower.startswith(('alias', 'una', 'prefix')) or command_name in ('pref', 'prefi')):
             return result
 
         replacement = cls.aliases(character).get(command_name)
@@ -159,6 +170,9 @@ class AliasApi:
         expanded = replacement if not rest else f"{replacement} {rest}"
         if len(expanded) <= cls.MAX_INPUT_LENGTH - 1:
             return AliasSubstitution(expanded, warning, 'overflow' if warning else '', 'prefix')
+        if body is not character:
+            return AliasSubstitution(expanded[: cls.MAX_INPUT_LENGTH - 1], warning,
+                                     'overflow' if warning else '', 'prefix')
         return AliasSubstitution(
             expanded[: cls.MAX_INPUT_LENGTH - 1],
             warning + "Alias substitution too long. Truncated.\r\n",

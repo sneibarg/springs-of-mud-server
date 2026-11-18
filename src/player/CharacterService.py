@@ -133,6 +133,7 @@ class CharacterService(FetchAndRegisterMixin):
             "armorClass": serialize_wire_value(character.armor_class, excluded_fields=cls._WIRE_EXCLUDED_FIELDS),
             "characterClass": serialize_wire_value(character.character_class, excluded_fields=cls._WIRE_EXCLUDED_FIELDS),
             "promptFormat": cls._serialize_prompt_format(character.prompt_format),
+            "scrollLines": CharacterApi.scroll_line_limit(character),
             "equipped": serialize_wire_value(character.equipped, excluded_fields=cls._WIRE_EXCLUDED_FIELDS),
             "pet": cls.pet_snapshot(character),
         }

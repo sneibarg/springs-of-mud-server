@@ -88,6 +88,10 @@ class _EnumLike(SimpleNamespace):
 
 class _CharacterMacros:
     @staticmethod
+    def scroll_line_limit(character):
+        return character.context.get("scroll_lines", 22)
+
+    @staticmethod
     def _enum_like(**members):
         enum_obj = _EnumLike(**members)
         enum_obj.__members__ = members
@@ -652,7 +656,7 @@ class TestInfoDynamicCommands(unittest.TestCase):
 
     def test_do_areas_lists_registry_areas_in_two_columns(self):
         commands, _room_registry, registry_service, _session_handler, _weather_handler = self._commands()
-        registry_service.area_registry.all_areas = lambda: [
+        registry_service.area_registry.areas_in_load_order = lambda: [
             SimpleNamespace(name="Arachnos", author="Mahatma", suggested_level_range="5 20"),
             SimpleNamespace(name="Dwarven Day Care", author="Sandman", suggested_level_range="1 5"),
         ]
@@ -662,8 +666,8 @@ class TestInfoDynamicCommands(unittest.TestCase):
 
         text = commands.do_areas(character, context)
 
-        self.assertIn("[5 20] Mahatma: Arachnos", text)
-        self.assertIn("[1 5] Sandman: Dwarven Day Care", text)
+        self.assertIn("{ 5 20} Mahatma Arachnos", text)
+        self.assertIn("{  1 5} Sandman Dwarven Day Care", text)
         self.assertTrue(text.endswith("\r\n"))
 
     def test_do_areas_rejects_arguments_through_payload(self):

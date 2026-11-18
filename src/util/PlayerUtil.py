@@ -7,6 +7,7 @@ from util.GenericUtil import GenericUtil
 from util.InterpUtil import InterpUtil
 from api.CharacterApi import CharacterApi
 from server.session.SessionHandler import SessionHandler
+from util.CommunicationsUtil import CommunicationsUtil
 
 
 if TYPE_CHECKING:
@@ -158,6 +159,11 @@ class PlayerUtil:
                         "on" if raw & int(getattr(flags, posture.upper() + "_ON")) else "in")
             verb = {"sleep": "sleeping", "rest": "resting", "sit": "sitting", "stand": "standing"}[posture]
             suffix = f" is {verb} {relation} {Item.short(furniture)}."
+
+        if (target_pos == _pos("POS_STANDING") and not CharacterApi.is_npc(target)
+                and getattr(observer, "on", None) is None
+                and not CommunicationsUtil.has_comm(observer, CharacterApi.get_enum("commFlags"), "COMM_BRIEF")):
+            name += CharacterApi.title_suffix(getattr(target, "title", ""))
 
         line = f"{prefix}{name}{suffix}"
         return f"{line[:1].upper() + line[1:]}\r\n"

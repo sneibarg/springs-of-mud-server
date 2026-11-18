@@ -24,6 +24,8 @@ if TYPE_CHECKING:
 
 @dataclass
 class Character(AnimateEntity):
+    DEFAULT_SCROLL_LINES = 22
+
     account_id: str
     title: str
     description: str
@@ -57,6 +59,7 @@ class Character(AnimateEntity):
     world_retired: bool = field(default=False, init=False, repr=False, compare=False)
     _playtime_active: bool = field(default=False, init=False, repr=False, compare=False)
     carriage_return: bool = True
+    scroll_lines: int = field(default=DEFAULT_SCROLL_LINES, kw_only=True)
     _skill_improve_messages: list[str] = field(default_factory=list, repr=False, compare=False)
 
     def __post_init__(self):

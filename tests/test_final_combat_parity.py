@@ -46,6 +46,7 @@ class TestFinalCombatParity(unittest.TestCase):
         self.actor.fighting = self.victim
         self.actor.room_id = "source"
         self.context.command = SimpleNamespace(name="flee")
+        self.context.handler_service = None
         self.room.exits = [SimpleNamespace(direction=0)]
         self.room.player_targets = lambda actor: []
         self.room.remove_player_from_room = Mock()

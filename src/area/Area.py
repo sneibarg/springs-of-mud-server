@@ -63,7 +63,9 @@ class Area:
     def parse_vnum_range(self, vnum_range: str) -> tuple[int, int] | tuple[int, ...]:
         if vnum_range is None or vnum_range == "None" or not vnum_range.strip():
             return 0, 0
-        parts = vnum_range.split()
+        if vnum_range == "All":
+            return 1, 50
+        parts = vnum_range.replace("-", " ").split()
         if len(parts) != 2:
             self.logger.warning(f"Invalid vnum range format: '{vnum_range}'")
             return 0, 0
@@ -73,9 +75,6 @@ class Area:
     def from_json(cls, data):
         from util.GenericUtil import GenericUtil
         data = GenericUtil.camel_to_snake_case(data)
-        if data['suggested_level_range'] == "All":
-            data['suggested_level_range'] = "1 50"
-        data['suggested_level_range'] = data['suggested_level_range'].replace("-", " ")
         if 'area_id' in data:
             data['id'] = data.pop('area_id')
         return cls(**data)

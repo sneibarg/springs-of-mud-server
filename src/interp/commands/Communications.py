@@ -97,6 +97,10 @@ class Communications:
         return self.interp_api.render_message_key(context, "must_enter_full")
 
     def do_alias(self, context: Context):
+        owner = AliasApi.owner(context.character)
+        if owner is None or CharacterApi.is_npc(owner):
+            context.finish()
+            return {}
         blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
         if blocked is not None:
             return blocked
@@ -134,6 +138,10 @@ class Communications:
         )
 
     def do_unalias(self, context: Context):
+        owner = AliasApi.owner(context.character)
+        if owner is None or CharacterApi.is_npc(owner):
+            context.finish()
+            return {}
         blocked = self.interp_api.evaluate_guards_only(context, context.command.name)
         if blocked is not None:
             return blocked
@@ -249,7 +257,7 @@ class Communications:
             return payload
         history = self.communications_api.get_tell_buffer(character)
         missed_tells = "".join(entry.format_message() for entry in history)
-        return {"to_char": missed_tells}
+        return {"to_char": missed_tells, "paginate": True}
 
     def do_say(self, context: Context):
         return self._local_speech(context)

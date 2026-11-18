@@ -237,7 +237,8 @@ class TestCombatSurvival(unittest.TestCase):
             self.attacker.fighting = None
         commands.fight_handler = SimpleNamespace(stop_fighting=Mock(side_effect=stop),
                                                  aggressive_entry_rounds=Mock(return_value=[]))
-        def travel(character, direction, source):
+        def travel(character, direction, source, *, handler_service):
+            self.assertIs(handler.handler_service, handler_service)
             source.remove_player_from_room(character)
             destination.add_player_to_room(character)
             character.room_id = destination.id

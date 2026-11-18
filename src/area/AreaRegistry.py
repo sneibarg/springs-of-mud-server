@@ -15,5 +15,10 @@ class AreaRegistry(Registry[Area]):
     def all_areas(self) -> set[Area]:
         return self._items
 
+    def areas_in_load_order(self) -> list[Area]:
+        """Read registration order from the ID index, including after a reload."""
+        with self._lock:
+            return list(self._registry['id'].values())
+
 
 

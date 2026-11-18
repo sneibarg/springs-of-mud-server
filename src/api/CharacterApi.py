@@ -294,6 +294,19 @@ class CharacterApi(GameApi):
                 return dict(value or {})
         return {}
 
+    @staticmethod
+    def scroll_line_limit(character) -> int:
+        default = Character.DEFAULT_SCROLL_LINES
+        saved = getattr(character, "scroll_lines", default)
+        return GenericUtil.to_int((getattr(character, "context", None) or {}).get("scroll_lines", saved), default)
+
+    @staticmethod
+    def title_suffix(title: str | None) -> str:
+        title = (title or "").lstrip()
+        if not title or title.startswith((".", ",", "!", "?")):
+            return title
+        return " " + title
+
     @classmethod
     def title_for_level(cls, character: Character, level: int | None = None) -> str:
         try:

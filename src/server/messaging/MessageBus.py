@@ -2,6 +2,7 @@ from typing import List, Optional
 from dataclasses import replace
 from injector import inject
 
+from api.CharacterApi import CharacterApi
 from area.Area import Area
 from area.Room import Room
 from util.GenericUtil import GenericUtil
@@ -31,7 +32,7 @@ class MessageBus:
     def text_to_message(text: str) -> Message:
         return Message(MessageType.GAME, data={"text": text})
 
-    async def send_to_character(self, character_id: str, message: Message) -> bool:
+    async def send_to_character(self, character_id: str, message: Message, *, paginate: bool = False) -> bool:
         if message.type == MessageType.GAME and isinstance(message.data, dict):
             text = message.data.get("text")
             if callable(getattr(text, "for_recipient", None)):
@@ -40,14 +41,10 @@ class MessageBus:
         if connection and not connection.is_closed():
             try:
                 session = self.session_handler.get_session_by_character(character_id)
-                if (session is not None and message.type == MessageType.GAME
+                if (paginate and session is not None and message.type == MessageType.GAME
                         and isinstance(message.data, dict) and not session.metadata.get("paging_active", False)):
                     text = str(message.data.get("text", "") or "")
-                    scroll_lines = 0
-                    if session.character is not None:
-                        scroll_lines = GenericUtil.to_int(
-                            (session.character.context or {}).get("scroll_lines", 0), 0
-                        )
+                    scroll_lines = CharacterApi.scroll_line_limit(session.character)
 
                     if text and scroll_lines > 0:
                         pages = self._split_into_pages(text, scroll_lines)
@@ -168,7 +165,10 @@ class MessageBus:
         lines = text.splitlines(keepends=True)
         if not lines:
             return [text]
-        return ["".join(lines[i:i + max_lines]) for i in range(0, len(lines), max_lines)]
+        pages = ["".join(lines[i:i + max_lines]) for i in range(0, len(lines), max_lines)]
+        while len(pages) > 1 and not pages[-1].strip():
+            pages.pop()
+        return pages
 
     @staticmethod
     def _record_message_spacing(session, message: Message) -> None:

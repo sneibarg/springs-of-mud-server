@@ -189,7 +189,9 @@ class HelpCommandEmissionTests(HelpFixture, unittest.IsolatedAsyncioTestCase):
         handler.message_bus = NS(send_to_character=AsyncMock(), text_to_message=lambda value: value)
         context = self.context('help', 'cast')
         await handler.do_help(self.actor, context)
-        handler.message_bus.send_to_character.assert_awaited_once_with(self.actor.id, self.info.do_help('cast'))
+        handler.message_bus.send_to_character.assert_awaited_once_with(
+            self.actor.id, self.info.do_help('cast'), paginate=True
+        )
         self.assertTrue(context.done)
 
 

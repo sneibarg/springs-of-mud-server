@@ -136,6 +136,8 @@ def load_bus():
         'injector': SimpleNamespace(inject=lambda cls: cls),
         'area.Area': SimpleNamespace(Area=object), 'area.Room': SimpleNamespace(Room=object),
         'player.Character': SimpleNamespace(Character=object),
+        'api.CharacterApi': SimpleNamespace(CharacterApi=SimpleNamespace(
+            scroll_line_limit=lambda character: character.context['scroll_lines'])),
         'util.GenericUtil': SimpleNamespace(GenericUtil=SimpleNamespace(to_int=lambda value, default: int(value))),
         'server.LoggerFactory': SimpleNamespace(LoggerFactory=SimpleNamespace(get_logger=lambda *a: Mock())),
         'server.connection.ConnectionManager': SimpleNamespace(ConnectionManager=object),
@@ -152,7 +154,7 @@ def load_bus():
 
 
 class TestRecipientDelivery(unittest.TestCase):
-    def test_room_delivery_resolves_before_paging_and_snooping_without_mutating_shared_message(self):
+    def test_paged_delivery_resolves_before_paging_and_snooping_without_mutating_shared_message(self):
         Bus = load_bus()
         connection = SimpleNamespace(is_closed=lambda: False, send_message=AsyncMock())
         bus = Bus(SimpleNamespace(get_connection_by_character=lambda _: connection), SimpleNamespace(
@@ -164,7 +166,8 @@ class TestRecipientDelivery(unittest.TestCase):
                                      SimpleNamespace(characters={'seer': SimpleNamespace(id='seer')}))
         message = Message(MessageType.GAME, {'text': text}, metadata={'marker': True})
         async def run():
-            await bus.send_to_room(message, [SimpleNamespace(id='seer'), SimpleNamespace(id='blind')])
+            await bus.send_to_character('seer', message, paginate=True)
+            await bus.send_to_character('blind', message, paginate=True)
         # All IO is mocked and completes immediately; avoid opening the Windows
         # event loop's socket pair in restricted test environments.
         with self.assertRaises(StopIteration):

@@ -28,6 +28,7 @@ from game.GamePayload import GamePayload
 from game.WizHandler import WizHandler
 from server.RuntimeControl import RuntimeControl
 from combat.CombatHandler import FightHandler
+from util.InterpUtil import InterpUtil
 
 
 class ConnectionHandler:
@@ -379,7 +380,7 @@ class ConnectionHandler:
                 character = session.character or character
                 area, room = self._get_area_and_room(character)
                 if message.type == MessageType.GAME and session.metadata.get("paging_active", False):
-                    await self._continue_paging(connection, session)
+                    await self._continue_paging(session, message.get("text", ""))
                     if not session.metadata.get("paging_active", False):
                         character = session.character or character
                         area, room = self._get_area_and_room(character)
@@ -493,17 +494,19 @@ class ConnectionHandler:
         session.status = SessionStatus.PLAYING
         return player
 
-    @staticmethod
-    async def _continue_paging(connection: TelnetConnection, session: SessionState) -> None:
+    async def _continue_paging(self, session: SessionState, text: str) -> None:
+        argument, _ = InterpUtil.one_argument(text)
         queue = session.metadata.get("paging_queue", []) or []
-        if not queue:
+        if argument or not queue:
             session.metadata["paging_active"] = False
             session.metadata["paging_queue"] = []
             return
 
         page = queue.pop(0)
         suffix = "\r\n[Hit Enter to continue]\r\n" if queue else ""
-        await connection.send_text(page + suffix, MessageType.GAME)
+        await self.message_bus.send_to_character(
+            session.character.id, self.message_bus.text_to_message(page + suffix)
+        )
 
         if not queue:
             session.metadata["paging_active"] = False

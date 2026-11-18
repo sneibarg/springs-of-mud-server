@@ -359,7 +359,9 @@ class Fight:
             return payload
 
         from_targets = was_in.player_targets(character)
-        travel = self.movement_commands.travel(character, direction_name, was_in)
+        travel = self.movement_commands.travel(
+            character, direction_name, was_in, handler_service=context.handler_service
+        )
         self.fight_handler.stop_fighting(character, both=True)
 
         exp_text = ""

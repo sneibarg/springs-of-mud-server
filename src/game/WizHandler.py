@@ -96,6 +96,7 @@ class WizHandler:
         target.context = dict(getattr(target, "context", {}) or {})
         target.context["controller_original"] = original
         target.context["controller_original_id"] = original.id
+        target.context["scroll_lines"] = CharacterApi.scroll_line_limit(original)
         if original.prompt_format is not None:
             target.prompt_format = deepcopy(original.prompt_format)
         target.carriage_return = bool(original.carriage_return)

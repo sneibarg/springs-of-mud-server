@@ -108,7 +108,7 @@ class NoteHandler:
             note_id = str(note.id or '')
             if not Character.has_read_note(character, note_type, stamp, note_id):
                 Character.mark_note_read(character, note_type, stamp, note_id)
-                return {"to_char": self._format_note(note, index)}
+                return {"to_char": self._format_note(note, index), "paginate": True}
         return self._message(context, "have_no_unread", s=self._plural_name(note_type), fallback=f"You have no unread {self._plural_name(note_type)}.\r\n")
 
     async def _read_note(self, character, context, note_type: int, rest: str):
@@ -128,7 +128,7 @@ class NoteHandler:
         if note is None:
             return self._message(context, "aren_t_that_many", s=self._plural_name(note_type), fallback=f"There aren't that many {self._plural_name(note_type)}.\r\n")
         Character.mark_note_read(character, note_type, GenericUtil.to_int(note.date_stamp, 0), str(note.id or ''))
-        return {"to_char": self._format_note(note, index)}
+        return {"to_char": self._format_note(note, index), "paginate": True}
 
     async def _delete_note(self, character, context, note_type: int, rest: str, action: str):
         from api.CharacterApi import CharacterApi

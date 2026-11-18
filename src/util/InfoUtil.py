@@ -130,7 +130,7 @@ class InfoUtil:
         else:
             class_name = class_name.capitalize()
 
-        return f"[{target.level}    {target.race}    {class_name}]{flag_text} {target.name} {target.title}"
+        return f"[{target.level}    {target.race}    {class_name}]{flag_text} {target.name}{CharacterApi.title_suffix(target.title)}"
     
     @staticmethod
     def score_position_line(attributes: Any) -> str:

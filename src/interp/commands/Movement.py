@@ -62,9 +62,10 @@ class Movement:
     def move_char(self, character: Character, direction: str, context: Context):
         return self._move_char(character, direction, context, follow=False, leader=None, visited=set())
 
-    def travel(self, character, direction, room):
+    def travel(self, character, direction, room, *, handler_service=None):
         """Physical travel for flee/wander, without interpreted posture guards."""
         context = Context(character=character, room=room, registry_service=self.registry_service,
+                          handler_service=handler_service,
                           command=self.registry_service.interp_registry.get_or_none(name=direction))
         payload = self._move_char(character, direction, context, follow=False, leader=None,
                                   visited=set(), travel_only=True)

@@ -111,4 +111,4 @@ class ItemHandler:
         room = self.room_registry.get(id=character.room_id)
         msg = "\r\n\nYou are carrying:\r\n"
         msg += '\r\n'.join(InfoUtil.visible_inventory_lines(character, character, room)) + '\r\n'
-        await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(msg))
+        await self.message_bus.send_to_character(character.id, self.message_bus.text_to_message(msg), paginate=True)

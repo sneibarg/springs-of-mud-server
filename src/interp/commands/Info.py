@@ -1,6 +1,9 @@
+import re
+
 from api.MobileApi import MobileApi
 from api.MovementApi import MovementApi
 from datetime import datetime
+from itertools import zip_longest
 from typing import Any
 from injector import inject
 
@@ -90,6 +93,7 @@ class Info:
         self.weather_handler = weather_handler
         self.interp_api = interp_api
         self.server_boot_time = datetime.now().ctime()
+        self._peak_visible_count = 0
         self.PlayerActBits = enum_provider.get("playerActBits")
         self.rng = RandomNumberGenerator()
 
@@ -97,7 +101,7 @@ class Info:
         return self.interp_api.run_action(context, context.command.name)
 
     def do_who(self, character: Character) -> str:
-        who_list = [character] + PlayerUtil.visible(character, self.session_handler)
+        who_list = self._roster_players(character)
         lines = [
             f"{InfoUtil.who_line(character, c)}\r\n"
             for c in who_list
@@ -171,7 +175,7 @@ class Info:
         if look_mode == "room":
             visible = await context.room_handler().print_room(
                 character.id, room, automatic=bool(context.parameters))
-            if visible and CharacterApi.is_set(character.status_flags.act, self.PlayerActBits.PLR_AUTOEXIT.value):
+            if visible and CharacterApi.has_player_flag(character, "PLR_AUTOEXIT"):
                 await context.room_handler().print_exits(character, automatic=True)
             context.jump_to(1)  # players + mobiles
             return None
@@ -196,60 +200,60 @@ class Info:
         return None
 
     def do_scroll(self, character: Character, context: Context) -> str:
-        raw_arg = context.result if isinstance(context.result, str) else ""
-        arg = raw_arg.strip() if raw_arg else (context.parameters[0] if context.parameters and len(context.parameters) > 0 else "").strip()
-        if character.context is None:
-            character.context = {}
-
-        current_lines = GenericUtil.to_int(character.context.get("scroll_lines", 0), 0)
+        arg, _ = InterpUtil.one_argument(self._argument_text(context))
+        current_lines = CharacterApi.scroll_line_limit(character)
         context.scroll_argument = arg
-        context.scroll_lines = GenericUtil.to_int(arg, 0)
-        context.scroll_is_numeric = bool(arg) and arg.lstrip("-").isdigit()
+        overflow_value = -1 if arg.startswith("-") else 101
+        context.scroll_lines = GenericUtil.to_int(arg, overflow_value)
+        context.scroll_is_numeric = re.fullmatch(r"[+-]?[0-9]*", arg) is not None
+        if arg in ("+", "-"):
+            context.scroll_lines = 0
 
         if arg == "":
-            display_lines = current_lines + 2 if current_lines > 0 else 0
             context.finish()
-            return self.interp_api.render_message_key(context, "default", channel="to_char", n=display_lines).get("to_char", "")
+            return self.interp_api.render_message_key(
+                context, "default" if current_lines else "disabled", channel="to_char", n=current_lines + 2
+            ).get("to_char", "")
 
         payload = self.interp_api.run_action(context, context.command.name)
         if payload.get("blocked"):
             return payload.get("to_char", "")
 
         lines = context.scroll_lines
-        if lines == 0:
-            character.context["scroll_lines"] = 0
-            return self.interp_api.render_message_key(context, "disable", channel="to_char").get("to_char", "")
-
-        character.context["scroll_lines"] = lines - 2
-        return self.interp_api.render_message_key(context, "set", channel="to_char", n=lines).get("to_char", "")
+        character.scroll_lines = lines - 2 if lines else 0
+        Context.for_character(character).pop("scroll_lines", None)
+        return self.interp_api.render_message_key(
+            context, "set" if lines else "disable", channel="to_char", n=lines
+        ).get("to_char", "")
 
     def do_wimpy(self, character: Character, context: Context) -> str:
-        if CharacterApi.is_npc(character):
-            context.finish()
-            return ""
-
         attributes = character.character_attributes
         if attributes is None:
             context.finish()
             return ""
 
-        raw_arg = context.result if isinstance(context.result, str) else ""
-        arg = raw_arg.strip() if raw_arg else (context.parameters[0] if context.parameters and len(context.parameters) > 0 else "").strip()
-        context.wimpy_argument = arg
-        context.wimpy_is_numeric = bool(arg) and arg.lstrip("-").isdigit()
-
-        if arg == "":
+        argument, _ = InterpUtil.one_argument(self._argument_text(context))
+        if not argument:
             wimpy = int(character.max_hit / 5)
         else:
-            wimpy = GenericUtil.to_int(arg, 0)
-            context.wimpy_value = wimpy
-            payload = self.interp_api.run_action(context, context.command.name)
-            if payload.get("blocked"):
-                return payload.get("to_char", "")
+            # ROM uses atoi on the first argument, with zero for a nonnumeric prefix.
+            prefix = re.match(r"\s*([+-]?)0*([0-9]+)", argument)
+            wimpy = 0
+            if prefix is not None:
+                sign, digits = prefix.groups()
+                overflow_value = -1 if sign == "-" else int(character.max_hit / 2) + 1
+                wimpy = GenericUtil.to_int(sign + digits, overflow_value)
+
+        # Supply the parsed argument to the authored range guards.
+        context.wimpy_argument = str(wimpy)
+        context.wimpy_is_numeric = True
+        context.wimpy_value = wimpy
+        payload = self.interp_api.run_action(context, context.command.name)
+        if payload.get("blocked"):
+            return payload.get("to_char", "")
 
         attributes.wimpy = wimpy
-        context.finish()
-        return self.interp_api.render_message_key(context, "set", channel="to_char", d=wimpy).get("to_char", "")
+        return self.interp_api.render_message_key(context, "set", channel="to_char", d=str(wimpy)).get("to_char", "")
 
     def do_score(self, character: Character, context: Context) -> str:
         attributes = character.character_attributes
@@ -258,7 +262,7 @@ class Info:
             return ""
 
         is_npc = CharacterApi.is_npc(character)
-        display_name = character.name if is_npc else f"{character.name} {character.title}"
+        display_name = character.name if is_npc else f"{character.name}{CharacterApi.title_suffix(character.title)}"
         class_name = "mobile" if is_npc else character.character_class.name
         status_flags = character.status_flags
         played = GenericUtil.to_int((status_flags.played if status_flags is not None else 0), 0)
@@ -514,11 +518,7 @@ class Info:
         if payload.get("blocked"):
             return payload.get("to_char", "")
 
-        argument = argument.replace("~", "")[:45]
-        if argument and argument[0] not in (".", ",", "!", "?"):
-            character.title = f" {argument}"
-        else:
-            character.title = argument
+        character.title = CharacterApi.title_suffix(argument[:45].replace("~", "-"))
 
         return self.interp_api.render_message_key(context, "default", channel="to_char").get("to_char", "")
 
@@ -601,13 +601,11 @@ class Info:
             context.finish()
             return self.interp_api.render_message_key(context, "no_argument_used_with", channel="to_char").get("to_char", "")
 
-        areas = sorted(
-            self.area_registry.all_areas(),
-            key=lambda area: str(area.name or "").lower(),
-        )
-        lines = [self._area_credit_line(area) for area in areas]
+        credits = [self._area_credit_line(area) for area in self.area_registry.areas_in_load_order()]
+        column_height = (len(credits) + 1) // 2
+        rows = zip_longest(credits[:column_height], credits[column_height:], fillvalue="")
         context.finish()
-        return self._column_lines(lines, width=39, columns=2)
+        return "".join(f"{left:<39}{right:<39}\r\n" for left, right in rows)
 
     def do_commands(self, character: Character, context: Context) -> str:
         trust = self._character_trust(character)
@@ -765,34 +763,29 @@ class Info:
         return "".join(lines)
 
     def do_autoassist(self, character: Character, context: Context) -> str:
-        CharacterApi.toggle_player_act(character, "PLR_AUTOASSIST", "Autoassist removed.\r\n", "You will now assist when needed.\r\n")
-        context.finish()
-        return self.interp_api.render_message_key(context, "enable" if self._player_act_enabled(character, "PLR_AUTOASSIST") else "disable", channel="to_char").get("to_char", "")
+        return self._toggle_automatic_setting(character, context, "PLR_AUTOASSIST")
 
     def do_autoexit(self, character: Character, context: Context) -> str:
-        CharacterApi.toggle_player_act(character, "PLR_AUTOEXIT", "Exits will no longer be displayed.\r\n", "Exits will now be displayed.\r\n")
-        context.finish()
-        return self.interp_api.render_message_key(context, "enable" if self._player_act_enabled(character, "PLR_AUTOEXIT") else "disable", channel="to_char").get("to_char", "")
+        return self._toggle_automatic_setting(character, context, "PLR_AUTOEXIT")
 
     def do_autogold(self, character: Character, context: Context) -> str:
-        CharacterApi.toggle_player_act(character, "PLR_AUTOGOLD", "Autogold removed.\r\n", "Automatic gold looting set.\r\n")
-        context.finish()
-        return self.interp_api.render_message_key(context, "enable" if self._player_act_enabled(character, "PLR_AUTOGOLD") else "disable", channel="to_char").get("to_char", "")
+        return self._toggle_automatic_setting(character, context, "PLR_AUTOGOLD")
 
     def do_autoloot(self, character: Character, context: Context) -> str:
-        CharacterApi.toggle_player_act(character, "PLR_AUTOLOOT", "Autolooting removed.\r\n", "Automatic corpse looting set.\r\n")
-        context.finish()
-        return self.interp_api.render_message_key(context, "enable" if self._player_act_enabled(character, "PLR_AUTOLOOT") else "disable", channel="to_char").get("to_char", "")
+        return self._toggle_automatic_setting(character, context, "PLR_AUTOLOOT")
 
     def do_autosac(self, character: Character, context: Context) -> str:
-        CharacterApi.toggle_player_act(character, "PLR_AUTOSAC", "Autosacrificing removed.\r\n", "Automatic corpse sacrificing set.\r\n")
-        context.finish()
-        return self.interp_api.render_message_key(context, "enable" if self._player_act_enabled(character, "PLR_AUTOSAC") else "disable", channel="to_char").get("to_char", "")
+        return self._toggle_automatic_setting(character, context, "PLR_AUTOSAC")
 
     def do_autosplit(self, character: Character, context: Context) -> str:
-        CharacterApi.toggle_player_act(character, "PLR_AUTOSPLIT", "Autosplitting removed.\r\n", "Automatic gold splitting set.\r\n")
+        return self._toggle_automatic_setting(character, context, "PLR_AUTOSPLIT")
+
+    def _toggle_automatic_setting(self, character: Character, context: Context, bit: str) -> str:
+        message_key = CharacterApi.toggle_player_act(character, bit, "disable", "enable")
         context.finish()
-        return self.interp_api.render_message_key(context, "enable" if self._player_act_enabled(character, "PLR_AUTOSPLIT") else "disable", channel="to_char").get("to_char", "")
+        if not message_key:
+            return ""
+        return self.interp_api.render_message_key(context, message_key, channel="to_char").get("to_char", "")
 
     def do_brief(self, character: Character, context: Context) -> str:
         CharacterApi.toggle_comm(character, "COMM_BRIEF", "Full descriptions activated.\r\n", "Short descriptions activated.\r\n")
@@ -879,7 +872,7 @@ class Info:
             return self.do_who(character)
 
         matches = []
-        for c in [character] + PlayerUtil.visible(character, self.session_handler):
+        for c in self._roster_players(character):
             name = (c.name or "").lower()
             if name == arg or name.startswith(arg):
                 matches.append(c)
@@ -895,12 +888,39 @@ class Info:
         ]
         return "".join(lines)
 
+    def _visible_sessions(self, character: Character, room):
+        for session in self.session_handler.get_playing_sessions():
+            body = session.character
+            if body is not None and CharacterApi.can_see(character, body, room):
+                yield session
+
+    def _roster_players(self, character: Character) -> list[Character]:
+        room = self.room_registry.get_or_none(id=character.room_id)
+        players = []
+        for session in self._visible_sessions(character, room):
+            body = session.character
+            player = session.metadata.get("switched_original") or body
+            if CharacterApi.is_npc(player):
+                continue
+            if body is not character and player.cloaked and getattr(character, "role", "") == "player":
+                continue
+            if player is not body and not CharacterApi.can_see(character, player, room):
+                continue
+            players.append(player)
+        return players
+
     def do_count(self, context: Context) -> str:
-        count = len(self.session_handler.get_playing_sessions())
+        count = sum(1 for _ in self._visible_sessions(context.character, context.room))
+        self._peak_visible_count = max(self._peak_visible_count, count)
         context.finish()
-        if count == 1:
-            return "There is 1 player online.\r\n"
-        return f"There are {count} players online.\r\n"
+        if count == self._peak_visible_count:
+            return self.interp_api.render_message_key(
+                context, "characters_most_so_far", channel="to_char", q=str(count)
+            ).get("to_char", "")
+        return self.interp_api.render_message_key(
+            context, "characters_below_peak", channel="to_char", q=str(count), peak=self._peak_visible_count,
+            fallback="There are %q characters on, the most on today was {peak}.",
+        ).get("to_char", "")
 
     def do_show(self, character: Character, context: Context) -> str:
         CharacterApi.toggle_comm(
@@ -1255,11 +1275,15 @@ class Info:
         name = str(area.name or "").strip()
         author = str(area.author or "").strip()
         level_range = str(area.suggested_level_range or "").strip()
-        if level_range and author:
-            return f"[{level_range}] {author}: {name}"
         if author:
-            return f"{author}: {name}"
-        return name
+            name = f"{author:<7} {name}"
+        if not level_range:
+            return name
+        if level_range == "All":
+            return f"{{ All }} {name}"
+        if level_range == "None":
+            return f"{{None }} {name}"
+        return f"{{{level_range:>5}}} {name}"
 
     @staticmethod
     def _character_trust(character: Character) -> int:

@@ -575,11 +575,13 @@ class Wiz:
 
     def do_mwhere(self, character, context):
         context.finish()
-        return {"to_char": self._diagnostics().mwhere(character, WizUtil.argument_text(context.result, context.parameters))}
+        return {"to_char": self._diagnostics().mwhere(character, WizUtil.argument_text(context.result, context.parameters)),
+                "paginate": True}
 
     def do_owhere(self, character, context):
         context.finish()
-        return {"to_char": self._diagnostics().owhere(character, WizUtil.argument_text(context.result, context.parameters))}
+        return {"to_char": self._diagnostics().owhere(character, WizUtil.argument_text(context.result, context.parameters)),
+                "paginate": True}
 
     def do_vnum(self, _character, context):
         context.finish()
@@ -806,7 +808,7 @@ class Wiz:
         target_type = target_type.lower()
         field_name = field_name.lower()
 
-        if target_type in ("char", "character", "mobile"):
+        if "character".startswith(target_type) or "mobile".startswith(target_type):
             victim = WizUtil.find_world_entity(self.character_registry, self.room_registry, target_name, observer=context.character)
             if victim is None:
                 context.finish()
@@ -826,7 +828,7 @@ class Wiz:
                 if CharacterApi.is_npc(victim):
                     context.finish()
                     return InterpApi.command_payload("npc_invalid")
-                victim.title = rest if rest.startswith((" ", ".", ",", "!", "?")) else f" {rest}"
+                victim.title = CharacterApi.title_suffix(rest.replace("~", "-"))
             elif "spec".startswith(field_name):
                 if not CharacterApi.is_npc(victim):
                     context.finish()
@@ -1025,7 +1027,7 @@ class Wiz:
             text = render_command_message(context.command, 'to_char', 'list_header')
             for row in rows:
                 text += render_command_message(context.command, 'to_char', 'list_row', **row)
-            return {'to_char': text}
+            return {'to_char': text, 'paginate': True}
         option = WizUtil.split_argument(rest)[0].lower()
         key, ban = GameApi.site_bans().ban_site(site, option, CharacterApi.get_trust(character), permanent)
         if ban is not None:

@@ -2623,7 +2623,8 @@
         "charactersMostSoFar": "There are %q characters on, the most so far today.",
         "commandPositionDead": "Lie still; you are DEAD.",
         "commandPositionHurt": "You are hurt far too bad for that.",
-        "commandPositionStunned": "You are too stunned to do that."
+        "commandPositionStunned": "You are too stunned to do that.",
+        "charactersBelowPeak": "There are %q characters on, the most on today was {peak}."
       },
       "toRoom": {},
       "toVictim": {}
@@ -3266,7 +3267,8 @@
       },
       "toRoom": {},
       "toVictim": {}
-    }
+    },
+    "shortcuts": "al, ali"
   },
   {
     "_id": {
@@ -3338,7 +3340,8 @@
       "toChar": {},
       "toRoom": {},
       "toVictim": {}
-    }
+    },
+    "shortcuts": "aut, auto, autol, autoli, autolis"
   },
   {
     "_id": {
@@ -3362,7 +3365,8 @@
       },
       "toRoom": {},
       "toVictim": {}
-    }
+    },
+    "shortcuts": "autoa, autoas, autoass, autoassi, autoassis"
   },
   {
     "_id": {
@@ -3386,7 +3390,8 @@
       },
       "toRoom": {},
       "toVictim": {}
-    }
+    },
+    "shortcuts": "autoe, autoex, autoexi"
   },
   {
     "_id": {
@@ -3410,7 +3415,8 @@
       },
       "toRoom": {},
       "toVictim": {}
-    }
+    },
+    "shortcuts": "autog, autogo, autogol"
   },
   {
     "_id": {
@@ -3434,7 +3440,8 @@
       },
       "toRoom": {},
       "toVictim": {}
-    }
+    },
+    "shortcuts": "autolo, autoloo"
   },
   {
     "_id": {
@@ -3458,7 +3465,8 @@
       },
       "toRoom": {},
       "toVictim": {}
-    }
+    },
+    "shortcuts": "autos, autosa"
   },
   {
     "_id": {
@@ -3482,7 +3490,8 @@
       },
       "toRoom": {},
       "toVictim": {}
-    }
+    },
+    "shortcuts": "autosp, autospl, autospli"
   },
   {
     "_id": {
@@ -3746,7 +3755,8 @@
         "predicate": "lambda v: bool(v.context.scroll_argument) and v.context.scroll_lines != 0 and (v.context.scroll_lines < 10 or v.context.scroll_lines > 100)",
         "messageKey": "quantityExcessive"
       }
-    ]
+    ],
+    "shortcuts": "scr, scro, scrol"
   },
   {
     "_id": {
@@ -3811,7 +3821,8 @@
         "predicate": "lambda v: AliasApi.unalias_missing(v)",
         "messageKey": "noSuchAlias"
       }
-    ]
+    ],
+    "shortcuts": "una, unal, unali, unalia"
   },
   {
     "_id": {

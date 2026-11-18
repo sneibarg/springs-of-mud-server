@@ -1,0 +1,26 @@
+# ROM24 parity review of bug and typo submissions
+
+This review covers the player-facing `bug` and `typo` commands from dispatch through validation, report storage, and acknowledgment. The note-based `idea) command and the C engine's internal bug reporter are outside scope.
+
+## Confirmed defect
+
+### Both commands acknowledge submissions without writing a report
+
+In ROM24 a nonempty submission by a player calls `append_file`. It appends a line to `bugs.txt` or `typos.txt` with the current room vnum, the current character's name, and the submitted text. A player without a room is recorded under room zero. The function opens the selected file in append mode and closes it after writing. In Springs both handlers call `InterpApi.run_action`. The bundled action has an empty-input guard and a success message. The default plan constructs message references, and execution renders and returns the payload. Neither route invokes report storage. A player who types `bug Door description has a typo.` gets “Bug logged.” even though the command has no write path. The corresponding `typo` command says “Typo noted.” with the same result. [ROM24 commands](C:/Users/scott/PycharmProjects/PyRom/Rom24/src/act_comm.c:1366) · [ROM24 file names](C:/Users/scott/PycharmProjects/PyRom/Rom24/src/merc.h:2045) · [ROM24 append helper](C:/Users/scott/PycharmProjects/PyRom/Rom24/src/db.c:3257) · [Springs handlers](C:/Users/scott/PycharmProjects/springs-of-mud-server/src/interp/commands/Communications.py:450) · [Springs default plan](C:/Users/scott/PycharmProjects/springs-of-mud-server/src/api/InterpApi.py:121) · [Springs plan execution](C:/Users/scott/PycharmProjects/springs-of-mud-server/src/api/InterpApi.py:76)
+
+The ordinary command log follows a different path. Both bundled records use `LOG_NORMAL`. The production audit implementation recorded neither command with global and personal logging disabled. With global logging enabled, both produced general command lines such as `Log Alice: bug Check  the test room.`, preserving the submitted interior spaces. Enabling personal logging also produced a general audit line. Those records include the actor and raw command but omit the room vnum and use the shared log. Auditing runs before the handler's guard and can also mirror input to a snooper. It does not implement dedicated report storage. [Bundled bug record](C:/Users/scott/PycharmProjects/springs-of-mud-server/resources/collections/SOMDB.Commands.json:2417) · [Bundled typo record](C:/Users/scott/PycharmProjects/springs-of-mud-server/resources/collections/SOMDB.Commands.json:3104) · [Springs audit ordering](C:/Users/scott/PycharmProjects/springs-of-mud-server/src/interp/CommandExecutor.py:41) · [Springs audit policy](C:/Users/scott/PycharmProjects/springs-of-mud-server/src/interp/CommandAudit.py:18) · [Shared server log](C:/Users/scott/PycharmProjects/springs-of-mud-server/src/server/LoggerFactory.py:11)
+
+## Branch comparison
+
+| Input or condition | ROM24 | Springs |
+| --- | --- | --- |
+| Full command with text, ordinary player room | Appends to the selected report file and acknowledges | Acknowledges without a report write |
+| Empty or whitespace-only body | Skips the append and still acknowledges | Asks “Bug what?” or “Typo what?” |
+| Switched into a mobile, nonempty body | Skips the append because the current body is an NPC, then acknowledges | Acknowledges without a report write |
+| Selected report file cannot be opened | Reports the open failure, then the caller still emits the acknowledgment | Has no storage attempt or storage-failure branch |
+
+ROM24's empty-body and NPC checks are in the append helper. Springs makes the empty-body check an authored command guard and otherwise uses the same reply for a player or a switched mobile. The empty-body prompts and the wording of the typo acknowledgment are verified presentation differences whose intent is unconfirmed. Both commands run at level zero and `POS_DEAD`, and their replies go to the invoking connection. [ROM24 bug entry](C:/Users/scott/PycharmProjects/PyRom/Rom24/src/interp.c:112) · [ROM24 typo entry](C:/Users/scott/PycharmProjects/PyRom/Rom24/src/interp.c:137) · [ROM24 append branches](C:/Users/scott/PycharmProjects/PyRom/Rom24/src/db.c:3261) · [Springs body guard input](C:/Users/scott/PycharmProjects/springs-of-mud-server/src/util/InterpUtil.py:137) · [Springs communications delivery](C:/Users/scott/PycharmProjects/springs-of-mud-server/src/player/PlayerHandler.py:708)
+
+## Validation
+
+Ruff ran read-only on four relevant Python files. Rule counts and concise diagnostics let the review skip unrelated lint findings and focus on dispatch, the shared action plan, and audit. Probes ran the bundled commands through the public interpreter with an in-memory connection and the production audit implementation pointed at a test logger. Standard file-open entry points were instrumented during dispatch. The probes observed replies, checked that bystanders received no message, and recorded the audit behavior under default, global, and personal logging. All 82 focused tests passed across four isolated suites. ROM24 behavior was traced in C source. No live reports were submitted and no server files were written by the probes.

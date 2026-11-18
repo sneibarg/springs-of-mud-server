@@ -43,7 +43,8 @@ class MessageCodec:
 
     @staticmethod
     def decode_text(data: bytes) -> Message:
-        text = data.decode('utf-8').strip()
+        raw_text = data.decode('utf-8')
+        text = raw_text.strip()
         if not text:
             return Message(type=MessageType.GAME, data={'text': ''})
 
@@ -63,7 +64,7 @@ class MessageCodec:
                 except json.JSONDecodeError as e:
                     logger.error(f"Failed to decode JSON payload: {e}")
 
-        return Message(type=MessageType.GAME, data={'text': text})
+        return Message(type=MessageType.GAME, data={'text': raw_text.rstrip('\r\n')})
 
     @staticmethod
     def is_json(data: bytes) -> bool:
